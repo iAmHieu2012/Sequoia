@@ -23,6 +23,7 @@ dependencies {
     implementation(ktorLibs.server.cors)
     implementation(ktorLibs.server.netty)
     implementation(libs.kborowy.firebaseAuthProvider)
+    implementation(libs.firebase.admin)
     implementation(libs.logback.classic)
 
     testImplementation(kotlin("test"))

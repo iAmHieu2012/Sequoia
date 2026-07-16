@@ -2,10 +2,12 @@
 kborowy-firebaseAuthProvider = "1.6.0"
 kotlin = "2.4.0"
 logback = "1.5.35"
+firebaseAdmin = "9.4.3"
 
 [libraries]
 kborowy-firebaseAuthProvider = { module = "com.kborowy:firebase-auth-provider", version.ref = "kborowy-firebaseAuthProvider" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = "firebaseAdmin" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
