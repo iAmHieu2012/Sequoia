@@ -1,4 +1,4 @@
-package com.hcmus.models
+package com.hcmus.sequoia.models
 
 import kotlinx.serialization.Serializable
 

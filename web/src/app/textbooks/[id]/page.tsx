@@ -28,8 +28,9 @@ async function getArticles(chapterId: string): Promise<Article[]> {
   return json.data || [];
 }
 
-export default async function TextbookPage({ params }: { params: { id: string } }) {
-  const chapters = await getChapters(params.id);
+export default async function TextbookPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const chapters = await getChapters(resolvedParams.id);
 
   return (
     <main className="max-w-4xl mx-auto px-6 py-20">

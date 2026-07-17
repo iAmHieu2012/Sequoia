@@ -1,4 +1,4 @@
-package com.hcmus
+package com.hcmus.sequoia
 
 import io.ktor.server.application.*
 import io.ktor.serialization.kotlinx.json.*

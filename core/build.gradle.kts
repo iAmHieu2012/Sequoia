@@ -1,11 +1,10 @@
-
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(ktorLibs.plugins.ktor)
     alias(libs.plugins.kotlin.serialization)
 }
 
-group = "com.hcmus"
+group = "com.hcmus.sequoia"
 version = "1.0.0-SNAPSHOT"
 
 application {

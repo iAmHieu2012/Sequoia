@@ -1,6 +1,6 @@
-package com.hcmus
+package com.hcmus.sequoia
 
-import com.hcmus.models.*
+import com.hcmus.sequoia.models.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*

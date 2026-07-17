@@ -1,4 +1,4 @@
-package com.hcmus
+package com.hcmus.sequoia
 
 import io.ktor.server.engine.*
 import io.ktor.server.application.*
