@@ -4,7 +4,7 @@ WORKDIR /home/gradle/src
 # Build the fat jar. Using 'build' which triggers 'shadowJar' for Ktor.
 RUN gradle buildFatJar --no-daemon
 
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21-jre-jammy
 EXPOSE 8080
 RUN mkdir /app
 # Copy the fat jar from the build stage
