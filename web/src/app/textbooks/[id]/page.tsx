@@ -15,14 +15,14 @@ interface Article {
 }
 
 async function getChapters(textbookId: string): Promise<Chapter[]> {
-  const res = await fetch(`http://127.0.0.1:8080/api/v1/textbooks/${textbookId}/chapters`, { cache: "no-store" });
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080'}/api/v1/textbooks/${textbookId}/chapters`, { cache: "no-store" });
   if (!res.ok) return [];
   const json = await res.json();
   return json.data || [];
 }
 
 async function getArticles(chapterId: string): Promise<Article[]> {
-  const res = await fetch(`http://127.0.0.1:8080/api/v1/chapters/${chapterId}/articles`, { cache: "no-store" });
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080'}/api/v1/chapters/${chapterId}/articles`, { cache: "no-store" });
   if (!res.ok) return [];
   const json = await res.json();
   return json.data || [];

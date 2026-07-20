@@ -10,7 +10,7 @@ interface Textbook {
 
 async function getTextbooks(): Promise<Textbook[]> {
   try {
-    const res = await fetch("http://127.0.0.1:8080/api/v1/textbooks", { 
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080'}/api/v1/textbooks`, { 
       cache: "no-store" 
     });
     if (!res.ok) throw new Error("Failed to fetch");

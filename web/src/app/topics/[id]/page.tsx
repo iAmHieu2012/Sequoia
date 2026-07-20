@@ -20,7 +20,7 @@ async function getTopic(topicId: string): Promise<Topic | null> {
   // In a real API, there might be a GET /api/v1/topics/:id endpoint.
   // For now, we fetch all topics and filter.
   try {
-    const res = await fetch(`http://127.0.0.1:8080/api/v1/topics`, { cache: "no-store" });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080'}/api/v1/topics`, { cache: "no-store" });
     if (!res.ok) return null;
     const json = await res.json();
     return json.data?.find((t: Topic) => t.id === topicId) || null;
@@ -31,7 +31,7 @@ async function getTopic(topicId: string): Promise<Topic | null> {
 
 async function getArticlesByTopic(topicId: string): Promise<Article[]> {
   try {
-    const res = await fetch(`http://127.0.0.1:8080/api/v1/topics/${topicId}/articles`, { cache: "no-store" });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080'}/api/v1/topics/${topicId}/articles`, { cache: "no-store" });
     if (!res.ok) return [];
     const json = await res.json();
     return json.data || [];
