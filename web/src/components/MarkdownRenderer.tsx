@@ -6,14 +6,13 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import mermaid from "mermaid";
-import "katex/dist/katex.min.css"; // Ensure you install katex if you haven't (npm install katex)
+import "katex/dist/katex.min.css";
 
 interface MarkdownRendererProps {
   content: string;
 }
 
 export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
-  // Khởi tạo Mermaid một lần khi component mount
   useEffect(() => {
     mermaid.initialize({
       startOnLoad: false,
@@ -28,7 +27,6 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[rehypeKatex]}
         components={{
-          // 1. Kế thừa logic Tự động tạo Caption cho ảnh từ bản Flask cũ của anh
           img: ({ node, alt, src, ...props }) => {
             return (
               <figure className="my-8 flex flex-col items-center">
@@ -41,7 +39,6 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
               </figure>
             );
           },
-          // 2. Kế thừa logic Mermaid
           code({ node, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || "");
             const isMermaid = match && match[1] === "mermaid";
@@ -69,9 +66,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
             );
           },
           p({ node, children, ...props }) {
-            // Check if this paragraph is a playground block
             if (typeof children === 'string' && children.trim().startsWith('{{playground')) {
-              // Extract model ID or just render a mock block
               const match = children.match(/model="([^"]+)"/);
               const modelId = match ? match[1] : "unknown-model";
               
@@ -82,7 +77,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
                   </div>
                   <div className="flex items-center gap-4 mb-6">
                     <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-2xl">
-                      🚀
+                       🚀
                     </div>
                     <div>
                       <h3 className="text-xl font-bold m-0 p-0 text-foreground">AI Model Inference</h3>
@@ -106,13 +101,11 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   );
 }
 
-// Component con để render đồ thị Mermaid
 function MermaidBlock({ chart }: { chart: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (containerRef.current) {
-      // Xóa nội dung cũ để vẽ lại
       containerRef.current.innerHTML = "";
       
       const renderChart = async () => {
@@ -123,9 +116,9 @@ function MermaidBlock({ chart }: { chart: string }) {
             containerRef.current.innerHTML = svg;
           }
         } catch (error) {
-          console.error("Failed to render Mermaid chart", error);
+          console.error(error);
           if (containerRef.current) {
-            containerRef.current.innerHTML = `<div class="text-red-400 border border-red-400/20 p-4 rounded bg-red-400/10">Lỗi render sơ đồ: ${error}</div>`;
+            containerRef.current.innerHTML = `<div class="text-red-400 border border-red-400/20 p-4 rounded bg-red-400/10">Error: ${error}</div>`;
           }
         }
       };

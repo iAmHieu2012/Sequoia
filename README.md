@@ -1,18 +1,35 @@
-# Dự án Sequoia
+# Sequoia
 
-Sequoia là nền tảng học thuật AI/ML có cấu trúc giáo trình, cho phép chạy mô hình AI trực tiếp trên thiết bị.
+Sequoia is an AI/ML educational platform featuring a structured curriculum and on-device model inference capabilities.
 
-## Cấu trúc thư mục
+## Project Structure
 
-- `docs/`: Chứa toàn bộ tài liệu đặc tả sản phẩm, thiết kế hệ thống, sơ đồ luồng người dùng và hướng dẫn cấu hình.
-- `web/`: Ứng dụng Web xây dựng bằng Next.js.
-- `android/`: Ứng dụng di động xây dựng bằng Kotlin & Jetpack Compose.
-- `core/`: Backend API Gateway xử lý logic, phân quyền và kết nối Firebase/R2 xây dựng bằng Kotlin Ktor.
+- `docs/`: Product requirements, system design, user flows, and configuration guides.
+- `web/`: Next.js web application.
+- `android/`: Native Android application built with Kotlin and Jetpack Compose.
+- `core/`: Ktor backend acting as an API Gateway, handling logic, authorization, and Firebase/R2 connections.
 
-## Tài liệu quan trọng
+## Documentation
 
-Vui lòng tham khảo thư mục `docs/` để biết chi tiết.
+Please refer to the `docs/` directory for detailed technical specifications.
 
-## Cấu hình môi trường (Local Development)
+## Local Development
 
-(Sẽ cập nhật chi tiết cách khởi chạy từng thành phần sau khi setup xong codebase)
+### 1. Backend (Ktor)
+
+```bash
+cd core
+./gradlew run
+```
+
+The server will start at `http://0.0.0.0:8080`.
+
+### 2. Web Client (Next.js)
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
+The web application will be accessible at `http://localhost:3000`.

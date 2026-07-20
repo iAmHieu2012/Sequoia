@@ -42,13 +42,18 @@ Nguyên tắc: nội dung ngắn gọn, không đi sâu vào tiểu tiết. Mỗ
 - Thống kê tiến độ học tập theo giáo trình.
 - Model Playground cho Gemma.
 
-### Luồng người dùng
+### Luồng người dùng (The Neural Cosmos Flow)
 
-Luồng duyệt học liệu: người dùng truy cập ứng dụng, có thể chọn giáo trình muốn học (VD: MML) rồi duyệt theo chương, hoặc duyệt theo chủ đề độc lập (VD: Computer Vision), hoặc tìm kiếm trực tiếp. Khi đọc bài viết, tại vị trí phù hợp, có playground được nhúng sẵn — người dùng nhấn chạy thử, cấp quyền camera, xem kết quả nhận diện kèm giải thích (confidence, threshold, inference time), sau đó được yêu cầu đăng nhập để lưu kết quả.
+Luồng duyệt học liệu: Người dùng truy cập ứng dụng và được chào đón bởi **Bản đồ Vũ trụ (Galaxy Map)**.
+- Họ chọn một Vùng không gian (Sector) tương ứng với giáo trình muốn học (VD: Foundation Sector / MML).
+- Họ quan sát các Chòm sao (Constellations - tương ứng với các Chương) và thấy các Ngôi sao (Celestial Objects - tương ứng với Bài viết).
+- Các ngôi sao chưa học bị che bởi sương mù. Người dùng click vào một Ngôi sao đang phát tín hiệu (Decoding) để mở giao diện bài học (Astronomer's Log / Datapad).
+- Đọc lý thuyết, cuộn đến phần **Signal Tuner (Playground nhúng)**, chạy thử mô hình (cấp quyền camera, kéo threshold).
+- Hoàn thành bài học, tín hiệu báo "DECODED", ngôi sao trên bản đồ bùng sáng và mở khóa đường đi tới ngôi sao tiếp theo.
 
-Luồng upload: người dùng đã đăng nhập tải ảnh cá nhân lên hệ thống. Ứng dụng gửi yêu cầu kèm token xác thực tới backend Ktor, Ktor xác minh token và trả về presigned URL có thời hạn ngắn cho Cloudflare R2, ứng dụng dùng URL đó để tải file trực tiếp lên R2.
+Luồng upload: Người dùng đã đăng nhập tải ảnh cá nhân lên hệ thống (ví dụ: ảnh vệ tinh hoặc ảnh để phân tích qua Signal Tuner). Ứng dụng gửi yêu cầu kèm token xác thực tới backend Ktor, Ktor xác minh token và trả về presigned URL có thời hạn ngắn cho Cloudflare R2, ứng dụng dùng URL đó để tải file trực tiếp lên R2.
 
-Các luồng nên được vẽ minh họa bằng công cụ thiết kế sơ đồ trước khi bắt đầu triển khai giao diện.
+Các luồng này sẽ được bám sát theo thiết kế Blueprint `theme_cosmos.html` vừa được tạo.
 
 ### Lộ trình phát triển
 

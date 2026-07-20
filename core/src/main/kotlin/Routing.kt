@@ -171,6 +171,49 @@ fun Application.configureRouting() {
                 }
             }
 
+            // --- Cosmos Domain ---
+            get("/cosmos/maps/{mapId}") {
+                val mapId = call.parameters["mapId"] ?: return@get call.respond(HttpStatusCode.BadRequest, "Missing mapId")
+                val cosmosMap = withContext(Dispatchers.IO) {
+                    val doc = FirebaseConfig.firestore.collection("cosmos_maps").document(mapId).get().get()
+                    if (doc.exists()) {
+                        val m = doc.toObject(CosmosMap::class.java)
+                        m?.id = doc.id
+                        m
+                    } else null
+                }
+                if (cosmosMap != null) {
+                    call.respond(mapOf("data" to cosmosMap))
+                } else {
+                    call.respond(HttpStatusCode.NotFound, mapOf("error" to "Cosmos Map not found"))
+                }
+            }
+
+            get("/cosmos/progress/{mapId}") {
+                val mapId = call.parameters["mapId"] ?: return@get call.respond(HttpStatusCode.BadRequest, "Missing mapId")
+                // Mock user ID for now since auth isn't fully implemented
+                val userId = "mock-user-123"
+                val progressDocId = "${userId}_${mapId}"
+                
+                val progress = withContext(Dispatchers.IO) {
+                    val doc = FirebaseConfig.firestore.collection("cosmos_progress").document(progressDocId).get().get()
+                    if (doc.exists()) {
+                        val p = doc.toObject(CosmosProgress::class.java)
+                        p?.id = doc.id
+                        p
+                    } else null
+                }
+                if (progress != null) {
+                    call.respond(mapOf("data" to progress))
+                } else {
+                    call.respond(HttpStatusCode.NotFound, mapOf("error" to "Progress not found"))
+                }
+            }
+
+            post("/cosmos/progress/{mapId}/decode") {
+                call.respond(mapOf("message" to "Decode successful (TODO - Implement logic)"))
+            }
+
             // --- Protected Endpoints (Mocking Auth for now) ---
             post("/uploads/presigned-url") {
                 call.respond(mapOf("message" to "Generate presigned URL (TODO - Requires Auth implementation)"))
