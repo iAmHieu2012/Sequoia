@@ -19,7 +19,7 @@ fun Application.configureRouting() {
                 call.respond(mapOf("status" to "ok", "service" to "sequoia-core"))
             }
 
-            // configureSeeder() // Uncomment this line to re-seed the database if needed
+            configureSeeder() // Uncomment this line to re-seed the database if needed
 
             // --- Textbooks ---
             get("/textbooks") {
@@ -110,6 +110,26 @@ fun Application.configureRouting() {
             }
 
             // --- Articles & Models ---
+            get("/articles/search") {
+                val query = call.request.queryParameters["q"] ?: ""
+                val articles = withContext(Dispatchers.IO) {
+                    // Simple local search for MVP. Production should use Algolia or Typesense.
+                    val snapshot = FirebaseConfig.firestore.collection("articles")
+                        .whereEqualTo("isPublished", true)
+                        .get()
+                        .get()
+
+                    snapshot.documents.mapNotNull { doc ->
+                        val article = doc.toObject(Article::class.java)
+                        article.id = doc.id
+                        if (article.title.contains(query, ignoreCase = true) || article.summary.contains(query, ignoreCase = true)) {
+                            article
+                        } else null
+                    }
+                }
+                call.respond(mapOf("data" to articles))
+            }
+
             get("/articles/{slug}") {
                 val slug = call.parameters["slug"] ?: return@get call.respond(HttpStatusCode.BadRequest, "Missing slug")
                 val article = withContext(Dispatchers.IO) {
@@ -133,26 +153,6 @@ fun Application.configureRouting() {
                 }
             }
             
-            get("/articles/search") {
-                val query = call.request.queryParameters["q"] ?: ""
-                val articles = withContext(Dispatchers.IO) {
-                    // Simple local search for MVP. Production should use Algolia or Typesense.
-                    val snapshot = FirebaseConfig.firestore.collection("articles")
-                        .whereEqualTo("isPublished", true)
-                        .get()
-                        .get()
-
-                    snapshot.documents.mapNotNull { doc ->
-                        val article = doc.toObject(Article::class.java)
-                        article.id = doc.id
-                        if (article.title.contains(query, ignoreCase = true) || article.summary.contains(query, ignoreCase = true)) {
-                            article
-                        } else null
-                    }
-                }
-                call.respond(mapOf("data" to articles))
-            }
-            
             get("/models/{id}") {
                 val id = call.parameters["id"] ?: return@get call.respond(HttpStatusCode.BadRequest, "Missing id")
                 val aiModel = withContext(Dispatchers.IO) {
@@ -169,6 +169,50 @@ fun Application.configureRouting() {
                 } else {
                     call.respond(HttpStatusCode.NotFound, mapOf("error" to "Model not found"))
                 }
+            }
+
+            // --- Cosmos Domain ---
+            get("/cosmos/maps/{mapId}") {
+                val mapId = call.parameters["mapId"] ?: return@get call.respond(HttpStatusCode.BadRequest, "Missing mapId")
+                val cosmosMap = withContext(Dispatchers.IO) {
+                    val doc = FirebaseConfig.firestore.collection("cosmos_maps").document(mapId).get().get()
+                    if (doc.exists()) {
+                        val m = doc.toObject(CosmosMap::class.java)
+                        m?.id = doc.id
+                        m
+                    } else null
+                }
+                if (cosmosMap != null) {
+                    call.respond(mapOf("data" to cosmosMap))
+                } else {
+                    call.respond(HttpStatusCode.NotFound, mapOf("error" to "Cosmos Map not found"))
+                }
+            }
+
+            get("/cosmos/progress/{mapId}") {
+                val mapId = call.parameters["mapId"] ?: return@get call.respond(HttpStatusCode.BadRequest, "Missing mapId")
+                // Mock user ID for now since auth isn't fully implemented
+                val userId = "mock-user-123"
+                val progressDocId = "${userId}_${mapId}"
+                
+                val progress = withContext(Dispatchers.IO) {
+                    val doc = FirebaseConfig.firestore.collection("cosmos_progress").document(progressDocId).get().get()
+                    if (doc.exists()) {
+                        val p = doc.toObject(CosmosProgress::class.java)
+                        p?.id = doc.id
+                        p
+                    } else null
+                }
+                if (progress != null) {
+                    call.respond(mapOf("data" to progress))
+                } else {
+                    call.respond(HttpStatusCode.NotFound, mapOf("error" to "Progress not found"))
+                }
+            }
+
+            post("/cosmos/progress/{mapId}/decode") {
+                val mapId = call.parameters["mapId"] ?: return@post call.respond(HttpStatusCode.BadRequest, "Missing mapId")
+                call.respond(mapOf("message" to "Decode successful (TODO - Implement logic)"))
             }
 
             // --- Protected Endpoints (Mocking Auth for now) ---

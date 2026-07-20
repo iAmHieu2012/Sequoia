@@ -36,7 +36,7 @@ Mọi lỗi trả về cùng format thống nhất:
 ```json
 {
   "code": "RESOURCE_NOT_FOUND",
-  "message": "Bài viết không tồn tại.",
+  "message": "Article not found.",
   "details": {
     "slug": "bai-viet-khong-ton-tai"
   }
@@ -65,7 +65,7 @@ Mọi lỗi trả về cùng format thống nhất:
 
 ## 2. Endpoints
 
-### 2.1. GET `/api/v1/textbooks` — Danh sách giáo trình
+### 2.1. GET `/api/v1/textbooks` — Danh sách giáo trình (Sectors)
 
 Lấy danh sách tất cả giáo trình, sắp xếp theo `sortOrder`.
 
@@ -88,9 +88,9 @@ Lấy danh sách tất cả giáo trình, sắp xếp theo `sortOrder`.
   "data": [
     {
       "id": "Ld9kX3mPqR2s",
-      "title": "Nhập môn Machine Learning",
-      "authors": ["Nguyễn Văn B", "Trần Thị C"],
-      "description": "Giáo trình toàn diện về Machine Learning...",
+      "title": "Mathematics for Machine Learning",
+      "authors": ["Marc Peter Deisenroth", "A. Aldo Faisal"],
+      "description": "Comprehensive foundation of mathematics for machine learning...",
       "coverImageUrl": "https://r2.sequoia.dev/covers/nhap-mon-ml.jpg",
       "totalChapters": 12,
       "sortOrder": 1,
@@ -111,7 +111,7 @@ curl -X GET "https://api.sequoia.dev/api/v1/textbooks?limit=10"
 
 ---
 
-### 2.2. GET `/api/v1/textbooks/:id/chapters` — Danh sách chương theo giáo trình
+### 2.2. GET `/api/v1/textbooks/:id/chapters` — Danh sách chương (Constellations) theo giáo trình
 
 Lấy danh sách chương của một giáo trình, sắp xếp theo `sortOrder`.
 
@@ -141,8 +141,8 @@ Lấy danh sách chương của một giáo trình, sắp xếp theo `sortOrder`
     {
       "id": "Wn5tY8vBcD1f",
       "textbookId": "Ld9kX3mPqR2s",
-      "title": "Chương 3: Neural Networks cơ bản",
-      "description": "Tìm hiểu cấu trúc neuron, hàm kích hoạt...",
+      "title": "Chapter 2: Analytic Geometry",
+      "description": "Understanding norms, inner products, and orthogonality...",
       "sortOrder": 3,
       "articleCount": 5,
       "createdAt": "2026-06-05T09:00:00Z"
@@ -158,7 +158,7 @@ Lấy danh sách chương của một giáo trình, sắp xếp theo `sortOrder`
 ```json
 {
   "code": "RESOURCE_NOT_FOUND",
-  "message": "Giáo trình không tồn tại.",
+  "message": "Textbook not found.",
   "details": { "textbookId": "invalid-id" }
 }
 ```
@@ -171,7 +171,7 @@ curl -X GET "https://api.sequoia.dev/api/v1/textbooks/Ld9kX3mPqR2s/chapters"
 
 ---
 
-### 2.3. GET `/api/v1/chapters/:id/articles` — Danh sách bài viết theo chương
+### 2.3. GET `/api/v1/chapters/:id/articles` — Danh sách bài viết (Stars) theo chương
 
 Lấy danh sách bài viết đã publish thuộc một chương.
 
@@ -199,13 +199,13 @@ Lấy danh sách bài viết đã publish thuộc một chương.
 {
   "data": [
     {
-      "id": "neural-network-co-ban",
-      "title": "Neural Network cơ bản — Từ Perceptron đến Multi-Layer",
-      "slug": "neural-network-co-ban",
-      "summary": "Tìm hiểu neural network từ perceptron đơn giản...",
-      "tags": ["neural-network", "perceptron", "deep-learning"],
-      "readingTimeMinutes": 12,
-      "publishedAt": "2026-06-15T08:00:00Z"
+      "id": "norms-and-inner-products",
+      "title": "Norms and Inner Products",
+      "slug": "norms-and-inner-products",
+      "summary": "Understanding distance and angles in vector spaces...",
+      "tags": ["linear-algebra", "geometry", "vectors"],
+      "isPublished": true,
+      "createdAt": "2026-06-15T08:00:00Z"
     }
   ],
   "cursor": "eyJzb3J0T3JkZXIiOjN9",
@@ -224,7 +224,7 @@ curl -X GET "https://api.sequoia.dev/api/v1/chapters/Wn5tY8vBcD1f/articles?limit
 
 ---
 
-### 2.4. GET `/api/v1/topics` — Danh sách chủ đề độc lập
+### 2.4. GET `/api/v1/topics` — Danh sách chủ đề độc lập (Free Nebulas)
 
 Lấy tất cả chủ đề, sắp xếp theo `sortOrder`.
 
@@ -247,8 +247,8 @@ Lấy tất cả chủ đề, sắp xếp theo `sortOrder`.
   "data": [
     {
       "id": "Hj3kM7nPqS9w",
-      "name": "Computer Vision",
-      "description": "Các bài viết về thị giác máy tính...",
+      "name": "Deep Learning Papers",
+      "description": "Groundbreaking papers in deep learning history...",
       "iconUrl": "https://r2.sequoia.dev/icons/computer-vision.svg",
       "sortOrder": 1,
       "articleCount": 15,
@@ -268,7 +268,7 @@ curl -X GET "https://api.sequoia.dev/api/v1/topics"
 
 ---
 
-### 2.5. GET `/api/v1/topics/:id/articles` — Danh sách bài viết theo chủ đề
+### 2.5. GET `/api/v1/topics/:id/articles` — Danh sách bài viết (Rogue Stars) theo chủ đề
 
 Lấy danh sách bài viết đã publish thuộc một chủ đề, mới nhất trước.
 
@@ -296,16 +296,16 @@ Lấy danh sách bài viết đã publish thuộc một chủ đề, mới nhấ
 {
   "data": [
     {
-      "id": "yolo-object-detection-tutorial",
-      "title": "Hướng dẫn YOLO Object Detection từ A-Z",
-      "slug": "yolo-object-detection-tutorial",
-      "summary": "Từ lý thuyết đến thực hành YOLO trên thiết bị...",
-      "tags": ["yolo", "object-detection", "on-device"],
-      "readingTimeMinutes": 18,
-      "publishedAt": "2026-07-01T10:00:00Z"
+      "id": "attention-is-all-you-need",
+      "title": "Attention Is All You Need",
+      "slug": "attention-is-all-you-need",
+      "summary": "The foundational paper introducing the Transformer architecture...",
+      "tags": ["nlp", "transformers", "attention"],
+      "isPublished": true,
+      "createdAt": "2026-07-01T10:00:00Z"
     }
   ],
-  "cursor": "eyJwdWJsaXNoZWRBdCI6IjIwMjYtMDctMDEifQ",
+  "cursor": "eyJjcmVhdGVkQXQiOiIyMDI2LTA3LTAxIn0=",
   "hasMore": false
 }
 ```
@@ -315,7 +315,7 @@ Lấy danh sách bài viết đã publish thuộc một chủ đề, mới nhấ
 ```json
 {
   "code": "RESOURCE_NOT_FOUND",
-  "message": "Chủ đề không tồn tại.",
+  "message": "Topic not found.",
   "details": { "topicId": "invalid-id" }
 }
 ```
@@ -330,7 +330,7 @@ curl -X GET "https://api.sequoia.dev/api/v1/topics/Hj3kM7nPqS9w/articles?limit=5
 
 ### 2.6. GET `/api/v1/articles/:slug` — Chi tiết bài viết
 
-Lấy toàn bộ nội dung bài viết kèm cấu hình playground.
+Lấy toàn bộ nội dung bài viết kèm cấu hình playground dựa trên slug.
 
 | | |
 | --- | --- |
@@ -348,11 +348,11 @@ Lấy toàn bộ nội dung bài viết kèm cấu hình playground.
 ```json
 {
   "data": {
-    "id": "neural-network-co-ban",
-    "title": "Neural Network cơ bản — Từ Perceptron đến Multi-Layer",
-    "slug": "neural-network-co-ban",
-    "content": "# Neural Network cơ bản\n\nNeural network là mô hình...",
-    "summary": "Tìm hiểu neural network từ perceptron đơn giản...",
+    "id": "norms-and-inner-products",
+    "title": "Norms and Inner Products",
+    "slug": "norms-and-inner-products",
+    "content": "# Norms and Inner Products\n\nIn this log, we explore...",
+    "summary": "Understanding distance and angles in vector spaces...",
     "chapterId": "Wn5tY8vBcD1f",
     "topicId": "Hj3kM7nPqS9w",
     "textbookId": "Ld9kX3mPqR2s",
@@ -375,11 +375,10 @@ Lấy toàn bộ nội dung bài viết kèm cấu hình playground.
         }
       }
     ],
-    "tags": ["neural-network", "perceptron", "deep-learning"],
-    "readingTimeMinutes": 12,
+    "tags": ["linear-algebra", "geometry", "vectors"],
+    "isPublished": true,
     "createdAt": "2026-06-10T11:00:00Z",
-    "updatedAt": "2026-07-12T16:45:00Z",
-    "publishedAt": "2026-06-15T08:00:00Z"
+    "updatedAt": "2026-07-12T16:45:00Z"
   }
 }
 ```
@@ -392,7 +391,7 @@ Lấy toàn bộ nội dung bài viết kèm cấu hình playground.
 ```json
 {
   "code": "RESOURCE_NOT_FOUND",
-  "message": "Bài viết không tồn tại.",
+  "message": "Article not found.",
   "details": { "slug": "bai-viet-khong-ton-tai" }
 }
 ```
@@ -428,14 +427,14 @@ Tìm kiếm bài viết theo từ khóa trong `title`, `summary`, `tags` và `co
 {
   "data": [
     {
-      "id": "neural-network-co-ban",
-      "title": "Neural Network cơ bản — Từ Perceptron đến Multi-Layer",
-      "slug": "neural-network-co-ban",
-      "summary": "Tìm hiểu neural network từ perceptron đơn giản...",
-      "tags": ["neural-network", "perceptron", "deep-learning"],
-      "readingTimeMinutes": 12,
-      "publishedAt": "2026-06-15T08:00:00Z",
-      "matchHighlight": "...mô hình **neural network** lấy cảm hứng từ..."
+      "id": "norms-and-inner-products",
+      "title": "Norms and Inner Products",
+      "slug": "norms-and-inner-products",
+      "summary": "Understanding distance and angles in vector spaces...",
+      "tags": ["linear-algebra", "geometry", "vectors"],
+      "isPublished": true,
+      "createdAt": "2026-06-15T08:00:00Z",
+      "matchHighlight": "...the **inner product** allows us to measure..."
     }
   ],
   "cursor": null,
@@ -452,7 +451,7 @@ Tìm kiếm bài viết theo từ khóa trong `title`, `summary`, `tags` và `co
 ```json
 {
   "code": "INVALID_REQUEST",
-  "message": "Từ khóa tìm kiếm phải có ít nhất 2 ký tự.",
+  "message": "Search keyword must be at least 2 characters long.",
   "details": { "field": "q", "minLength": 2 }
 }
 ```
@@ -487,7 +486,7 @@ Lấy metadata và URL tải model AI.
   "data": {
     "id": "Rt6uI0oLkJ2h",
     "name": "YOLOv8n Object Detection",
-    "description": "YOLOv8 nano — mô hình nhận diện vật thể nhẹ...",
+    "description": "YOLOv8 nano — lightweight object detection model...",
     "taskType": "object_detection",
     "fileUrl": "https://r2.sequoia.dev/models/yolov8n-v1.0.0.tflite",
     "fileSizeBytes": 6340096,
@@ -564,7 +563,7 @@ Tạo presigned URL để client upload file trực tiếp lên R2.
 ```json
 {
   "code": "INVALID_REQUEST",
-  "message": "Content type không được hỗ trợ.",
+  "message": "Unsupported content type.",
   "details": {
     "allowedTypes": ["image/jpeg", "image/png", "image/webp", "image/svg+xml"]
   }
@@ -624,9 +623,9 @@ Tạo tài khoản mới với email và password.
 
 ```json
 {
-  "email": "nguyen.van.a@gmail.com",
+  "email": "commander.shepard@alliance.com",
   "password": "SecureP@ssw0rd!",
-  "displayName": "Nguyễn Văn A"
+  "displayName": "Commander Shepard"
 }
 ```
 
@@ -642,8 +641,8 @@ Tạo tài khoản mới với email và password.
 {
   "data": {
     "uid": "fB7xK2mNpQe4rT1u",
-    "email": "nguyen.van.a@gmail.com",
-    "displayName": "Nguyễn Văn A",
+    "email": "commander.shepard@alliance.com",
+    "displayName": "Commander Shepard",
     "token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
     "createdAt": "2026-07-16T07:45:00Z"
   }
@@ -655,7 +654,7 @@ Tạo tài khoản mới với email và password.
 ```json
 {
   "code": "CONFLICT",
-  "message": "Email đã được đăng ký.",
+  "message": "Email is already registered.",
   "details": { "field": "email" }
 }
 ```
@@ -666,9 +665,9 @@ Tạo tài khoản mới với email và password.
 curl -X POST "https://api.sequoia.dev/api/v1/auth/register" \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "nguyen.van.a@gmail.com",
+    "email": "commander.shepard@alliance.com",
     "password": "SecureP@ssw0rd!",
-    "displayName": "Nguyễn Văn A"
+    "displayName": "Commander Shepard"
   }'
 ```
 
@@ -687,7 +686,7 @@ curl -X POST "https://api.sequoia.dev/api/v1/auth/register" \
 
 ```json
 {
-  "email": "nguyen.van.a@gmail.com",
+  "email": "commander.shepard@alliance.com",
   "password": "SecureP@ssw0rd!"
 }
 ```
@@ -703,8 +702,8 @@ curl -X POST "https://api.sequoia.dev/api/v1/auth/register" \
 {
   "data": {
     "uid": "fB7xK2mNpQe4rT1u",
-    "email": "nguyen.van.a@gmail.com",
-    "displayName": "Nguyễn Văn A",
+    "email": "commander.shepard@alliance.com",
+    "displayName": "Commander Shepard",
     "photoUrl": null,
     "token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
     "expiresIn": 3600
@@ -722,7 +721,7 @@ curl -X POST "https://api.sequoia.dev/api/v1/auth/register" \
 ```json
 {
   "code": "UNAUTHORIZED",
-  "message": "Email hoặc mật khẩu không đúng.",
+  "message": "Invalid email or password.",
   "details": null
 }
 ```
@@ -733,7 +732,7 @@ curl -X POST "https://api.sequoia.dev/api/v1/auth/register" \
 curl -X POST "https://api.sequoia.dev/api/v1/auth/login" \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "nguyen.van.a@gmail.com",
+    "email": "commander.shepard@alliance.com",
     "password": "SecureP@ssw0rd!"
   }'
 ```
@@ -755,8 +754,8 @@ Lấy thông tin profile của user đang đăng nhập.
 {
   "data": {
     "uid": "fB7xK2mNpQe4rT1u",
-    "email": "nguyen.van.a@gmail.com",
-    "displayName": "Nguyễn Văn A",
+    "email": "commander.shepard@alliance.com",
+    "displayName": "Commander Shepard",
     "photoUrl": "https://r2.sequoia.dev/avatars/fB7xK2mNpQe4rT1u.jpg",
     "createdAt": "2026-07-15T10:30:00Z",
     "updatedAt": "2026-07-15T10:30:00Z"
@@ -769,7 +768,7 @@ Lấy thông tin profile của user đang đăng nhập.
 ```json
 {
   "code": "UNAUTHORIZED",
-  "message": "Token không hợp lệ hoặc đã hết hạn.",
+  "message": "Invalid or expired token.",
   "details": null
 }
 ```
@@ -779,6 +778,94 @@ Lấy thông tin profile của user đang đăng nhập.
 ```bash
 curl -X GET "https://api.sequoia.dev/api/v1/users/me" \
   -H "Authorization: Bearer <firebase-id-token>"
+```
+
+---
+
+### 2.13. GET `/api/v1/cosmos/maps/:mapId` — Lấy Bản đồ Sao (Galaxy Map)
+
+Trả về toàn bộ cấu trúc bản đồ của một Giáo trình hoặc Chủ đề. Tối ưu 1 Firestore Read.
+
+| | |
+| --- | --- |
+| **Auth Required** | ❌ |
+| **Method** | `GET` |
+
+#### Response 200
+
+```json
+{
+  "data": {
+    "id": "mml-id",
+    "mapType": "textbook",
+    "theme": "cosmos",
+    "nodes": [
+      {
+        "articleId": "vector-spaces",
+        "title": "Vector Spaces",
+        "celestialType": "star",
+        "x": 150,
+        "y": 300,
+        "connections": ["matrix-decomp"]
+      }
+    ]
+  }
+}
+```
+
+---
+
+### 2.14. GET `/api/v1/cosmos/progress/:mapId` — Lấy Tiến trình (Fog of War)
+
+Trả về trạng thái mở khóa của user trên bản đồ.
+
+| | |
+| --- | --- |
+| **Auth Required** | ✅ |
+| **Method** | `GET` |
+
+#### Response 200
+
+```json
+{
+  "data": {
+    "progressMap": {
+      "vector-spaces": "decoded",
+      "matrix-decomp": "decoding",
+      "eigenvalues": "locked"
+    }
+  }
+}
+```
+
+---
+
+### 2.15. POST `/api/v1/cosmos/progress/:mapId/decode` — Cập nhật Tiến trình (Mở khóa tín hiệu)
+
+Gọi khi người dùng giải mã thành công (chạy xong Signal Tuner).
+
+| | |
+| --- | --- |
+| **Auth Required** | ✅ |
+| **Method** | `POST` |
+
+#### Request Body
+
+```json
+{
+  "articleId": "matrix-decomp"
+}
+```
+
+#### Response 200
+
+```json
+{
+  "data": {
+    "success": true,
+    "nextUnlocked": ["eigenvalues"]
+  }
+}
 ```
 
 ---
@@ -879,7 +966,7 @@ X-RateLimit-Reset: 1752634800
 ```json
 {
   "code": "RATE_LIMIT_EXCEEDED",
-  "message": "Bạn đã gửi quá nhiều request. Vui lòng thử lại sau.",
+  "message": "Too many requests. Please try again later.",
   "details": {
     "retryAfterSeconds": 32
   }

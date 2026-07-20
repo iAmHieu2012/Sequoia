@@ -8,9 +8,10 @@ import kotlinx.serialization.Serializable
  * @property id The unique document ID from Firestore.
  * @property textbookId Reference to the parent textbook.
  * @property title The title of the chapter.
- * @property description A brief summary.
+ * @property description A brief summary of the chapter.
  * @property sortOrder Used to control the display order.
  * @property articleCount Number of articles in this chapter.
+ * @property createdAt Timestamp when the chapter was created.
  */
 @Serializable
 data class Chapter(
@@ -19,5 +20,6 @@ data class Chapter(
     val title: String = "",
     val description: String = "",
     val sortOrder: Int = 0,
-    val articleCount: Int = 0
+    val articleCount: Int = 0,
+    val createdAt: Long = 0L
 )

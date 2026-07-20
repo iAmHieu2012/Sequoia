@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sequoia - The Infinite Neural Cosmos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --space-bg: #030308;
+            --fog: rgba(3, 3, 8, 0.95);
+            --star-core: #ffffff;
+            --star-glow: rgba(255, 255, 255, 0.8);
+            --light-beam: rgba(255, 255, 255, 0.3);
+            --decoded: #00e5ff;
+            --decoding: #f39c12;
+            --anomaly: #9b59b6;
+            --panel-bg: rgba(10, 10, 15, 0.85);
+            --panel-border: rgba(255, 255, 255, 0.15);
+            --text-main: #f0f0f0;
+            --text-dim: #8888a0;
+            --label-opacity: 1;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--space-bg); color: var(--text-main); font-family: 'Inter', sans-serif;
+            overflow: hidden; width: 100vw; height: 100vh; user-select: none; -webkit-user-select: none;
+        }
+
+        /* Fixed UI Layer */
+        .ui-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000;
+            display: grid;
+            grid-template-areas: "header search ." "sidebar . ." "sidebar . hud";
+            grid-template-columns: 300px 1fr 300px; grid-template-rows: auto 1fr auto; padding: 1.5rem; gap: 1.5rem;
+        }
+
+        header { grid-area: header; }
+        .brand { font-family: 'Space Grotesk', sans-serif; }
+        .brand h1 { font-weight: 700; letter-spacing: 6px; font-size: 1.5rem; text-transform: uppercase; text-shadow: 0 0 20px rgba(255,255,255,0.3); }
+        .brand .subtitle { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 3px; margin-top: 5px; text-transform: uppercase; }
+
+        .search-container { grid-area: search; pointer-events: auto; justify-self: center; width: 100%; max-width: 500px; }
+        .search-box { width: 100%; background: var(--panel-bg); backdrop-filter: blur(10px); border: 1px solid var(--panel-border); border-radius: 30px; padding: 12px 24px; color: var(--text-main); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; outline: none; transition: border-color 0.3s; }
+        .search-box:focus { border-color: var(--decoded); box-shadow: 0 0 15px rgba(0, 229, 255, 0.2); }
+
+        .navigation-sidebar { grid-area: sidebar; pointer-events: auto; background: var(--panel-bg); backdrop-filter: blur(10px); border: 1px solid var(--panel-border); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px; max-height: 70vh; overflow-y: auto; }
+        .navigation-sidebar::-webkit-scrollbar { width: 4px; }
+        .navigation-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        .nav-header { font-family: 'Space Grotesk', sans-serif; font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid var(--panel-border); padding-bottom: 10px; }
+        .nav-item { padding: 12px; border-radius: 8px; cursor: pointer; transition: background 0.2s; border: 1px solid transparent; }
+        .nav-item:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
+        .nav-title { font-size: 0.9rem; font-weight: 500; color: var(--text-main); margin-bottom: 4px; }
+        .nav-desc { font-size: 0.75rem; color: var(--text-dim); }
+        .nav-stats { display: flex; gap: 10px; margin-top: 8px; font-size: 0.7rem; font-family: 'Space Grotesk', sans-serif; }
+        .stat-decoded { color: var(--decoded); }
+
+        .zoom-hud { grid-area: hud; justify-self: end; align-self: end; font-family: 'Space Grotesk', sans-serif; color: var(--text-dim); font-size: 0.75rem; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+        .btn-reset { pointer-events: auto; background: rgba(255,255,255,0.1); border: 1px solid var(--panel-border); color: #fff; padding: 6px 12px; border-radius: 4px; font-size: 0.7rem; cursor: pointer; margin-top: 5px; }
+        .btn-reset:hover { background: rgba(255,255,255,0.2); }
+
+        @media (max-width: 768px) {
+            .ui-layer { grid-template-areas: "header header" "search search" "sidebar sidebar"; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto 1fr; padding: 1rem; }
+            .zoom-hud { display: none; }
+            .navigation-sidebar { grid-area: sidebar; align-self: end; max-height: 35vh; border-radius: 16px 16px 0 0; margin: 0 -1rem -1rem -1rem; border-bottom: none; }
+        }
+
+        /* Map Canvas */
+        .viewport { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; cursor: grab; }
+        .viewport:active { cursor: grabbing; }
+        .map-canvas { position: absolute; transform-origin: 0 0; width: 10000px; height: 10000px; background-image: radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.3) 1px, transparent 0), radial-gradient(1px 1px at 60% 70%, rgba(255,255,255,0.1) 1px, transparent 0), linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 400px 400px, 200px 200px, 100px 100px, 100px 100px; will-change: transform; }
+        .fog-of-war { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 5000px 5000px, transparent 0%, rgba(3,3,8,0.7) 1500px, var(--space-bg) 3000px); z-index: 1; pointer-events: none; }
+        .content-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; }
+        .region-title { position: absolute; font-family: 'Space Grotesk', sans-serif; font-size: 8rem; font-weight: 700; color: rgba(255,255,255,0.03); text-transform: uppercase; letter-spacing: 30px; pointer-events: none; white-space: nowrap; z-index: 1; }
+
+        /* Beams */
+        svg.light-beams { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: visible; }
+        line.beam { stroke: rgba(255,255,255,0.05); stroke-width: 2; }
+        line.beam.illuminated { stroke: var(--light-beam); stroke-width: 4; filter: drop-shadow(0 0 10px var(--star-glow)); }
+        line.beam.decoding { stroke: var(--decoding); stroke-width: 3; stroke-dasharray: 10 15; animation: flow 20s linear infinite; }
+        line.beam.bridge { stroke: rgba(0, 229, 255, 0.15); stroke-width: 2; stroke-dasharray: 15 25; }
+        @keyframes flow { to { stroke-dashoffset: -1000; } }
+
+        /* Nodes */
+        .celestial-object { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; cursor: pointer; z-index: 10; }
+        .star { width: 24px; height: 24px; background: rgba(255,255,255,0.2); border-radius: 50%; margin-bottom: 12px; transition: all 0.3s; }
+        .celestial-object.decoded .star { background: var(--star-core); box-shadow: 0 0 30px var(--star-glow), 0 0 60px var(--star-glow), 0 0 0 2px var(--decoded); }
+        .celestial-object.decoding .star { background: var(--decoding); box-shadow: 0 0 20px var(--decoding), 0 0 0 6px rgba(243, 156, 18, 0.2); animation: pulse 2s infinite; }
+        .celestial-object.hidden { opacity: 0.2; pointer-events: none; }
+        .celestial-object.hidden .star { background: rgba(255,255,255,0.05); }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 20px var(--decoding), 0 0 0 6px rgba(243, 156, 18, 0.1); } 50% { box-shadow: 0 0 40px var(--decoding), 0 0 0 12px rgba(243, 156, 18, 0.3); } }
+
+        .object-label { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; white-space: nowrap; opacity: var(--label-opacity); transition: opacity 0.3s; }
+        .celestial-object.decoded .object-label { color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+        .celestial-object.decoding .object-label { color: var(--decoding); }
+
+        /* ==================================================== */
+        /* Observation Log (Hover Panel) */
+        /* ==================================================== */
+        .observation-log {
+            position: absolute; top: 40px; left: 50%; transform: translateX(-50%) translateY(10px); width: 300px;
+            background: var(--panel-bg); backdrop-filter: blur(12px); border: 1px solid var(--panel-border); border-radius: 4px; padding: 20px;
+            opacity: 0; visibility: hidden; transition: all 0.3s ease-out; pointer-events: none; box-shadow: 0 15px 35px rgba(0,0,0,0.6); z-index: 20;
+            text-align: left;
+        }
+        .observation-log::before, .observation-log::after { content: ""; position: absolute; width: 10px; height: 10px; border: 1px solid transparent; }
+        .observation-log::before { top: -1px; left: -1px; border-top-color: var(--text-dim); border-left-color: var(--text-dim); }
+        .observation-log::after { bottom: -1px; right: -1px; border-bottom-color: var(--text-dim); border-right-color: var(--text-dim); }
+        
+        .celestial-object:hover .observation-log { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+
+        .log-header { font-family: 'Space Grotesk', sans-serif; font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 8px; display: flex; justify-content: space-between; }
+        .log-title { font-size: 1.1rem; font-weight: 600; color: var(--text-main); margin-bottom: 12px; }
+        .celestial-object.decoded .log-title { color: var(--decoded); }
+        .celestial-object.anomaly .log-title { color: var(--anomaly); }
+        .log-desc { font-size: 0.85rem; color: #bbbbc0; line-height: 1.5; margin-bottom: 15px; }
+
+        .signal-status { font-family: 'Space Grotesk', sans-serif; font-size: 0.75rem; padding: 6px 10px; background: rgba(0,0,0,0.5); border-left: 2px solid; display: flex; align-items: center; gap: 10px; }
+        .celestial-object.decoded .signal-status { border-color: var(--decoded); color: var(--decoded); }
+        .celestial-object.decoding .signal-status { border-color: var(--decoding); color: var(--decoding); }
+        .celestial-object.anomaly .signal-status { border-color: var(--anomaly); color: var(--anomaly); }
+        
+        .signal-wave { flex: 1; height: 2px; background: rgba(255,255,255,0.1); position: relative; overflow: hidden; }
+        .signal-wave::after { content: ""; position: absolute; top: 0; left: 0; height: 100%; width: 40%; background: currentColor; box-shadow: 0 0 5px currentColor; animation: scan 1.5s ease-in-out infinite alternate; }
+        @keyframes scan { 0% { left: 0; } 100% { left: 60%; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="ui-layer">
+        <header>
+            <div class="brand"><h1>SEQUOIA</h1><div class="subtitle">The Neural Cosmos</div></div>
+        </header>
+
+        <div class="search-container">
+            <input type="text" class="search-box" placeholder="Search constellations, algorithms...">
+        </div>
+
+        <div class="navigation-sidebar">
+            <div class="nav-header">Galaxy Navigation</div>
+            <div class="nav-item" onclick="flyTo(5000, 5000)">
+                <div class="nav-title">Ch. 1: Foundation Sector</div>
+                <div class="nav-desc">Basic paradigms of learning.</div>
+                <div class="nav-stats"><span class="stat-decoded">3/5 Decoded</span><span>• 2 Locked</span></div>
+            </div>
+            <div class="nav-item" onclick="flyTo(7500, 2500)">
+                <div class="nav-title">Ch. 2: Deep Neural Expanse</div>
+                <div class="nav-desc">Advanced multi-layered architectures.</div>
+                <div class="nav-stats"><span style="color:var(--text-dim)">0/4 Decoded</span></div>
+            </div>
+            <div class="nav-item" onclick="flyTo(3000, 7500)">
+                <div class="nav-title">Ch. 3: Visual Cortex</div>
+                <div class="nav-desc">Image processing and CNNs.</div>
+                <div class="nav-stats"><span style="color:var(--text-dim)">0/3 Decoded</span></div>
+            </div>
+        </div>
+
+        <div class="zoom-hud">
+            <div id="coords">X: 5000, Y: 5000</div><div id="zoom-level">ZOOM: 1.0x</div><button class="btn-reset" onclick="resetView()">RECENTER</button>
+        </div>
+    </div>
+
+    <div class="viewport" id="viewport">
+        <div class="map-canvas" id="canvas">
+            <div class="fog-of-war"></div>
+            
+            <div class="content-layer">
+                <div class="region-title" style="top: 4000px; left: 4000px; transform: rotate(-5deg);">Foundation Sector</div>
+                <div class="region-title" style="top: 2000px; left: 7000px; transform: rotate(10deg);">Deep Neural Expanse</div>
+                <div class="region-title" style="top: 7000px; left: 2000px; transform: rotate(-15deg);">Visual Cortex</div>
+
+                <svg class="light-beams">
+                    <!-- Cluster 1 (Foundation) -->
+                    <line x1="4500" y1="4800" x2="5000" y2="4500" class="beam illuminated"></line>
+                    <line x1="5000" y1="4500" x2="5200" y2="5000" class="beam illuminated"></line>
+                    <line x1="5200" y1="5000" x2="5800" y2="4600" class="beam decoding"></line>
+                    <line x1="5800" y1="4600" x2="6200" y2="4900" class="beam"></line>
+                    <line x1="5800" y1="4600" x2="7200" y2="2800" class="beam bridge"></line>
+                </svg>
+
+                <!-- Cluster 1 Nodes -->
+                <div class="celestial-object decoded" style="left: 4500px; top: 4800px;">
+                    <div class="star"></div><div class="object-label">Machine Learning Basics</div>
+                    <div class="observation-log">
+                        <div class="log-header"><span>Log #001</span><span>Foundation</span></div>
+                        <div class="log-title">Machine Learning Basics</div>
+                        <div class="log-desc">The genesis node. Basic paradigms of learning algorithms are established here.</div>
+                        <div class="signal-status">SIGNAL DECODED</div>
+                    </div>
+                </div>
+                <div class="celestial-object decoded" style="left: 5000px; top: 4500px;">
+                    <div class="star"></div><div class="object-label">Supervised Learning</div>
+                    <div class="observation-log">
+                        <div class="log-header"><span>Log #002</span><span>Foundation</span></div>
+                        <div class="log-title">Supervised Learning</div>
+                        <div class="log-desc">A highly structured environment where target variables guide the formation of predictive patterns.</div>
+                        <div class="signal-status">SIGNAL DECODED</div>
+                    </div>
+                </div>
+                <div class="celestial-object decoded" style="left: 5200px; top: 5000px;">
+                    <div class="star"></div><div class="object-label">Unsupervised Learning</div>
+                    <div class="observation-log">
+                        <div class="log-header"><span>Log #003</span><span>Foundation</span></div>
+                        <div class="log-title">Unsupervised Learning</div>
+                        <div class="log-desc">Finding structure in chaos. Clustering algorithms group celestial bodies without external guidance.</div>
+                        <div class="signal-status">SIGNAL DECODED</div>
+                    </div>
+                </div>
+                <div class="celestial-object decoding" style="left: 5800px; top: 4600px;">
+                    <div class="star"></div><div class="object-label">Neural Networks</div>
+                    <div class="observation-log">
+                        <div class="log-header"><span>Observation in Progress</span><span>Foundation</span></div>
+                        <div class="log-title">Neural Networks</div>
+                        <div class="log-desc">The gateway to deep space. Multi-layered architectures mimic biological processing.</div>
+                        <div class="signal-status"><span>TUNING SIGNAL...</span><div class="signal-wave"></div></div>
+                    </div>
+                </div>
+                <div class="celestial-object hidden" style="left: 6200px; top: 4900px;">
+                    <div class="star"></div><div class="object-label">Backpropagation</div>
+                </div>
+
+                <!-- Cluster 2 Nodes -->
+                <div class="celestial-object hidden" style="left: 7200px; top: 2800px;">
+                    <div class="star"></div><div class="object-label">Deep Neural Networks</div>
+                </div>
+                <div class="celestial-object hidden" style="left: 7800px; top: 2200px;">
+                    <div class="star"></div><div class="object-label">Convolutional Layers</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const viewport = document.getElementById('viewport');
+        const canvas = document.getElementById('canvas');
+        const zoomHud = document.getElementById('zoom-level');
+        const coordsHud = document.getElementById('coords');
+
+        let scale = 0.5;
+        let translateX = 0;
+        let translateY = 0;
+        let isDragging = false;
+        let startX, startY;
+
+        function updateTransform() {
+            canvas.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+            if(zoomHud) zoomHud.innerText = `ZOOM: ${scale.toFixed(2)}x`;
+            const centerX = ((window.innerWidth / 2) - translateX) / scale;
+            const centerY = ((window.innerHeight / 2) - translateY) / scale;
+            if(coordsHud) coordsHud.innerText = `X: ${Math.round(centerX)}, Y: ${Math.round(centerY)}`;
+            if (scale < 0.3) { document.documentElement.style.setProperty('--label-opacity', '0'); } 
+            else { document.documentElement.style.setProperty('--label-opacity', '1'); }
+        }
+
+        window.flyTo = function(x, y) {
+            scale = 0.6;
+            translateX = (window.innerWidth / 2) - (x * scale);
+            translateY = (window.innerHeight / 2) - (y * scale);
+            canvas.style.transition = 'transform 0.8s cubic-bezier(0.25, 1, 0.5, 1)';
+            updateTransform();
+            setTimeout(() => { canvas.style.transition = 'none'; }, 800);
+        };
+
+        window.resetView = function() { flyTo(5000, 5000); };
+        resetView();
+
+        viewport.addEventListener('mousedown', e => {
+            if (e.target.closest('.ui-layer') || e.target.closest('.celestial-object')) return;
+            isDragging = true; startX = e.clientX - translateX; startY = e.clientY - translateY;
+        });
+        window.addEventListener('mousemove', e => {
+            if (!isDragging) return;
+            translateX = e.clientX - startX; translateY = e.clientY - startY; updateTransform();
+        });
+        window.addEventListener('mouseup', () => { isDragging = false; });
+        
+        viewport.addEventListener('wheel', e => {
+            e.preventDefault();
+            const delta = -e.deltaY * 0.002;
+            let newScale = scale * Math.exp(delta);
+            newScale = Math.max(0.05, Math.min(newScale, 2));
+            const mouseX = e.clientX; const mouseY = e.clientY;
+            translateX = mouseX - (mouseX - translateX) * (newScale / scale);
+            translateY = mouseY - (mouseY - translateY) * (newScale / scale);
+            scale = newScale; updateTransform();
+        }, { passive: false });
+
+        let initialPinchDistance = null; let initialScale = 1;
+        viewport.addEventListener('touchstart', e => {
+            if (e.target.closest('.ui-layer') || e.target.closest('.celestial-object')) return;
+            if (e.touches.length === 1) {
+                isDragging = true; startX = e.touches[0].clientX - translateX; startY = e.touches[0].clientY - translateY;
+            } else if (e.touches.length === 2) {
+                isDragging = false; initialPinchDistance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); initialScale = scale;
+            }
+        }, { passive: false });
+        viewport.addEventListener('touchmove', e => {
+            if (e.touches.length === 1 && isDragging) {
+                translateX = e.touches[0].clientX - startX; translateY = e.touches[0].clientY - startY; updateTransform();
+            } else if (e.touches.length === 2) {
+                e.preventDefault();
+                const currentDistance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+                let newScale = initialScale * (currentDistance / initialPinchDistance);
+                newScale = Math.max(0.05, Math.min(newScale, 2));
+                const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2; const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                translateX = centerX - (centerX - translateX) * (newScale / scale); translateY = centerY - (centerY - translateY) * (newScale / scale);
+                scale = newScale; updateTransform();
+            }
+        }, { passive: false });
+        viewport.addEventListener('touchend', () => { isDragging = false; });
+    </script>
+</body>
+</html>
