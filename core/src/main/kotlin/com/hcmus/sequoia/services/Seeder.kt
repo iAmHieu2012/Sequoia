@@ -1,4 +1,7 @@
-package com.hcmus.sequoia
+package com.hcmus.sequoia.services
+
+import com.hcmus.sequoia.models.*
+import com.hcmus.sequoia.plugins.FirebaseConfig
 
 import com.google.cloud.firestore.SetOptions
 import io.ktor.server.application.*
@@ -24,6 +27,7 @@ fun Route.configureSeeder() {
                 "textbooks",
                 "chapters",
                 "articles",
+                "article_contents",
                 "topics",
                 "models",
                 "cosmos_maps",
@@ -226,7 +230,14 @@ fun Route.configureSeeder() {
             
             articles.forEach { article ->
                 val slug = article["slug"] as String
-                db.collection("articles").document(slug).set(article).get()
+                val metadata = article.filterKeys { it != "content" && it != "playgroundBlocks" }
+                val contents = mapOf(
+                    "id" to slug,
+                    "content" to article["content"],
+                    "playgroundBlocks" to article["playgroundBlocks"]
+                )
+                db.collection("articles").document(slug).set(metadata).get()
+                db.collection("article_contents").document(slug).set(contents).get()
             }
 
             // Seed a Topic (Free Nebula) for the Nebulas tab
@@ -261,7 +272,14 @@ fun Route.configureSeeder() {
             )
             cvArticles.forEach { article ->
                 val slug = article["slug"] as String
-                db.collection("articles").document(slug).set(article).get()
+                val metadata = article.filterKeys { it != "content" && it != "playgroundBlocks" }
+                val contents = mapOf(
+                    "id" to slug,
+                    "content" to article["content"],
+                    "playgroundBlocks" to article["playgroundBlocks"]
+                )
+                db.collection("articles").document(slug).set(metadata).get()
+                db.collection("article_contents").document(slug).set(contents).get()
             }
 
             // Seed Rogue Anomalies
@@ -271,7 +289,6 @@ fun Route.configureSeeder() {
                     "id" to "article_rogue_attention",
                     "title" to "Attention Is All You Need",
                     "slug" to "attention-paper",
-                    "topicId" to rogueId,
                     "isPublished" to true,
                     "content" to "## Attention Is All You Need\n\nThis 2017 paper introduced the Transformer architecture.",
                     "summary" to "A breakdown of the Transformer architecture and self-attention mechanisms.",
@@ -285,7 +302,6 @@ fun Route.configureSeeder() {
                     "id" to "article_rogue_resnet",
                     "title" to "Deep Residual Learning",
                     "slug" to "resnet-paper",
-                    "topicId" to rogueId,
                     "isPublished" to true,
                     "content" to "## Deep Residual Learning\n\nResNet solves the vanishing gradient problem in ultra-deep networks.",
                     "summary" to "Understanding skip connections and how ResNet enables training of extremely deep networks.",
@@ -298,7 +314,13 @@ fun Route.configureSeeder() {
             )
             rogueArticlesData.forEach { article ->
                 val slug = article["slug"] as String
-                db.collection("articles").document(slug).set(article).get()
+                val metadata = article.filterKeys { it != "content" && it != "playgroundBlocks" }
+                val contents = mapOf(
+                    "id" to slug,
+                    "content" to article["content"],
+                    "playgroundBlocks" to article["playgroundBlocks"]
+                )
+                db.collection("articles").document(slug).set(metadata).get()
             }
 
             // Seed Cosmos Maps

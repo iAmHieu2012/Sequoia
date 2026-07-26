@@ -61,16 +61,21 @@ erDiagram
         string id PK
         string title
         string slug
-        string content
         string summary
         string chapterId FK
         string topicId FK
         string textbookId FK
-        array playgroundBlocks
         array tags
         boolean isPublished
         number createdAt
         number updatedAt
+        number publishedAt
+    }
+
+    article_contents {
+        string id PK
+        string content
+        array playgroundBlocks
     }
 
     models {
@@ -104,6 +109,7 @@ erDiagram
     textbooks ||--o{ chapters : "có nhiều"
     chapters ||--o{ articles : "chứa"
     topics ||--o{ articles : "chứa"
+    articles ||--|| article_contents : "có nội dung"
     cosmos_maps ||--|| textbooks : "map UI cho"
     cosmos_maps ||--|| topics : "map UI cho"
     cosmos_progress }o--|| users : "tiến độ của"
@@ -124,8 +130,8 @@ Các Collection này giữ nguyên tính trừu tượng của một CMS giáo d
 | `email` | `string` | ✅ | Email đăng ký |
 | `displayName` | `string` | ✅ | Tên hiển thị |
 | `photoUrl` | `string` | ❌ | URL ảnh đại diện |
-| `createdAt` | `timestamp` | ✅ | Thời điểm tạo |
-| `updatedAt` | `timestamp` | ✅ | Thời điểm cập nhật cuối |
+| `createdAt` | `number` | ✅ | Thời điểm tạo |
+| `updatedAt` | `number` | ✅ | Thời điểm cập nhật cuối |
 
 ### 2.2. `textbooks` (Giáo trình)
 | Field | Type | Required | Description |
@@ -137,8 +143,8 @@ Các Collection này giữ nguyên tính trừu tượng của một CMS giáo d
 | `coverImageUrl` | `string` | ✅ | Ảnh bìa |
 | `totalChapters` | `number` | ✅ | Tổng số chương |
 | `sortOrder` | `number` | ✅ | Thứ tự sắp xếp |
-| `createdAt` | `timestamp` | ✅ | Thời điểm tạo |
-| `updatedAt` | `timestamp` | ✅ | Thời điểm cập nhật cuối |
+| `createdAt` | `number` | ✅ | Thời điểm tạo |
+| `updatedAt` | `number` | ✅ | Thời điểm cập nhật cuối |
 
 ### 2.3. `chapters` (Chương)
 | Field | Type | Required | Description |
@@ -149,7 +155,7 @@ Các Collection này giữ nguyên tính trừu tượng của một CMS giáo d
 | `description` | `string` | ✅ | Tóm tắt chương |
 | `sortOrder` | `number` | ✅ | Thứ tự |
 | `articleCount` | `number` | ✅ | Số bài viết trong chương |
-| `createdAt` | `timestamp` | ✅ | Thời điểm tạo |
+| `createdAt` | `number` | ✅ | Thời điểm tạo |
 
 ### 2.4. `topics` (Chủ đề độc lập)
 | Field | Type | Required | Description |
@@ -160,26 +166,34 @@ Các Collection này giữ nguyên tính trừu tượng của một CMS giáo d
 | `iconUrl` | `string` | ❌ | Ảnh đại diện/Icon |
 | `sortOrder` | `number` | ✅ | Thứ tự sắp xếp |
 | `articleCount` | `number` | ✅ | Số bài viết trong chủ đề |
-| `createdAt` | `timestamp` | ✅ | Thời điểm tạo |
+| `createdAt` | `number` | ✅ | Thời điểm tạo |
 
-### 2.5. `articles` (Bài viết)
+### 2.5. `articles` (Thông tin bài viết - Metadata)
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
 | `id` | `string` | ✅ | Document ID |
 | `title` | `string` | ✅ | Tiêu đề |
 | `slug` | `string` | ✅ | URL-friendly slug |
-| `content` | `string` | ✅ | Nội dung Markdown |
 | `summary` | `string` | ✅ | Tóm tắt ngắn gọn |
 | `chapterId` | `string` | ❌ | Ref đến `chapters` (dành cho bài thuộc giáo trình) |
 | `topicId` | `string` | ❌ | Ref đến `topics` (dành cho bài thuộc chủ đề tự do) |
 | `textbookId` | `string` | ❌ | Ref đến `textbooks` (lưu thừa để query nhanh) |
-| `playgroundBlocks` | `array<map>`| ✅ | Metadata config cho các Interactive Model nhúng |
 | `tags` | `array<string>`| ✅ | Các thẻ phân loại bài viết |
 | `isPublished` | `boolean` | ✅ | Cờ trạng thái xuất bản |
-| `createdAt` | `timestamp` | ✅ | Thời điểm tạo |
-| `updatedAt` | `timestamp` | ✅ | Thời điểm cập nhật cuối |
+| `createdAt` | `number` | ✅ | Thời điểm tạo |
+| `updatedAt` | `number` | ✅ | Thời điểm cập nhật cuối |
+| `publishedAt` | `number` | ✅ | Thời điểm xuất bản |
 
-### 2.6. `models` (Mô hình AI)
+### 2.6. `article_contents` (Nội dung chi tiết)
+*Lưu ý: Document ID của bảng này bắt buộc phải trùng khớp 1:1 với Document ID của bảng `articles` để dễ query.*
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | `string` | ✅ | Trùng khớp với ID của bài viết (`articles.id`) |
+| `content` | `string` | ✅ | Nội dung Markdown |
+| `playgroundBlocks` | `array<map>`| ✅ | Metadata config cho các Interactive Model nhúng |
+
+### 2.7. `models` (Mô hình AI)
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
 | `id` | `string` | ✅ | Document ID |
@@ -191,8 +205,8 @@ Các Collection này giữ nguyên tính trừu tượng của một CMS giáo d
 | `version` | `string` | ✅ | Phiên bản |
 | `format` | `string` | ✅ | Định dạng (vd: litert) |
 | `defaultConfig` | `map` | ✅ | Tham số mặc định (threshold, inputSize) |
-| `createdAt` | `timestamp` | ✅ | Thời điểm tạo |
-| `updatedAt` | `timestamp` | ✅ | Thời điểm cập nhật cuối |
+| `createdAt` | `number` | ✅ | Thời điểm tạo |
+| `updatedAt` | `number` | ✅ | Thời điểm cập nhật cuối |
 
 ---
 
@@ -201,17 +215,17 @@ Các Collection này giữ nguyên tính trừu tượng của một CMS giáo d
 Đây là tầng UI/UX. Chữ tín "Rẻ & Nhanh" đặt lên hàng đầu. Một bản đồ có 100 ngôi sao cũng chỉ tốn **1 read** thay vì 100 reads.
 
 ### 3.1. `cosmos_maps` (Cấu hình bản đồ không gian)
-Document ID bắt buộc trùng với `textbookId` (đối với Giáo trình) hoặc `topicId` (đối với Chủ đề tự do). Ktor tự động đồng bộ (sync) dữ liệu từ `articles` sang đây khi có thay đổi.
+Document ID bắt buộc trùng với `textbookId` (đối với Giáo trình) hoặc `topicId` (đối với Chủ đề). Riêng với loại `rogue_anomalies`, bản đồ chứa các bài viết tự do (`topicId = null`) nên ID của bản đồ là độc lập (ví dụ: `"papers"`). Ktor tự động đồng bộ (sync) dữ liệu từ `articles` sang đây khi có thay đổi.
 
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | ✅ | Map 1:1 với `textbooks` hoặc `topics` |
+| `id` | `string` | ✅ | Map 1:1 với `textbooks` hoặc `topics` (trừ `rogue_anomalies`) |
 | `mapType` | `string` | ✅ | Loại bản đồ: `"textbook"`, `"topic"`, `"rogue_anomalies"` |
 | `theme` | `string` | ✅ | Theme đang dùng, vd: `"cosmos"`, `"nebula"` |
 | `nodes` | `array<map>` | ✅ | Mảng chứa toàn bộ các ngôi sao (bài học) trên bản đồ |
 | `nodes[].articleId` | `string` | ✅ | ID bài viết tương ứng |
 | `nodes[].title` | `string` | ✅ | Tiêu đề (Denormalized từ `articles` để tránh read phụ) |
-| `nodes[].celestialType` | `string` | ✅ | Loại sao: `"star"`, `"binary_star"`, `"anomaly"` |
+| `nodes[].celestialType` | `string` | ✅ | Loại sao: `"star"`, `"binary_star"`, `"anomaly"`, `"nebula"`, `"black_hole"` |
 | `nodes[].x` | `number` | ✅ | Tọa độ X trên bản đồ |
 | `nodes[].y` | `number` | ✅ | Tọa độ Y trên bản đồ |
 | `nodes[].connections` | `array<string>`| ✅ | Mảng các `articleId` mà sao này nối tới (để vẽ tia sáng) |

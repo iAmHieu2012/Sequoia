@@ -381,9 +381,13 @@ service cloud.firestore {
 
     // Articles: ai cũng đọc được, chỉ admin mới tạo/sửa/xóa
     match /articles/{articleId} {
-      allow read: if true;
-      allow write: if request.auth != null
-                   && request.auth.token.admin == true;
+      allow read: if resource.data.isPublished == true;
+      allow write: if request.auth != null && request.auth.token.role == "admin";
+    }
+
+    match /article_contents/{articleId} {
+      allow read: if get(/databases/$(database)/documents/articles/$(articleId)).data.isPublished == true;
+      allow write: if request.auth != null && request.auth.token.role == "admin";
     }
 
     // Textbooks, Chapters, Topics: tương tự articles

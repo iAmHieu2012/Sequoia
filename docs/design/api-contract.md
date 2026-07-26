@@ -38,7 +38,7 @@ Mọi lỗi trả về cùng format thống nhất:
   "code": "RESOURCE_NOT_FOUND",
   "message": "Article not found.",
   "details": {
-    "slug": "bai-viet-khong-ton-tai"
+    "slug": "invalid-article-slug"
   }
 }
 ```
@@ -74,13 +74,6 @@ Lấy danh sách tất cả giáo trình, sắp xếp theo `sortOrder`.
 | **Auth Required** | ❌ |
 | **Method** | `GET` |
 
-#### Query Parameters
-
-| Param | Type | Required | Default | Description |
-| --- | --- | --- | --- | --- |
-| `limit` | `number` | ❌ | `20` | Số lượng tối đa (1–50) |
-| `cursor` | `string` | ❌ | — | Cursor cho pagination |
-
 #### Response 200
 
 ```json
@@ -94,19 +87,17 @@ Lấy danh sách tất cả giáo trình, sắp xếp theo `sortOrder`.
       "coverImageUrl": "https://r2.sequoia.dev/covers/nhap-mon-ml.jpg",
       "totalChapters": 12,
       "sortOrder": 1,
-      "createdAt": "2026-06-01T08:00:00Z",
-      "updatedAt": "2026-07-10T14:20:00Z"
+      "createdAt": 1780272000000,
+      "updatedAt": 1783856400000
     }
-  ],
-  "cursor": "eyJzb3J0T3JkZXIiOjF9",
-  "hasMore": true
+  ]
 }
 ```
 
 #### Ví dụ curl
 
 ```bash
-curl -X GET "https://api.sequoia.dev/api/v1/textbooks?limit=10"
+curl -X GET "https://api.sequoia.dev/api/v1/textbooks"
 ```
 
 ---
@@ -126,13 +117,6 @@ Lấy danh sách chương của một giáo trình, sắp xếp theo `sortOrder`
 | --- | --- | --- |
 | `id` | `string` | ID của giáo trình |
 
-#### Query Parameters
-
-| Param | Type | Required | Default | Description |
-| --- | --- | --- | --- | --- |
-| `limit` | `number` | ❌ | `50` | Số lượng tối đa (1–100) |
-| `cursor` | `string` | ❌ | — | Cursor cho pagination |
-
 #### Response 200
 
 ```json
@@ -145,11 +129,9 @@ Lấy danh sách chương của một giáo trình, sắp xếp theo `sortOrder`
       "description": "Understanding norms, inner products, and orthogonality...",
       "sortOrder": 3,
       "articleCount": 5,
-      "createdAt": "2026-06-05T09:00:00Z"
+      "createdAt": 1780611600000
     }
-  ],
-  "cursor": null,
-  "hasMore": false
+  ]
 }
 ```
 
@@ -186,13 +168,6 @@ Lấy danh sách bài viết đã publish thuộc một chương.
 | --- | --- | --- |
 | `id` | `string` | ID của chương |
 
-#### Query Parameters
-
-| Param | Type | Required | Default | Description |
-| --- | --- | --- | --- | --- |
-| `limit` | `number` | ❌ | `20` | Số lượng tối đa (1–50) |
-| `cursor` | `string` | ❌ | — | Cursor cho pagination |
-
 #### Response 200
 
 ```json
@@ -205,11 +180,9 @@ Lấy danh sách bài viết đã publish thuộc một chương.
       "summary": "Understanding distance and angles in vector spaces...",
       "tags": ["linear-algebra", "geometry", "vectors"],
       "isPublished": true,
-      "createdAt": "2026-06-15T08:00:00Z"
+      "createdAt": 1781481600000
     }
-  ],
-  "cursor": "eyJzb3J0T3JkZXIiOjN9",
-  "hasMore": true
+  ]
 }
 ```
 
@@ -219,7 +192,7 @@ Lấy danh sách bài viết đã publish thuộc một chương.
 #### Ví dụ curl
 
 ```bash
-curl -X GET "https://api.sequoia.dev/api/v1/chapters/Wn5tY8vBcD1f/articles?limit=10"
+curl -X GET "https://api.sequoia.dev/api/v1/chapters/Wn5tY8vBcD1f/articles"
 ```
 
 ---
@@ -233,13 +206,6 @@ Lấy tất cả chủ đề, sắp xếp theo `sortOrder`.
 | **Auth Required** | ❌ |
 | **Method** | `GET` |
 
-#### Query Parameters
-
-| Param | Type | Required | Default | Description |
-| --- | --- | --- | --- | --- |
-| `limit` | `number` | ❌ | `50` | Số lượng tối đa (1–100) |
-| `cursor` | `string` | ❌ | — | Cursor cho pagination |
-
 #### Response 200
 
 ```json
@@ -252,11 +218,9 @@ Lấy tất cả chủ đề, sắp xếp theo `sortOrder`.
       "iconUrl": "https://r2.sequoia.dev/icons/computer-vision.svg",
       "sortOrder": 1,
       "articleCount": 15,
-      "createdAt": "2026-06-01T08:00:00Z"
+      "createdAt": 1780272000000
     }
-  ],
-  "cursor": null,
-  "hasMore": false
+  ]
 }
 ```
 
@@ -283,13 +247,6 @@ Lấy danh sách bài viết đã publish thuộc một chủ đề, mới nhấ
 | --- | --- | --- |
 | `id` | `string` | ID của chủ đề |
 
-#### Query Parameters
-
-| Param | Type | Required | Default | Description |
-| --- | --- | --- | --- | --- |
-| `limit` | `number` | ❌ | `20` | Số lượng tối đa (1–50) |
-| `cursor` | `string` | ❌ | — | Cursor cho pagination |
-
 #### Response 200
 
 ```json
@@ -302,11 +259,9 @@ Lấy danh sách bài viết đã publish thuộc một chủ đề, mới nhấ
       "summary": "The foundational paper introducing the Transformer architecture...",
       "tags": ["nlp", "transformers", "attention"],
       "isPublished": true,
-      "createdAt": "2026-07-01T10:00:00Z"
+      "createdAt": 1782871200000
     }
-  ],
-  "cursor": "eyJjcmVhdGVkQXQiOiIyMDI2LTA3LTAxIn0=",
-  "hasMore": false
+  ]
 }
 ```
 
@@ -323,12 +278,47 @@ Lấy danh sách bài viết đã publish thuộc một chủ đề, mới nhấ
 #### Ví dụ curl
 
 ```bash
-curl -X GET "https://api.sequoia.dev/api/v1/topics/Hj3kM7nPqS9w/articles?limit=5"
+curl -X GET "https://api.sequoia.dev/api/v1/topics/Hj3kM7nPqS9w/articles"
 ```
 
 ---
 
-### 2.6. GET `/api/v1/articles/:slug` — Chi tiết bài viết
+### 2.6. GET `/api/v1/articles/standalone` — Danh sách bài viết tự do (Standalone Articles)
+
+Lấy danh sách tất cả các bài viết tự do (không thuộc giáo trình hay chủ đề, `textbookId = null` và `topicId = null`). Các bài viết này thường được map vào các bản đồ `rogue_anomalies`.
+
+| | |
+| --- | --- |
+| **Auth Required** | ❌ |
+| **Method** | `GET` |
+
+#### Response 200
+
+```json
+{
+  "data": [
+    {
+      "id": "attention-is-all-you-need",
+      "title": "Attention Is All You Need",
+      "slug": "attention-is-all-you-need",
+      "summary": "The foundational paper introducing the Transformer architecture...",
+      "tags": ["nlp", "transformers", "attention"],
+      "isPublished": true,
+      "createdAt": 1782871200000
+    }
+  ]
+}
+```
+
+#### Ví dụ curl
+
+```bash
+curl -X GET "https://api.sequoia.dev/api/v1/articles/standalone"
+```
+
+---
+
+### 2.7. GET `/api/v1/articles/:slug` — Chi tiết bài viết
 
 Lấy toàn bộ nội dung bài viết kèm cấu hình playground dựa trên slug.
 
@@ -377,8 +367,8 @@ Lấy toàn bộ nội dung bài viết kèm cấu hình playground dựa trên 
     ],
     "tags": ["linear-algebra", "geometry", "vectors"],
     "isPublished": true,
-    "createdAt": "2026-06-10T11:00:00Z",
-    "updatedAt": "2026-07-12T16:45:00Z"
+    "createdAt": 1781053200000,
+    "updatedAt": 1784013900000
   }
 }
 ```
@@ -392,7 +382,7 @@ Lấy toàn bộ nội dung bài viết kèm cấu hình playground dựa trên 
 {
   "code": "RESOURCE_NOT_FOUND",
   "message": "Article not found.",
-  "details": { "slug": "bai-viet-khong-ton-tai" }
+  "details": { "slug": "invalid-article-slug" }
 }
 ```
 
@@ -406,7 +396,7 @@ curl -X GET "https://api.sequoia.dev/api/v1/articles/neural-network-co-ban"
 
 ### 2.7. GET `/api/v1/articles/search` — Tìm kiếm full-text
 
-Tìm kiếm bài viết theo từ khóa trong `title`, `summary`, `tags` và `content`.
+Tìm kiếm bài viết theo từ khóa (dựa trên Tiền tố của `title` HOẶC chính xác `tags` cho phiên bản MVP).
 
 | | |
 | --- | --- |
@@ -418,8 +408,6 @@ Tìm kiếm bài viết theo từ khóa trong `title`, `summary`, `tags` và `co
 | Param | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
 | `q` | `string` | ✅ | — | Từ khóa tìm kiếm, tối thiểu 2 ký tự |
-| `limit` | `number` | ❌ | `20` | Số lượng kết quả tối đa (1–50) |
-| `cursor` | `string` | ❌ | — | Cursor cho pagination |
 
 #### Response 200
 
@@ -433,18 +421,14 @@ Tìm kiếm bài viết theo từ khóa trong `title`, `summary`, `tags` và `co
       "summary": "Understanding distance and angles in vector spaces...",
       "tags": ["linear-algebra", "geometry", "vectors"],
       "isPublished": true,
-      "createdAt": "2026-06-15T08:00:00Z",
-      "matchHighlight": "...the **inner product** allows us to measure..."
+      "createdAt": 1781481600000
     }
-  ],
-  "cursor": null,
-  "hasMore": false,
-  "totalEstimate": 3
+  ]
 }
 ```
 
 > [!NOTE]
-> `matchHighlight` chứa đoạn text ngắn với từ khóa được bọc `**bold**` để client hiển thị snippet. `totalEstimate` là ước tính tổng số kết quả (không chính xác tuyệt đối do Firestore limitation).
+> Tìm kiếm hiện tại sử dụng thuật toán query native của Firestore (chỉ tìm theo Tiền tố của Title HOẶC khớp với Tag) để tiết kiệm chi phí băng thông và lượt đọc.
 
 #### Response 400
 
@@ -459,7 +443,7 @@ Tìm kiếm bài viết theo từ khóa trong `title`, `summary`, `tags` và `co
 #### Ví dụ curl
 
 ```bash
-curl -X GET "https://api.sequoia.dev/api/v1/articles/search?q=neural+network&limit=10"
+curl -X GET "https://api.sequoia.dev/api/v1/articles/search?q=neural+network"
 ```
 
 ---
@@ -496,8 +480,8 @@ Lấy metadata và URL tải model AI.
       "threshold": 0.5,
       "inputSize": 640
     },
-    "createdAt": "2026-06-01T08:00:00Z",
-    "updatedAt": "2026-07-01T10:00:00Z"
+    "createdAt": 1780272000000,
+    "updatedAt": 1782871200000
   }
 }
 ```
@@ -608,136 +592,15 @@ curl -X PUT "<uploadUrl-from-step-1>" \
   --data-binary @cover-ml-textbook.jpg
 ```
 
----
-
-### 2.10. POST `/api/v1/auth/register` — Đăng ký tài khoản
-
-Tạo tài khoản mới với email và password.
-
-| | |
-| --- | --- |
-| **Auth Required** | ❌ |
-| **Method** | `POST` |
-
-#### Request Body
-
-```json
-{
-  "email": "commander.shepard@alliance.com",
-  "password": "SecureP@ssw0rd!",
-  "displayName": "Commander Shepard"
-}
-```
-
-| Field | Type | Required | Validation |
-| --- | --- | --- | --- |
-| `email` | `string` | ✅ | Email hợp lệ, unique |
-| `password` | `string` | ✅ | Tối thiểu 8 ký tự, chứa chữ hoa, chữ thường, số |
-| `displayName` | `string` | ✅ | 2–50 ký tự |
-
-#### Response 201
-
-```json
-{
-  "data": {
-    "uid": "fB7xK2mNpQe4rT1u",
-    "email": "commander.shepard@alliance.com",
-    "displayName": "Commander Shepard",
-    "token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "createdAt": "2026-07-16T07:45:00Z"
-  }
-}
-```
-
-#### Response 409
-
-```json
-{
-  "code": "CONFLICT",
-  "message": "Email is already registered.",
-  "details": { "field": "email" }
-}
-```
-
-#### Ví dụ curl
-
-```bash
-curl -X POST "https://api.sequoia.dev/api/v1/auth/register" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "commander.shepard@alliance.com",
-    "password": "SecureP@ssw0rd!",
-    "displayName": "Commander Shepard"
-  }'
-```
+> [!NOTE]
+> **Authentication Note:**
+> Dự án Sequoia sử dụng kiến trúc Firebase Auth trực tiếp trên Client (Frontend). Do đó, Backend Ktor không cung cấp API Đăng nhập (`/auth/login`) hay Đăng ký (`/auth/register`).
+> Thay vào đó, Frontend sử dụng Firebase Client SDK để đăng nhập bằng Email/Password hoặc Google. Sau khi đăng nhập thành công, Frontend sẽ lấy `Firebase ID Token` và gửi kèm trong header `Authorization: Bearer <token>` khi gọi các API cần xác thực (như `GET /cosmos/progress/:mapId`).
+> Ktor Backend sẽ sử dụng thư viện `ktor-server-auth-jwt` để xác thực token này.
 
 ---
 
-### 2.11. POST `/api/v1/auth/login` — Đăng nhập
 
-Đăng nhập bằng email và password, nhận Firebase ID token.
-
-| | |
-| --- | --- |
-| **Auth Required** | ❌ |
-| **Method** | `POST` |
-
-#### Request Body
-
-```json
-{
-  "email": "commander.shepard@alliance.com",
-  "password": "SecureP@ssw0rd!"
-}
-```
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `email` | `string` | ✅ | Email đã đăng ký |
-| `password` | `string` | ✅ | Mật khẩu |
-
-#### Response 200
-
-```json
-{
-  "data": {
-    "uid": "fB7xK2mNpQe4rT1u",
-    "email": "commander.shepard@alliance.com",
-    "displayName": "Commander Shepard",
-    "photoUrl": null,
-    "token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "expiresIn": 3600
-  }
-}
-```
-
-| Field | Type | Description |
-| --- | --- | --- |
-| `token` | `string` | Firebase ID token, dùng trong header `Authorization: Bearer <token>` |
-| `expiresIn` | `number` | Thời gian hết hạn (giây), mặc định 3600s (1 giờ) |
-
-#### Response 401
-
-```json
-{
-  "code": "UNAUTHORIZED",
-  "message": "Invalid email or password.",
-  "details": null
-}
-```
-
-#### Ví dụ curl
-
-```bash
-curl -X POST "https://api.sequoia.dev/api/v1/auth/login" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "commander.shepard@alliance.com",
-    "password": "SecureP@ssw0rd!"
-  }'
-```
-
----
 
 ### 2.12. GET `/api/v1/users/me` — Thông tin user hiện tại
 
@@ -756,9 +619,7 @@ Lấy thông tin profile của user đang đăng nhập.
     "uid": "fB7xK2mNpQe4rT1u",
     "email": "commander.shepard@alliance.com",
     "displayName": "Commander Shepard",
-    "photoUrl": "https://r2.sequoia.dev/avatars/fB7xK2mNpQe4rT1u.jpg",
-    "createdAt": "2026-07-15T10:30:00Z",
-    "updatedAt": "2026-07-15T10:30:00Z"
+    "photoUrl": null
   }
 }
 ```
@@ -870,64 +731,7 @@ Gọi khi người dùng giải mã thành công (chạy xong Signal Tuner).
 
 ---
 
-## 3. Pagination — Cursor-based
-
-Tất cả endpoint trả về danh sách sử dụng **cursor-based pagination** thay vì offset-based để đảm bảo hiệu suất với Firestore.
-
-### Response format
-
-```json
-{
-  "data": [ ... ],
-  "cursor": "eyJzb3J0T3JkZXIiOjEwLCJpZCI6Inh5eiJ9",
-  "hasMore": true
-}
-```
-
-| Field | Type | Description |
-| --- | --- | --- |
-| `data` | `array` | Mảng kết quả |
-| `cursor` | `string \| null` | Cursor cho trang tiếp theo, `null` nếu hết dữ liệu |
-| `hasMore` | `boolean` | `true` nếu còn dữ liệu phía sau cursor |
-
-### Cách sử dụng
-
-```bash
-# Trang đầu
-GET /api/v1/textbooks?limit=10
-
-# Trang tiếp theo
-GET /api/v1/textbooks?limit=10&cursor=eyJzb3J0T3JkZXIiOjEwLCJpZCI6Inh5eiJ9
-```
-
-### Cấu trúc cursor
-
-Cursor là base64-encoded JSON chứa giá trị sort field + document ID của phần tử cuối cùng:
-
-```json
-// Decoded cursor example
-{
-  "sortOrder": 10,
-  "id": "Ld9kX3mPqR2s"
-}
-```
-
-> [!WARNING]
-> Cursor là **opaque string** — client không nên decode, parse, hay chỉnh sửa cursor. Format nội bộ có thể thay đổi giữa các version.
-
-### Giới hạn `limit`
-
-| Endpoint | Min | Default | Max |
-| --- | --- | --- | --- |
-| `/textbooks` | 1 | 20 | 50 |
-| `/chapters` | 1 | 50 | 100 |
-| `/articles` (danh sách) | 1 | 20 | 50 |
-| `/articles/search` | 1 | 20 | 50 |
-| `/topics` | 1 | 50 | 100 |
-
----
-
-## 4. Rate Limiting
+## 3. Rate Limiting
 
 ### Giới hạn theo loại request
 

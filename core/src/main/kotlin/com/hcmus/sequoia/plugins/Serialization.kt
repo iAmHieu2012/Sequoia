@@ -1,4 +1,6 @@
-package com.hcmus.sequoia
+package com.hcmus.sequoia.plugins
+
+import com.hcmus.sequoia.models.*
 
 import io.ktor.server.application.*
 import io.ktor.serialization.kotlinx.json.*

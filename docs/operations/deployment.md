@@ -13,17 +13,19 @@ Tài liệu này cung cấp hướng dẫn tổng quan về cách triển khai c
 
 ```dockerfile
 # Build stage
-FROM gradle:8.3-jdk17 AS build
+FROM gradle:8-jdk21 AS build
 COPY --chown=gradle:gradle . /home/gradle/src
 WORKDIR /home/gradle/src
-RUN gradle buildFatJar --no-daemon
+RUN gradle installDist --no-daemon
 
 # Run stage
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:21-jre-jammy
 EXPOSE 8080
 RUN mkdir /app
-COPY --from=build /home/gradle/src/build/libs/*.jar /app/ktor-backend.jar
-ENTRYPOINT ["java","-jar","/app/ktor-backend.jar"]
+COPY --from=build /home/gradle/src/build/install/core /app/
+COPY --from=build /home/gradle/src/firebase-key.json /app/firebase-key.json
+WORKDIR /app
+ENTRYPOINT ["/app/bin/core"]
 ```
 
 ### Biến môi trường cần thiết (Environment Variables)

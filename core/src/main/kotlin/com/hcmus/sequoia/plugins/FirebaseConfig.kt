@@ -1,4 +1,6 @@
-package com.hcmus.sequoia
+package com.hcmus.sequoia.plugins
+
+import com.hcmus.sequoia.models.*
 
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
@@ -22,22 +24,10 @@ object FirebaseConfig {
      * @param application The Ktor application instance used for logging.
      */
     fun init(application: Application) {
-        if (FirebaseApp.getApps().isEmpty()) {
-            val keyFile = File("firebase-key.json")
-            val credentials = if (keyFile.exists()) {
-                GoogleCredentials.fromStream(FileInputStream(keyFile))
-            } else {
-                application.environment.log.warn("firebase-key.json not found. Falling back to Application Default Credentials.")
-                GoogleCredentials.getApplicationDefault()
-            }
-
-            val options = FirebaseOptions.builder()
-                .setCredentials(credentials)
-                .build()
-
-            FirebaseApp.initializeApp(options)
-            application.environment.log.info("Firebase Admin SDK initialized successfully.")
-        }
+        // Initialization is now delegated to Security.kt (via kborowy.firebaseAuthProvider)
+        // to prevent "FirebaseApp name [DEFAULT] already exists!" errors, 
+        // since the auth plugin strictly requires handling the initialization.
+        application.environment.log.info("Firebase initialization delegated to Security.kt")
     }
 
     /**

@@ -7,7 +7,7 @@
 
 ## 1. Định dạng Markdown Thuần
 
-Dù UI hiển thị dưới dạng **Datapad** (nhật ký không gian), định dạng lưu trữ ở dưới Database (collection `articles`) vẫn là **Markdown chuẩn**.
+Dù UI hiển thị dưới dạng **Datapad** (nhật ký không gian), định dạng lưu trữ ở dưới Database (collection `article_contents`) vẫn là **Markdown chuẩn**.
 
 Việc này đảm bảo tính "sạch sẽ" của dữ liệu giáo dục. Các nền tảng khác nếu muốn tiêu thụ API bài viết vẫn nhận được Markdown thông thường. Việc style thành giao diện viễn tưởng là nhiệm vụ của CSS (`theme_cosmos.html`) phía Frontend.
 
@@ -37,7 +37,7 @@ Từ khóa "playground" phản ánh đúng nghiệp vụ lõi (môi trường th
 
 ## 3. Cấu trúc Firestore (Derived Data)
 
-Khi lưu vào collection `articles`, mảng cấu hình `playgroundBlocks` được trích xuất ngầm để lưu chung với document.
+Khi lưu vào collection `article_contents`, mảng cấu hình `playgroundBlocks` được trích xuất ngầm để lưu chung với document.
 
 ```json
 {
