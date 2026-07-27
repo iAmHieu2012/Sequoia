@@ -99,7 +99,7 @@ erDiagram
         array nodes
     }
 
-    cosmos_progress {
+    user_progress {
         string id PK
         string userId FK
         string mapId FK
@@ -112,8 +112,7 @@ erDiagram
     articles ||--|| article_contents : "có nội dung"
     cosmos_maps ||--|| textbooks : "map UI cho"
     cosmos_maps ||--|| topics : "map UI cho"
-    cosmos_progress }o--|| users : "tiến độ của"
-    cosmos_progress }o--|| cosmos_maps : "tiến độ trên"
+    user_progress }o--|| users : "tiến độ của"
 ```
 
 ---
@@ -230,7 +229,7 @@ Document ID bắt buộc trùng với `textbookId` (đối với Giáo trình) h
 | `nodes[].y` | `number` | ✅ | Tọa độ Y trên bản đồ |
 | `nodes[].connections` | `array<string>`| ✅ | Mảng các `articleId` mà sao này nối tới (để vẽ tia sáng) |
 
-### 3.2. `cosmos_progress` (Tiến trình giải mã)
+### 3.2. `user_progress` (Tiến trình giải mã)
 Document ID là `{userId}_{mapId}`. Gộp toàn bộ tiến trình của 1 user trên 1 bản đồ vào 1 document.
 
 | Field | Type | Required | Description |
@@ -247,6 +246,6 @@ Document ID là `{userId}_{mapId}`. Gộp toàn bộ tiến trình của 1 user 
 
 Khi người dùng mở ứng dụng và tải một Bản đồ Sao:
 1. Fetch `cosmos_maps/{mapId}` -> **1 Read**. (Lấy toàn bộ cấu trúc bản đồ, vị trí, tên bài học).
-2. Fetch `cosmos_progress/{userId}_{mapId}` -> **1 Read**. (Lấy trạng thái sương mù/mở khóa của toàn bộ bản đồ).
+2. Fetch `user_progress/{userId}` -> **1 Read**. (Lấy mảng ID đã học để tính toán trạng thái sương mù/mở khóa của bản đồ).
 
 **Tổng chi phí: Tối đa 2 Reads / user / map load.** Bất kể bản đồ lớn cỡ nào. Kiến trúc này giải quyết triệt để vấn đề N+1 Query.

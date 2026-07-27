@@ -15,16 +15,15 @@ class CosmosService {
         } else null
     }
 
-    suspend fun getCosmosProgress(userId: String, mapId: String): CosmosProgress = withContext(Dispatchers.IO) {
-        val progressDocId = "${userId}_${mapId}"
-        val doc = FirebaseConfig.firestore.collection("cosmos_progress").document(progressDocId).get().get()
+    suspend fun getUserProgress(userId: String): UserProgress = withContext(Dispatchers.IO) {
+        val doc = FirebaseConfig.firestore.collection("user_progress").document(userId).get().get()
         
         if (doc.exists()) {
-            val p = doc.toObject(CosmosProgress::class.java)
+            val p = doc.toObject(UserProgress::class.java)
             p?.id = doc.id
-            p ?: CosmosProgress(id = progressDocId, userId = userId, mapId = mapId, progressMap = emptyMap())
+            p ?: UserProgress(id = userId, userId = userId)
         } else {
-            CosmosProgress(id = progressDocId, userId = userId, mapId = mapId, progressMap = emptyMap())
+            UserProgress(id = userId, userId = userId)
         }
     }
 }

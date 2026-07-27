@@ -18,7 +18,7 @@ Kiến trúc bảo mật của Sequoia dựa trên mô hình **Defense-in-depth 
 - `articles`: Chỉ cho phép đọc các bài viết đã xuất bản (`isPublished == true`), admin có thể đọc và ghi toàn bộ bài viết (kể cả bản nháp).
 - `models`: Ai cũng có thể đọc thông tin cấu hình mô hình, chỉ admin mới có quyền ghi.
 - `cosmos_maps`: Bất kỳ ai cũng có thể đọc dữ liệu bản đồ, nhưng chỉ admin mới có quyền ghi/sửa.
-- `cosmos_progress`: Người dùng chỉ có quyền đọc và ghi tiến độ học tập của chính mình (kiểm tra tiền tố ID `userId_mapId`).
+- `user_progress`: Người dùng chỉ có quyền đọc và ghi tiến độ học tập của chính mình (kiểm tra `userId == request.auth.uid`).
 ## 3. Code rules hoàn chỉnh
 
 ```javascript
@@ -88,10 +88,10 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // Rules for cosmos_progress
-    match /cosmos_progress/{progressId} {
-      // Cho phép đọc/ghi nếu user đã đăng nhập và progressId bắt đầu bằng userId (VD: "userId_mapId")
-      allow read, write: if isAuthenticated() && progressId.matches(request.auth.uid + '_.*') || isAdmin();
+    // Rules for user_progress
+    match /user_progress/{userId} {
+      // User can only read and write their own progress
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
     }
     
     // Khóa mọi quyền truy cập mặc định cho các collection không định nghĩa

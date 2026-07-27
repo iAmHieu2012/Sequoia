@@ -14,7 +14,7 @@ import kotlinx.coroutines.withContext
  * Exposes a dedicated endpoint for injecting dummy data into the Firestore emulator during development.
  * 
  * Comprehensive seed covering all schema requirements:
- * users, textbooks, chapters, topics, articles, models, cosmos_maps, cosmos_progress.
+ * users, textbooks, chapters, topics, articles, models, cosmos_maps, user_progress.
  */
 fun Route.configureSeeder() {
     get("/seed-database") {
@@ -31,7 +31,7 @@ fun Route.configureSeeder() {
                 "topics",
                 "models",
                 "cosmos_maps",
-                "cosmos_progress"
+                "user_progress"
             )
             
             collectionsToClear.forEach { collectionName ->
@@ -283,7 +283,7 @@ fun Route.configureSeeder() {
             }
 
             // Seed Rogue Anomalies
-            val rogueId = "papers"
+            val rogueId = "standalone_articles"
             val rogueArticlesData = listOf(
                 mapOf(
                     "id" to "article_rogue_attention",
@@ -431,34 +431,23 @@ fun Route.configureSeeder() {
             )
             db.collection("cosmos_maps").document(rogueId).set(rogueMap).get()
 
-            // Seed Cosmos Progress
-            val progressMap = mapOf(
-                "systems-of-linear-equations" to "decoded",
-                "matrices" to "decoded",
-                "solving-systems-of-linear-equations" to "decoded",
-                "norms" to "decoding",
-                "inner-products" to "locked",
-                "gradients" to "locked"
-            )
-            
-            val cosmosProgress = mapOf(
-                "id" to "${userId}_$textbookId",
+            // Seed User Progress
+            val userProgress = mapOf(
+                "id" to userId,
                 "userId" to userId,
-                "mapId" to textbookId,
-                "progressMap" to progressMap
+                "completedArticleIds" to listOf(
+                    "systems-of-linear-equations",
+                    "matrices",
+                    "solving-systems-of-linear-equations",
+                    "attention-paper"
+                ),
+                "decodingArticleIds" to listOf(
+                    "norms",
+                    "resnet-paper"
+                ),
+                "lastActive" to System.currentTimeMillis()
             )
-            db.collection("cosmos_progress").document("${userId}_$textbookId").set(cosmosProgress).get()
-
-            val topicProgress = mapOf(
-                "id" to "${userId}_$rogueId",
-                "userId" to userId,
-                "mapId" to rogueId,
-                "progressMap" to mapOf(
-                    "attention-paper" to "decoded",
-                    "resnet-paper" to "decoding"
-                )
-            )
-            db.collection("cosmos_progress").document("${userId}_$rogueId").set(topicProgress).get()
+            db.collection("user_progress").document(userId).set(userProgress).get()
         }
         
         call.respondText("Database wiped and seeded with comprehensive English real-world data!")

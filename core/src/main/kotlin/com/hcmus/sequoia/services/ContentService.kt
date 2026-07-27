@@ -36,15 +36,17 @@ class ContentService {
     suspend fun getStandaloneArticles(): List<Article> = withContext(Dispatchers.IO) {
         val snapshot = FirebaseConfig.firestore.collection("articles")
             .whereEqualTo("isPublished", true)
-            .whereEqualTo("textbookId", null)
-            .whereEqualTo("topicId", null)
             .get()
             .get()
 
-        snapshot.documents.map { doc ->
+        snapshot.documents.mapNotNull { doc ->
             val article = doc.toObject(Article::class.java)
             article.id = doc.id
-            article
+            if (article.textbookId.isNullOrEmpty() && article.topicId.isNullOrEmpty() && article.chapterId.isNullOrEmpty()) {
+                article
+            } else {
+                null
+            }
         }
     }
 

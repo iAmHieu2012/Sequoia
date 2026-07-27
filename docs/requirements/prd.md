@@ -20,7 +20,7 @@ Tuy nhiên, bên dưới lớp Presentation, hệ thống vẫn duy trì một B
 graph TD
     subgraph "Tầng Hiển thị: The Neural Cosmos (Frontend + Cosmos DB)"
         A["Galaxy Map UI"] --> B["cosmos_maps (Bản đồ)"]
-        A --> C["cosmos_progress (Sương mù)"]
+        A --> C["user_progress (Tiến độ học tập)"]
         D["Datapad UI"] --> E["cosmos_nodes (Ngôi sao)"]
         F["Signal Tuner UI"] --> G["Tuner Configs"]
     end
