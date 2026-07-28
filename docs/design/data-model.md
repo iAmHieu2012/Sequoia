@@ -240,6 +240,24 @@ Document ID là `{userId}_{mapId}`. Gộp toàn bộ tiến trình của 1 user 
 | `progressMap` | `map` | ✅ | Map ánh xạ `articleId` -> `status` |
 | `progressMap.<articleId>` | `string` | ✅ | Trạng thái: `"locked"`, `"decoding"`, `"decoded"` |
 
+### ProgressSummary (Response Model)
+
+Đây là response model (không lưu trên Firestore), được tính toán realtime từ `user_progress` + `articles`.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| textbooks | Map<String, CategoryProgress> | Tiến độ theo từng textbook ID |
+| topics | Map<String, CategoryProgress> | Tiến độ theo từng topic ID |
+| standalone | Map<String, String> | Trạng thái từng standalone article (`decoded`/`decoding`/`locked`) |
+
+### CategoryProgress (Response Model)
+
+| Field | Type | Description |
+|-------|------|-------------|
+| total | Int | Tổng số articles trong category |
+| completed | Int | Số articles đã hoàn thành (decoded) |
+| decoding | Int | Số articles đang học (decoding) |
+
 ---
 
 ## 4. Phân tích chi phí (Read Cost)

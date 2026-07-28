@@ -731,6 +731,54 @@ Gọi khi người dùng giải mã thành công (chạy xong Signal Tuner).
 
 ---
 
+### 2.16. GET `/api/v1/users/progress/summary` — Tổng hợp tiến độ học tập
+
+Trả về tổng hợp tiến độ học tập của user, phân theo textbook, topic và standalone articles.
+
+**Auth Required:** Yes (Bearer Token)
+
+**Response (200 OK):**
+```json
+{
+  "data": {
+    "textbooks": {
+      "textbook_id_1": {
+        "total": 40,
+        "completed": 6,
+        "decoding": 2
+      }
+    },
+    "topics": {
+      "topic_id_1": {
+        "total": 8,
+        "completed": 3,
+        "decoding": 1
+      }
+    },
+    "standalone": {
+      "article_id_1": "decoded",
+      "article_id_2": "decoding",
+      "article_id_3": "locked"
+    }
+  }
+}
+```
+
+**Response Fields:**
+- `textbooks`: Map of textbook ID → progress. `total` = tổng articles trong textbook, `completed` = đã hoàn thành, `decoding` = đang học.
+- `topics`: Map of topic ID → progress. Cấu trúc tương tự textbooks.
+- `standalone`: Map of article ID → status string (`"decoded"`, `"decoding"`, `"locked"`).
+
+**Error Responses:**
+- `401 Unauthorized`: Token không hợp lệ hoặc hết hạn.
+
+**Ví dụ curl:**
+```bash
+curl -H "Authorization: Bearer <token>" http://localhost:8080/api/v1/users/progress/summary
+```
+
+---
+
 ## 3. Rate Limiting
 
 ### Giới hạn theo loại request

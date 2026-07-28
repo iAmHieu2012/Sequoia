@@ -106,6 +106,14 @@ fun Application.configureRouting() {
                     call.respond(mapOf("data" to progress))
                 }
 
+                get("/users/progress/summary") {
+                    val user = call.principal<MyAuthenticatedUser>()
+                    val userId = user?.id ?: throw UnauthorizedException("Invalid or expired token")
+                    
+                    val summary = cosmosService.getProgressSummary(userId)
+                    call.respond(mapOf("data" to summary))
+                }
+
                 post("/cosmos/progress/{mapId}/decode") {
                     val mapId = call.parameters["mapId"] ?: throw BadRequestException("Missing mapId parameter")
                     val user = call.principal<MyAuthenticatedUser>()
