@@ -1,0 +1,176 @@
+"use client";
+
+import { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
+import usePanZoom from "@/hooks/usePanZoom";
+import useCosmosData from "@/hooks/useCosmosData";
+import CyberBrackets from "@/components/ui/CyberBrackets";
+import styles from './CosmosMapPreview.module.css';
+
+const CANVAS_SIZE = 10000;
+
+interface CosmosMapPreviewProps {
+  targetX: number;
+  targetY: number;
+  targetScale?: number;
+  mapId?: string;
+  activeNodeId?: string;
+}
+
+export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, mapId, activeNodeId }: CosmosMapPreviewProps) {
+  const [mounted, setMounted] = useState(false);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  const { scale, translateX, translateY, isTransitioning, flyTo, handlers } = usePanZoom(viewportRef);
+  const { mapData, getNodeStatus } = useCosmosData(mapId);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  useEffect(() => {
+    if (activeNodeId && mapData) {
+      const activeNode = mapData.nodes.find(n => n.articleId === activeNodeId);
+      if (activeNode) {
+        flyTo(activeNode.x, activeNode.y, targetScale);
+        return;
+      }
+    }
+    flyTo(targetX, targetY, targetScale);
+  }, [targetX, targetY, targetScale, flyTo, activeNodeId, mapData]);
+
+  const labelOpacity = scale < 0.3 ? 0 : 1;
+
+  return (
+    <div
+      ref={viewportRef}
+      className="w-full h-full relative cursor-grab active:cursor-grabbing overflow-hidden select-none"
+      {...handlers}
+      style={{ 
+        '--label-opacity': labelOpacity,
+        backgroundImage: 'linear-gradient(rgba(0, 229, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 229, 255, 0.05) 1px, transparent 1px)',
+        backgroundSize: `${200 * scale}px ${200 * scale}px`,
+        backgroundPosition: `${translateX}px ${translateY}px`,
+        transition: isTransitioning ? 'background-position 0.8s cubic-bezier(0.25, 1, 0.5, 1), background-size 0.8s cubic-bezier(0.25, 1, 0.5, 1)' : 'none',
+      } as React.CSSProperties}
+    >
+      <div className={`${styles.fogOfWar} absolute inset-0 pointer-events-none z-[1]`} />
+      
+      <div
+        className={`${styles.mapCanvas} origin-top-left absolute will-change-transform z-[2]`}
+        style={{
+          width: CANVAS_SIZE,
+          height: CANVAS_SIZE,
+          transform: `translate(${translateX}px, ${translateY}px) scale(${scale})`,
+          transition: isTransitioning ? 'transform 0.8s cubic-bezier(0.25, 1, 0.5, 1)' : 'none',
+        }}
+      >
+        <div className={`${styles.contentLayer} absolute inset-0 z-[5]`}>
+
+          <svg className={`${styles.lightBeams} absolute inset-0 w-full h-full overflow-visible z-[2]`}>
+            {mapData &&
+              mapData.nodes.flatMap(node =>
+                node.connections.map(connId => {
+                  const target = mapData.nodes.find(n => n.articleId === connId);
+                  if (!target) return null;
+                  const beamType = node.celestialType === 'anomaly' ? styles.anomaly : styles.beamIlluminated;
+                  return <line key={`${node.articleId}-${connId}`} x1={node.x} y1={node.y} x2={target.x} y2={target.y} className={`${styles.beam} ${beamType}`} />;
+                })
+              )
+            }
+          </svg>
+
+          {/* Dynamic Nodes from API */}
+          {mapData &&
+            mapData.nodes.map((node) => {
+              const status = getNodeStatus(node.articleId);
+              const isAnomaly = node.celestialType === 'anomaly';
+              const statusClass = isAnomaly ? styles.anomaly : styles[status as keyof typeof styles] || '';
+
+              return (
+                <div
+                  key={node.articleId}
+                  className={`${styles.celestialObject} ${statusClass}`}
+                  style={{ left: node.x, top: node.y }}
+                  onClick={() => router.push(`/articles/${node.articleId}`)}
+                >
+                  {isAnomaly ? (
+                    <>
+                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-anomaly/10 rounded-full animate-ping" />
+                      <div className={`${styles.star} bg-anomaly shadow-[0_0_20px_#ff0055]`} />
+                      <div className={`${styles.objectLabel} text-anomaly text-xl font-bold animate-pulse`}>{node.title.replace(/ /g, '_').toUpperCase()}</div>
+                    </>
+                  ) : status === 'decoding' ? (
+                    <>
+                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border border-decoding/30 rounded-full animate-[spin_8s_linear_infinite] border-dashed" />
+                      <div className={styles.star} />
+                      <div className={`${styles.objectLabel} text-decoding text-xl font-bold drop-shadow-[0_0_10px_#ffaa00]`}>{node.title.replace(/ /g, '_').toUpperCase()}</div>
+                    </>
+                  ) : (
+                    <>
+                      {status === 'decoded' && (
+                        <>
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border border-decoded/20 rounded-full animate-[spin_10s_linear_infinite]" />
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 border border-decoded/10 rounded-full animate-[spin_15s_linear_infinite_reverse]" />
+                        </>
+                      )}
+                      <div className={styles.star} />
+                      <div className={`${styles.objectLabel} ${status === 'decoded' ? 'text-decoded drop-shadow-[0_0_10px_#00e5ff]' : ''}`}>{node.title}</div>
+                    </>
+                  )}
+
+                  <div className={`${styles.observationLog} scale-150 transform-origin-top-left`}>
+                    <div className={styles.logHeader}>
+                      <span>{node.celestialType} //</span>
+                      <span className="opacity-40">ID: {node.articleId.length > 10 ? node.articleId.substring(0, 10) + '...' : node.articleId}</span>
+                    </div>
+                    <div className={styles.logTitle}>{node.title}</div>
+                    <div className={styles.signalStatus}>
+                      <div className={styles.statusIndicator}>
+                        <div className={styles.statusDot} />
+                        <span className={styles.statusText}>
+                          {isAnomaly ? 'ANALYZING' : (status === 'decoding' ? 'DECODING' : (status === 'locked' ? 'LOCKED' : 'SYNCED'))}
+                        </span>
+                      </div>
+                      <span className="text-[0.65rem] text-text-dim">{status === 'locked' ? 'SYS_DENIED' : 'SYS_READY'}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          }
+
+        </div>
+      </div>
+
+      {/* Zoom HUD */}
+      <div className="absolute bottom-6 right-6 font-mono text-[10px] flex flex-col items-end gap-2 pointer-events-none z-[1000]">
+        <div className="relative bg-black/80 border border-decoded/30 px-4 py-2 flex flex-col items-end backdrop-blur-sm">
+          <CyberBrackets />
+          <div className="flex items-center gap-3 text-decoded mb-1">
+            <span className="tracking-widest opacity-60">SYS_ZOOM</span>
+            <span className="font-bold text-sm">{scale.toFixed(2)}x</span>
+          </div>
+          <div className="w-full h-[1px] bg-decoded/20 mb-2" />
+          <div className="flex items-center gap-2">
+            <div className="text-[8px] text-text-dim tracking-widest uppercase">Target_Lock</div>
+            <div className="text-white font-bold">{Math.round(-translateX)}, {Math.round(-translateY)}</div>
+          </div>
+        </div>
+
+        <button
+          className="pointer-events-auto bg-decoded/10 border border-decoded/30 text-decoded px-4 py-2 hover:bg-decoded/20 hover:text-white transition-all duration-300 cursor-pointer uppercase tracking-widest relative group"
+          onClick={(e) => {
+            e.stopPropagation();
+            flyTo(5000, 5000, 0.2);
+          }}
+        >
+          <CyberBrackets color="border-decoded/50 group-hover:border-white transition-colors duration-300" />
+          <span className="relative z-10 flex items-center gap-2">
+            <div className="w-1.5 h-1.5 bg-decoded group-hover:bg-white animate-pulse transition-colors duration-300" />
+            RECENTER_MAP
+          </span>
+        </button>
+      </div>
+    </div>
+  );
+}

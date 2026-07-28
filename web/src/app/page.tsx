@@ -1,90 +1,98 @@
-import Link from "next/link";
+"use client";
 
-interface Textbook {
-  id: string;
-  title: string;
-  description: string;
-  authors: string[];
-  sortOrder: number;
-}
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { Crosshair, ArrowRight, Sparkles, Network } from 'lucide-react';
 
-async function getTextbooks(): Promise<Textbook[]> {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080'}/api/v1/textbooks`, { 
-      cache: "no-store" 
+import CyberBrackets from '@/components/ui/CyberBrackets';
+
+export default function LandingPage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
     });
-    if (!res.ok) throw new Error("Failed to fetch");
-    const json = await res.json();
-    return json.data || [];
-  } catch (error) {
-    console.error("Error fetching textbooks:", error);
-    return [];
-  }
-}
+    return () => unsubscribe();
+  }, []);
 
-export default async function Home() {
-  const textbooks = await getTextbooks();
+  const handleEnterSystem = () => {
+    if (loading) return;
+    if (user) {
+      router.push('/dashboard');
+    } else {
+      router.push('/login');
+    }
+  };
 
   return (
-    <main className="max-w-6xl mx-auto px-6 py-20">
-      {/* Header Section */}
-      <div className="text-center mb-20">
-        <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6">
-          Làm chủ AI cùng <span className="text-gradient">Interactive Playgrounds</span>
+    <div className="min-h-screen bg-[#020205] flex flex-col items-center justify-center p-4 relative overflow-hidden text-text-main font-sans">
+      
+      {/* Cyber Grid Background */}
+      <div className="fixed inset-0 pointer-events-none z-0 opacity-50" style={{
+        backgroundImage: 'linear-gradient(rgba(0, 229, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 229, 255, 0.03) 1px, transparent 1px)',
+        backgroundSize: '40px 40px'
+      }} />
+
+      {/* Center Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] md:w-[50vw] md:h-[50vw] rounded-full bg-decoded/5 blur-[120px] pointer-events-none" />
+
+      {/* Main Content */}
+      <div className="relative z-10 w-full max-w-4xl flex flex-col items-center text-center">
+        
+        <div className="flex items-center gap-3 mb-6">
+          <Crosshair className="w-10 h-10 text-decoded animate-[spin_6s_linear_infinite]" />
+          <span className="font-mono text-xs md:text-sm tracking-[0.4em] text-decoded">
+            SYS.CORE.INITIALIZED
+          </span>
+        </div>
+
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-black text-white tracking-[0.15em] m-0 mb-4 leading-none drop-shadow-[0_0_20px_rgba(0,229,255,0.4)]">
+          SEQUOIA
         </h1>
-        <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
-          Nền tảng học Machine Learning bài bản nhất. 
-          Đọc lý thuyết chuyên sâu và chạy thử mô hình AI trực tiếp ngay trên trình duyệt.
-        </p>
-      </div>
-
-      {/* Course Grid */}
-      <div className="mb-10 flex items-center justify-between">
-        <h2 className="text-2xl font-semibold flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-          Featured Textbooks
+        
+        <h2 className="text-xl md:text-3xl font-heading text-white/80 tracking-widest uppercase mb-8">
+          The <span className="text-decoded">Neural</span> Cosmos
         </h2>
+
+        <div className="max-w-2xl bg-black/40 border border-panel-border p-6 relative group mb-12">
+          <CyberBrackets color="border-decoded/30 group-hover:border-decoded/60 transition-colors duration-500" />
+          <p className="text-text-dim text-sm md:text-base font-mono tracking-wider leading-relaxed">
+            Welcome to the next evolution of AI education. Traverse the neural pathways, decode complex machine learning models directly on your device, and map the unexplored sectors of artificial intelligence.
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-6 w-full max-w-sm justify-center">
+          <button 
+            onClick={handleEnterSystem}
+            disabled={loading}
+            className={`w-full py-4 px-8 relative group overflow-hidden border transition-all duration-300 ${loading ? 'opacity-50 cursor-not-allowed border-decoded/10 bg-transparent' : 'bg-decoded/10 border-decoded/30 hover:bg-decoded/20'}`}
+          >
+            {!loading && <div className="absolute left-0 top-0 w-1 h-full bg-decoded scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out" />}
+            <span className="relative z-10 flex items-center justify-center font-heading font-bold tracking-[0.2em] text-decoded text-sm uppercase">
+              {loading ? "INITIALIZING..." : "ENTER_SYSTEM"}
+              {!loading && <ArrowRight className="ml-2 h-4 w-4 opacity-70 group-hover:translate-x-1 transition-transform" />}
+            </span>
+            {!loading && <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-decoded/20 to-transparent transition-transform duration-700 ease-out pointer-events-none" />}
+          </button>
+        </div>
+
       </div>
 
-      {textbooks.length === 0 ? (
-        <div className="glass-card p-12 text-center text-gray-400">
-          <p>No textbooks found. Please start the Ktor Backend server to load data.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {textbooks.map((book) => (
-            <Link href={`/textbooks/${book.id}`} key={book.id} className="group outline-none">
-              <div className="glass-card h-full p-8 flex flex-col relative overflow-hidden">
-                {/* Decorative glow inside card */}
-                <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/20 rounded-full blur-3xl group-hover:bg-primary/30 transition-all duration-500"></div>
-                
-                <div className="mb-6 flex-grow z-10">
-                  <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">
-                    {book.title}
-                  </h3>
-                  <p className="text-gray-400 text-sm leading-relaxed line-clamp-3">
-                    {book.description}
-                  </p>
-                </div>
-                
-                <div className="mt-auto pt-6 border-t border-white/10 z-10 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-xs font-bold text-white shadow-inner">
-                      {book.authors[0]?.charAt(0) || "A"}
-                    </div>
-                    <span className="text-xs text-gray-400 font-medium">
-                      {book.authors.join(", ")}
-                    </span>
-                  </div>
-                  <div className="text-primary bg-primary/10 p-2 rounded-full group-hover:bg-primary/20 group-hover:text-primary transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
-    </main>
+      {/* Decorative Elements */}
+      <div className="absolute bottom-8 left-8 flex items-center gap-2 text-text-dim/50 font-mono text-[10px] tracking-widest hidden md:flex">
+        <Network className="w-4 h-4" />
+        <span>NODE: ONLINE</span>
+      </div>
+      <div className="absolute bottom-8 right-8 flex items-center gap-2 text-text-dim/50 font-mono text-[10px] tracking-widest hidden md:flex">
+        <Sparkles className="w-4 h-4" />
+        <span>V 2.0.26</span>
+      </div>
+    </div>
   );
 }
