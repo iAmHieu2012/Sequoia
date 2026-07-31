@@ -65,9 +65,9 @@ Mọi lỗi trả về cùng format thống nhất:
 
 ## 2. Endpoints
 
-### 2.1. GET `/api/v1/textbooks` — Danh sách giáo trình (Sectors)
+### 2.1. GET `/api/v1/textbooks` — Danh sách PDF (Textbooks)
 
-Lấy danh sách tất cả giáo trình, sắp xếp theo `sortOrder`.
+Lấy danh sách tất cả file PDF lưu trữ.
 
 | | |
 | --- | --- |
@@ -82,13 +82,9 @@ Lấy danh sách tất cả giáo trình, sắp xếp theo `sortOrder`.
     {
       "id": "Ld9kX3mPqR2s",
       "title": "Mathematics for Machine Learning",
-      "authors": ["Marc Peter Deisenroth", "A. Aldo Faisal"],
       "description": "Comprehensive foundation of mathematics for machine learning...",
-      "coverImageUrl": "https://r2.sequoia.dev/covers/nhap-mon-ml.jpg",
-      "totalChapters": 12,
-      "sortOrder": 1,
-      "createdAt": 1780272000000,
-      "updatedAt": 1783856400000
+      "pdfUrl": "https://r2.sequoia.dev/pdfs/mml.pdf",
+      "coverImageUrl": "https://r2.sequoia.dev/covers/nhap-mon-ml.jpg"
     }
   ]
 }
@@ -102,102 +98,9 @@ curl -X GET "https://api.sequoia.dev/api/v1/textbooks"
 
 ---
 
-### 2.2. GET `/api/v1/textbooks/:id/chapters` — Danh sách chương (Constellations) theo giáo trình
 
-Lấy danh sách chương của một giáo trình, sắp xếp theo `sortOrder`.
 
-| | |
-| --- | --- |
-| **Auth Required** | ❌ |
-| **Method** | `GET` |
-
-#### Path Parameters
-
-| Param | Type | Description |
-| --- | --- | --- |
-| `id` | `string` | ID của giáo trình |
-
-#### Response 200
-
-```json
-{
-  "data": [
-    {
-      "id": "Wn5tY8vBcD1f",
-      "textbookId": "Ld9kX3mPqR2s",
-      "title": "Chapter 2: Analytic Geometry",
-      "description": "Understanding norms, inner products, and orthogonality...",
-      "sortOrder": 3,
-      "articleCount": 5,
-      "createdAt": 1780611600000
-    }
-  ]
-}
-```
-
-#### Response 404
-
-```json
-{
-  "code": "RESOURCE_NOT_FOUND",
-  "message": "Textbook not found.",
-  "details": { "textbookId": "invalid-id" }
-}
-```
-
-#### Ví dụ curl
-
-```bash
-curl -X GET "https://api.sequoia.dev/api/v1/textbooks/Ld9kX3mPqR2s/chapters"
-```
-
----
-
-### 2.3. GET `/api/v1/chapters/:id/articles` — Danh sách bài viết (Stars) theo chương
-
-Lấy danh sách bài viết đã publish thuộc một chương.
-
-| | |
-| --- | --- |
-| **Auth Required** | ❌ |
-| **Method** | `GET` |
-
-#### Path Parameters
-
-| Param | Type | Description |
-| --- | --- | --- |
-| `id` | `string` | ID của chương |
-
-#### Response 200
-
-```json
-{
-  "data": [
-    {
-      "id": "norms-and-inner-products",
-      "title": "Norms and Inner Products",
-      "slug": "norms-and-inner-products",
-      "summary": "Understanding distance and angles in vector spaces...",
-      "tags": ["linear-algebra", "geometry", "vectors"],
-      "isPublished": true,
-      "createdAt": 1781481600000
-    }
-  ]
-}
-```
-
-> [!NOTE]
-> Response danh sách bài viết **không** bao gồm `content` và `playgroundBlocks` để giảm payload. Dùng endpoint chi tiết (`GET /articles/:slug`) để lấy đầy đủ.
-
-#### Ví dụ curl
-
-```bash
-curl -X GET "https://api.sequoia.dev/api/v1/chapters/Wn5tY8vBcD1f/articles"
-```
-
----
-
-### 2.4. GET `/api/v1/topics` — Danh sách chủ đề độc lập (Free Nebulas)
+### 2.2. GET `/api/v1/topics` — Danh sách chủ đề độc lập (Free Nebulas)
 
 Lấy tất cả chủ đề, sắp xếp theo `sortOrder`.
 
@@ -232,7 +135,7 @@ curl -X GET "https://api.sequoia.dev/api/v1/topics"
 
 ---
 
-### 2.5. GET `/api/v1/topics/:id/articles` — Danh sách bài viết (Rogue Stars) theo chủ đề
+### 2.3. GET `/api/v1/topics/:id/articles` — Danh sách bài viết (Rogue Stars) theo chủ đề
 
 Lấy danh sách bài viết đã publish thuộc một chủ đề, mới nhất trước.
 
@@ -283,7 +186,7 @@ curl -X GET "https://api.sequoia.dev/api/v1/topics/Hj3kM7nPqS9w/articles"
 
 ---
 
-### 2.6. GET `/api/v1/articles/standalone` — Danh sách bài viết tự do (Standalone Articles)
+### 2.4. GET `/api/v1/articles/standalone` — Danh sách bài viết tự do (Standalone Articles)
 
 Lấy danh sách tất cả các bài viết tự do (không thuộc giáo trình hay chủ đề, `textbookId = null` và `topicId = null`). Các bài viết này thường được map vào các bản đồ `rogue_anomalies`.
 
@@ -318,7 +221,7 @@ curl -X GET "https://api.sequoia.dev/api/v1/articles/standalone"
 
 ---
 
-### 2.7. GET `/api/v1/articles/:slug` — Chi tiết bài viết
+### 2.5. GET `/api/v1/articles/:slug` — Chi tiết bài viết
 
 Lấy toàn bộ nội dung bài viết kèm cấu hình playground dựa trên slug.
 
@@ -343,9 +246,7 @@ Lấy toàn bộ nội dung bài viết kèm cấu hình playground dựa trên 
     "slug": "norms-and-inner-products",
     "content": "# Norms and Inner Products\n\nIn this log, we explore...",
     "summary": "Understanding distance and angles in vector spaces...",
-    "chapterId": "Wn5tY8vBcD1f",
     "topicId": "Hj3kM7nPqS9w",
-    "textbookId": "Ld9kX3mPqR2s",
     "playgroundBlocks": [
       {
         "modelId": "Rt6uI0oLkJ2h",
@@ -394,7 +295,7 @@ curl -X GET "https://api.sequoia.dev/api/v1/articles/neural-network-co-ban"
 
 ---
 
-### 2.7. GET `/api/v1/articles/search` — Tìm kiếm full-text
+### 2.6. GET `/api/v1/articles/search` — Tìm kiếm full-text
 
 Tìm kiếm bài viết theo từ khóa (dựa trên Tiền tố của `title` HOẶC chính xác `tags` cho phiên bản MVP).
 
@@ -448,7 +349,7 @@ curl -X GET "https://api.sequoia.dev/api/v1/articles/search?q=neural+network"
 
 ---
 
-### 2.8. GET `/api/v1/models/:id` — Thông tin model + download URL
+### 2.7. GET `/api/v1/models/:id` — Thông tin model + download URL
 
 Lấy metadata và URL tải model AI.
 
@@ -497,7 +398,7 @@ curl -X GET "https://api.sequoia.dev/api/v1/models/Rt6uI0oLkJ2h"
 
 ---
 
-### 2.9. POST `/api/v1/uploads/presigned-url` — Tạo presigned URL upload
+### 2.8. POST `/api/v1/uploads/presigned-url` — Tạo presigned URL upload
 
 Tạo presigned URL để client upload file trực tiếp lên R2.
 
@@ -602,7 +503,7 @@ curl -X PUT "<uploadUrl-from-step-1>" \
 
 
 
-### 2.12. GET `/api/v1/users/me` — Thông tin user hiện tại
+### 2.9. GET `/api/v1/users/me` — Thông tin user hiện tại
 
 Lấy thông tin profile của user đang đăng nhập.
 
@@ -643,9 +544,9 @@ curl -X GET "https://api.sequoia.dev/api/v1/users/me" \
 
 ---
 
-### 2.13. GET `/api/v1/cosmos/maps/:mapId` — Lấy Bản đồ Sao (Galaxy Map)
+### 2.10. GET `/api/v1/cosmos/maps/:mapId` — Lấy Bản đồ Sao (Galaxy Map)
 
-Trả về toàn bộ cấu trúc bản đồ của một Giáo trình hoặc Chủ đề. Tối ưu 1 Firestore Read.
+Trả về toàn bộ cấu trúc bản đồ của một Chủ đề hoặc bản đồ tự do. Tối ưu 1 Firestore Read.
 
 | | |
 | --- | --- |
@@ -658,7 +559,7 @@ Trả về toàn bộ cấu trúc bản đồ của một Giáo trình hoặc Ch
 {
   "data": {
     "id": "mml-id",
-    "mapType": "textbook",
+    "mapType": "topic",
     "theme": "cosmos",
     "nodes": [
       {
@@ -676,7 +577,7 @@ Trả về toàn bộ cấu trúc bản đồ của một Giáo trình hoặc Ch
 
 ---
 
-### 2.14. GET `/api/v1/cosmos/progress/:mapId` — Lấy Tiến trình (Fog of War)
+### 2.11. GET `/api/v1/cosmos/progress/:mapId` — Lấy Tiến trình (Fog of War)
 
 Trả về trạng thái mở khóa của user trên bản đồ.
 
@@ -701,7 +602,7 @@ Trả về trạng thái mở khóa của user trên bản đồ.
 
 ---
 
-### 2.15. POST `/api/v1/cosmos/progress/:mapId/decode` — Cập nhật Tiến trình (Mở khóa tín hiệu)
+### 2.12. POST `/api/v1/cosmos/progress/:mapId/decode` — Cập nhật Tiến trình (Mở khóa tín hiệu)
 
 Gọi khi người dùng giải mã thành công (chạy xong Signal Tuner).
 
@@ -731,9 +632,9 @@ Gọi khi người dùng giải mã thành công (chạy xong Signal Tuner).
 
 ---
 
-### 2.16. GET `/api/v1/users/progress/summary` — Tổng hợp tiến độ học tập
+### 2.13. GET `/api/v1/users/progress/summary` — Tổng hợp tiến độ học tập
 
-Trả về tổng hợp tiến độ học tập của user, phân theo textbook, topic và standalone articles.
+Trả về tổng hợp tiến độ học tập của user, phân theo topic và standalone articles.
 
 **Auth Required:** Yes (Bearer Token)
 
@@ -741,13 +642,6 @@ Trả về tổng hợp tiến độ học tập của user, phân theo textbook
 ```json
 {
   "data": {
-    "textbooks": {
-      "textbook_id_1": {
-        "total": 40,
-        "completed": 6,
-        "decoding": 2
-      }
-    },
     "topics": {
       "topic_id_1": {
         "total": 8,
@@ -765,9 +659,8 @@ Trả về tổng hợp tiến độ học tập của user, phân theo textbook
 ```
 
 **Response Fields:**
-- `textbooks`: Map of textbook ID → progress. `total` = tổng articles trong textbook, `completed` = đã hoàn thành, `decoding` = đang học.
-- `topics`: Map of topic ID → progress. Cấu trúc tương tự textbooks.
-- `standalone`: Map of article ID → status string (`"decoded"`, `"decoding"`, `"locked"`).
+- `topics`: Map of topic ID → progress. `total` = tổng articles trong topic, `completed` = đã hoàn thành.
+- `standalone`: Map of article ID → status string (`"decoded"`, `"unread"`).
 
 **Error Responses:**
 - `401 Unauthorized`: Token không hợp lệ hoặc hết hạn.

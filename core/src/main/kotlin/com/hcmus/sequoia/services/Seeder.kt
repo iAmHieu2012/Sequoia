@@ -25,7 +25,6 @@ fun Route.configureSeeder() {
             val collectionsToClear = listOf(
                 "users",
                 "textbooks",
-                "chapters",
                 "articles",
                 "article_contents",
                 "topics",
@@ -83,162 +82,13 @@ fun Route.configureSeeder() {
                 "description" to "The fundamental mathematical tools needed to understand machine learning.", 
                 "authors" to listOf("Marc Peter Deisenroth", "A. Aldo Faisal", "Cheng Soon Ong"), 
                 "coverImageUrl" to "https://cdn.sequoia.ai/covers/mml-book.jpg",
-                "totalChapters" to 3, // Simplifying for seeder
+                "pdfUrl" to "https://example.com/dummy.pdf",
                 "sortOrder" to 1,
                 "createdAt" to now,
                 "updatedAt" to now
             )
             db.collection("textbooks").document(textbookId).set(textbook).get()
 
-            // Seed Chapters
-            val ch1Id = "chapter_mml_1"
-            val ch2Id = "chapter_mml_2"
-            val ch3Id = "chapter_mml_3"
-            
-            db.collection("chapters").document(ch1Id).set(
-                mapOf(
-                    "id" to ch1Id,
-                    "textbookId" to textbookId,
-                    "title" to "Linear Algebra",
-                    "description" to "Concepts of vector spaces, matrices, and systems of linear equations.",
-                    "sortOrder" to 1,
-                    "articleCount" to 3,
-                    "createdAt" to now
-                )
-            ).get()
-            
-            db.collection("chapters").document(ch2Id).set(
-                mapOf(
-                    "id" to ch2Id,
-                    "textbookId" to textbookId,
-                    "title" to "Analytic Geometry",
-                    "description" to "Norms, inner products, lengths and distances, and orthogonal projections.",
-                    "sortOrder" to 2,
-                    "articleCount" to 2,
-                    "createdAt" to now
-                )
-            ).get()
-            
-            db.collection("chapters").document(ch3Id).set(
-                mapOf(
-                    "id" to ch3Id,
-                    "textbookId" to textbookId,
-                    "title" to "Vector Calculus",
-                    "description" to "Differentiation of univariate and multivariate functions, and gradients.",
-                    "sortOrder" to 3,
-                    "articleCount" to 1,
-                    "createdAt" to now
-                )
-            ).get()
-
-            // Seed Articles
-            val articles = listOf(
-                // Chapter 1: Linear Algebra
-                mapOf(
-                    "id" to "article_mml_1_1",
-                    "title" to "Systems of Linear Equations",
-                    "slug" to "systems-of-linear-equations",
-                    "chapterId" to ch1Id,
-                    "textbookId" to textbookId,
-                    "isPublished" to true,
-                    "content" to "## Systems of Linear Equations\n\nA central part of linear algebra is the study of systems of linear equations.",
-                    "summary" to "Introduction to linear equations and matrix representation.",
-                    "tags" to listOf("math", "linear-algebra"),
-                    "playgroundBlocks" to emptyList<Any>(),
-                    "createdAt" to now,
-                    "updatedAt" to now,
-                    "publishedAt" to now
-                ),
-                mapOf(
-                    "id" to "article_mml_1_2",
-                    "title" to "Matrices",
-                    "slug" to "matrices",
-                    "chapterId" to ch1Id,
-                    "textbookId" to textbookId,
-                    "isPublished" to true,
-                    "content" to "## Matrices\n\nMatrices are fundamental to machine learning because they allow us to represent data efficiently.",
-                    "summary" to "Matrix operations and their properties.",
-                    "tags" to listOf("math", "linear-algebra", "matrices"),
-                    "playgroundBlocks" to emptyList<Any>(),
-                    "createdAt" to now,
-                    "updatedAt" to now,
-                    "publishedAt" to now
-                ),
-                mapOf(
-                    "id" to "article_mml_1_3",
-                    "title" to "Solving Systems of Linear Equations",
-                    "slug" to "solving-systems-of-linear-equations",
-                    "chapterId" to ch1Id,
-                    "textbookId" to textbookId,
-                    "isPublished" to true,
-                    "content" to "## Solving Systems\n\nGaussian elimination is an algorithm for solving systems of linear equations.",
-                    "summary" to "Algorithms for finding solutions to linear systems.",
-                    "tags" to listOf("math", "linear-algebra", "algorithms"),
-                    "playgroundBlocks" to emptyList<Any>(),
-                    "createdAt" to now,
-                    "updatedAt" to now,
-                    "publishedAt" to now
-                ),
-                // Chapter 2: Analytic Geometry
-                mapOf(
-                    "id" to "article_mml_2_1",
-                    "title" to "Norms",
-                    "slug" to "norms",
-                    "chapterId" to ch2Id,
-                    "textbookId" to textbookId,
-                    "isPublished" to true,
-                    "content" to "## Norms\n\nA norm is a function that assigns a strictly positive length or size to each vector in a vector space.",
-                    "summary" to "Measuring the length of vectors.",
-                    "tags" to listOf("math", "geometry", "norms"),
-                    "playgroundBlocks" to emptyList<Any>(),
-                    "createdAt" to now,
-                    "updatedAt" to now,
-                    "publishedAt" to now
-                ),
-                mapOf(
-                    "id" to "article_mml_2_2",
-                    "title" to "Inner Products",
-                    "slug" to "inner-products",
-                    "chapterId" to ch2Id,
-                    "textbookId" to textbookId,
-                    "isPublished" to true,
-                    "content" to "## Inner Products\n\nInner products allow the introduction of intuitive geometrical concepts, such as the length of a vector and the angle between two vectors.",
-                    "summary" to "Geometrical concepts in vector spaces.",
-                    "tags" to listOf("math", "geometry"),
-                    "playgroundBlocks" to emptyList<Any>(),
-                    "createdAt" to now,
-                    "updatedAt" to now,
-                    "publishedAt" to now
-                ),
-                // Chapter 3: Vector Calculus
-                mapOf(
-                    "id" to "article_mml_3_1",
-                    "title" to "Gradients",
-                    "slug" to "gradients",
-                    "chapterId" to ch3Id,
-                    "textbookId" to textbookId,
-                    "isPublished" to true,
-                    "content" to "## Gradients\n\nThe gradient represents the slope of the tangent of the graph of the function. It points in the direction of the greatest rate of increase of the function.",
-                    "summary" to "Multivariate differentiation and gradients.",
-                    "tags" to listOf("math", "calculus", "optimization"),
-                    "playgroundBlocks" to emptyList<Any>(),
-                    "createdAt" to now,
-                    "updatedAt" to now,
-                    "publishedAt" to now
-                )
-            )
-            
-            articles.forEach { article ->
-                val slug = article["slug"] as String
-                val metadata = article.filterKeys { it != "content" && it != "playgroundBlocks" }
-                val contents = mapOf(
-                    "id" to slug,
-                    "content" to article["content"],
-                    "playgroundBlocks" to article["playgroundBlocks"]
-                )
-                db.collection("articles").document(slug).set(metadata).get()
-                db.collection("article_contents").document(slug).set(contents).get()
-            }
 
             // Seed a Topic (Free Nebula) for the Nebulas tab
             val cvTopicId = "topic_cv"
@@ -324,59 +174,6 @@ fun Route.configureSeeder() {
             }
 
             // Seed Cosmos Maps
-            val mapNodes = listOf(
-                // Chapter 1: Linear Algebra
-                mapOf(
-                    "articleId" to "systems-of-linear-equations",
-                    "title" to "Systems of Linear Equations",
-                    "celestialType" to "star",
-                    "x" to 4500.0,
-                    "y" to 4800.0,
-                    "connections" to listOf("matrices")
-                ),
-                mapOf(
-                    "articleId" to "matrices",
-                    "title" to "Matrices",
-                    "celestialType" to "binary_star",
-                    "x" to 5000.0,
-                    "y" to 4500.0,
-                    "connections" to listOf("solving-systems-of-linear-equations")
-                ),
-                mapOf(
-                    "articleId" to "solving-systems-of-linear-equations",
-                    "title" to "Solving Systems",
-                    "celestialType" to "star",
-                    "x" to 5200.0,
-                    "y" to 5000.0,
-                    "connections" to emptyList<String>()
-                ),
-                // Chapter 2: Analytic Geometry
-                mapOf(
-                    "articleId" to "norms",
-                    "title" to "Norms",
-                    "celestialType" to "star",
-                    "x" to 7200.0,
-                    "y" to 2800.0,
-                    "connections" to listOf("inner-products")
-                ),
-                mapOf(
-                    "articleId" to "inner-products",
-                    "title" to "Inner Products",
-                    "celestialType" to "star",
-                    "x" to 7000.0,
-                    "y" to 2000.0,
-                    "connections" to emptyList<String>()
-                ),
-                // Chapter 3: Vector Calculus
-                mapOf(
-                    "articleId" to "gradients",
-                    "title" to "Gradients",
-                    "celestialType" to "star",
-                    "x" to 3000.0,
-                    "y" to 7500.0,
-                    "connections" to emptyList<String>()
-                )
-            )
             val cvTopicNodes = listOf(
                 mapOf(
                     "articleId" to "image-classification",
@@ -407,14 +204,6 @@ fun Route.configureSeeder() {
                 )
             )
             
-            val cosmosMap = mapOf(
-                "id" to textbookId,
-                "mapType" to "textbook",
-                "theme" to "cosmos",
-                "nodes" to mapNodes
-            )
-            db.collection("cosmos_maps").document(textbookId).set(cosmosMap).get()
-
             val cvMap = mapOf(
                 "id" to cvTopicId,
                 "mapType" to "topic",
@@ -436,15 +225,12 @@ fun Route.configureSeeder() {
                 "id" to userId,
                 "userId" to userId,
                 "completedArticleIds" to listOf(
-                    "systems-of-linear-equations",
-                    "matrices",
-                    "solving-systems-of-linear-equations",
+                    "image-classification",
                     "attention-paper"
                 ),
-                "decodingArticleIds" to listOf(
-                    "norms",
-                    "resnet-paper"
-                ),
+                "currentStreak" to 5,
+                "longestStreak" to 12,
+                "activeDates" to listOf("2026-07-27", "2026-07-28", "2026-07-29", "2026-07-30", "2026-07-31"),
                 "lastActive" to System.currentTimeMillis()
             )
             db.collection("user_progress").document(userId).set(userProgress).get()

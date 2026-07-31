@@ -1,7 +1,7 @@
 # Luồng người dùng — Sequoia (The Neural Cosmos)
 
-> Tài liệu mô tả chi tiết các luồng tương tác chính của người dùng, lấy UI "The Neural Cosmos" làm chủ đạo. Tuy nhiên, API ngầm bên dưới vẫn giao tiếp với các hệ thống giáo trình, bài viết cốt lõi.
-> Cập nhật lần cuối: 2026-07-20
+> Tài liệu mô tả chi tiết các luồng tương tác chính của người dùng, lấy UI "The Neural Cosmos" làm chủ đạo. Tuy nhiên, API ngầm bên dưới vẫn giao tiếp với hệ thống bài viết cốt lõi.
+> Cập nhật lần cuối: 2026-07-30
 
 ---
 
@@ -9,9 +9,9 @@
 
 ```mermaid
 flowchart TD
-    A["🌌 Màn hình chính (Vũ trụ tối)"] --> B["Khám phá Dải ngân hà (Sectors) / Tinh vân (Topics)"]
-    B --> C["Ktor API: GET /api/v1/textbooks & /api/v1/topics"]
-    C --> D["Chọn Sector hoặc Nebula<br/>(vd: Sector: MML)"]
+    A["🌌 Màn hình chính (Vũ trụ tối)"] --> B["Khám phá Tinh vân (Topics) / Bất thường (Anomalies)"]
+    B --> C["Ktor API: GET /api/v1/topics"]
+    C --> D["Chọn Nebula hoặc Vùng tự do<br/>(vd: Topic: Deep Learning)"]
     D --> E["Load Bản đồ Sao<br/>(Galaxy Map)"]
     
     E --> F["Ktor API: GET /api/v1/cosmos/maps/{mapId}<br/>(Tốn 1 Read)"]
@@ -21,9 +21,8 @@ flowchart TD
     G --> H
     
     H --> I["Hiển thị Sương mù (Fog of War)"]
-    I --> J["Ngôi sao 'locked' bị ẩn mờ<br/>Ngôi sao 'decoding' nhấp nháy<br/>Ngôi sao 'decoded' phát sáng"]
-    
-    J --> K["Click vào ngôi sao đang nhấp nháy (decoding)"]
+    I --> J["Ngôi sao chưa đọc (unread) sáng bình thường<br/>Ngôi sao 'decoded' phát sáng rực rỡ"]
+    J --> K["Click vào ngôi sao bất kỳ"]
     K --> L["Mở Datapad (Đọc nội dung bài viết)"]
     L --> M["Ktor API: GET /api/v1/articles/{articleId}"]
 ```

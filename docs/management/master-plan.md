@@ -47,7 +47,7 @@ Nguyên tắc: nội dung ngắn gọn, không đi sâu vào tiểu tiết. Mỗ
 Luồng duyệt học liệu: Người dùng truy cập ứng dụng và được chào đón bởi **Bản đồ Vũ trụ (Galaxy Map)**.
 - Họ chọn một Vùng không gian (Sector) tương ứng với giáo trình muốn học (VD: Foundation Sector / MML).
 - Họ quan sát các Chòm sao (Constellations - tương ứng với các Chương) và thấy các Ngôi sao (Celestial Objects - tương ứng với Bài viết).
-- Các ngôi sao chưa học bị che bởi sương mù. Người dùng click vào một Ngôi sao đang phát tín hiệu (Decoding) để mở giao diện bài học (Astronomer's Log / Datapad).
+- Các ngôi sao chưa học sáng bình thường chờ khám phá. Người dùng click vào một Ngôi sao bất kỳ để mở giao diện bài học (Astronomer's Log / Datapad).
 - Đọc lý thuyết, cuộn đến phần **Signal Tuner (Playground nhúng)**, chạy thử mô hình (cấp quyền camera, kéo threshold).
 - Hoàn thành bài học, tín hiệu báo "DECODED", ngôi sao trên bản đồ bùng sáng và mở khóa đường đi tới ngôi sao tiếp theo.
 

@@ -1,4 +1,4 @@
-export default function CyberBrackets({ color = "border-decoded/50" }: { color?: string }) {
+export default function CyberBrackets({ color = "border-system/50" }: { color?: string }) {
   return (
     <>
       <div className={`absolute top-0 left-0 w-2.5 h-2.5 border-t-2 border-l-2 ${color}`} />

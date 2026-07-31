@@ -20,7 +20,6 @@ export async function initializeUserRecord(user: { uid: string; email: string | 
       id: user.uid,
       userId: user.uid,
       completedArticleIds: [],
-      decodingArticleIds: [],
       lastActive: Date.now()
     });
   }

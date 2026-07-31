@@ -47,7 +47,7 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
       {...handlers}
       style={{ 
         '--label-opacity': labelOpacity,
-        backgroundImage: 'linear-gradient(rgba(0, 229, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 229, 255, 0.05) 1px, transparent 1px)',
+        backgroundImage: 'linear-gradient(color-mix(in srgb, var(--system) 5%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--system) 5%, transparent) 1px, transparent 1px)',
         backgroundSize: `${200 * scale}px ${200 * scale}px`,
         backgroundPosition: `${translateX}px ${translateY}px`,
         transition: isTransitioning ? 'background-position 0.8s cubic-bezier(0.25, 1, 0.5, 1), background-size 0.8s cubic-bezier(0.25, 1, 0.5, 1)' : 'none',
@@ -82,9 +82,9 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
           {/* Dynamic Nodes from API */}
           {mapData &&
             mapData.nodes.map((node) => {
-              const status = getNodeStatus(node.articleId);
+              const isCompleted = getNodeStatus(node.articleId);
               const isAnomaly = node.celestialType === 'anomaly';
-              const statusClass = isAnomaly ? styles.anomaly : styles[status as keyof typeof styles] || '';
+              const statusClass = isAnomaly ? styles.anomaly : (isCompleted ? styles.decoded : styles.unknown);
 
               return (
                 <div
@@ -95,26 +95,20 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
                 >
                   {isAnomaly ? (
                     <>
-                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-anomaly/10 rounded-full animate-ping" />
-                      <div className={`${styles.star} bg-anomaly shadow-[0_0_20px_#ff0055]`} />
-                      <div className={`${styles.objectLabel} text-anomaly text-xl font-bold animate-pulse`}>{node.title.replace(/ /g, '_').toUpperCase()}</div>
-                    </>
-                  ) : status === 'decoding' ? (
-                    <>
-                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border border-decoding/30 rounded-full animate-[spin_8s_linear_infinite] border-dashed" />
-                      <div className={styles.star} />
-                      <div className={`${styles.objectLabel} text-decoding text-xl font-bold drop-shadow-[0_0_10px_#ffaa00]`}>{node.title.replace(/ /g, '_').toUpperCase()}</div>
+                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-pink/10 rounded-full animate-ping" />
+                      <div className={`${styles.star} bg-pink shadow-[0_0_20px_var(--pink)]`} />
+                      <div className={`${styles.objectLabel} text-pink text-xl font-bold animate-pulse`}>{node.title.replace(/ /g, '_').toUpperCase()}</div>
                     </>
                   ) : (
                     <>
-                      {status === 'decoded' && (
-                        <>
-                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border border-decoded/20 rounded-full animate-[spin_10s_linear_infinite]" />
-                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 border border-decoded/10 rounded-full animate-[spin_15s_linear_infinite_reverse]" />
-                        </>
-                      )}
+                        {isCompleted && (
+                          <>
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border border-system/20 rounded-full animate-[spin_10s_linear_infinite]" />
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 border border-system/10 rounded-full animate-[spin_15s_linear_infinite_reverse]" />
+                          </>
+                        )}
                       <div className={styles.star} />
-                      <div className={`${styles.objectLabel} ${status === 'decoded' ? 'text-decoded drop-shadow-[0_0_10px_#00e5ff]' : ''}`}>{node.title}</div>
+                      <div className={`${styles.objectLabel} ${isCompleted ? 'text-system drop-shadow-[0_0_10px_var(--system)]' : ''}`}>{node.title}</div>
                     </>
                   )}
 
@@ -128,10 +122,10 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
                       <div className={styles.statusIndicator}>
                         <div className={styles.statusDot} />
                         <span className={styles.statusText}>
-                          {isAnomaly ? 'ANALYZING' : (status === 'decoding' ? 'DECODING' : (status === 'locked' ? 'LOCKED' : 'SYNCED'))}
+                          {isAnomaly ? 'ANALYZING' : (isCompleted ? 'DECODED' : 'DETECTED')}
                         </span>
                       </div>
-                      <span className="text-[0.65rem] text-text-dim">{status === 'locked' ? 'SYS_DENIED' : 'SYS_READY'}</span>
+                      <span className="text-[0.65rem] text-text-dim">{isCompleted ? 'SYS_SYNCED' : 'SYS_READY'}</span>
                     </div>
                   </div>
                 </div>
@@ -144,13 +138,13 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
 
       {/* Zoom HUD */}
       <div className="absolute bottom-6 right-6 font-mono text-[10px] flex flex-col items-end gap-2 pointer-events-none z-[1000]">
-        <div className="relative bg-black/80 border border-decoded/30 px-4 py-2 flex flex-col items-end backdrop-blur-sm">
+        <div className="relative bg-black/80 border border-system/30 px-4 py-2 flex flex-col items-end backdrop-blur-sm">
           <CyberBrackets />
-          <div className="flex items-center gap-3 text-decoded mb-1">
+          <div className="flex items-center gap-3 text-system mb-1">
             <span className="tracking-widest opacity-60">SYS_ZOOM</span>
             <span className="font-bold text-sm">{scale.toFixed(2)}x</span>
           </div>
-          <div className="w-full h-[1px] bg-decoded/20 mb-2" />
+          <div className="w-full h-[1px] bg-system/20 mb-2" />
           <div className="flex items-center gap-2">
             <div className="text-[8px] text-text-dim tracking-widest uppercase">Target_Lock</div>
             <div className="text-white font-bold">{Math.round(-translateX)}, {Math.round(-translateY)}</div>
@@ -158,15 +152,15 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
         </div>
 
         <button
-          className="pointer-events-auto bg-decoded/10 border border-decoded/30 text-decoded px-4 py-2 hover:bg-decoded/20 hover:text-white transition-all duration-300 cursor-pointer uppercase tracking-widest relative group"
+          className="pointer-events-auto bg-system/10 border border-system/30 text-system px-4 py-2 hover:bg-system/20 hover:text-white transition-all duration-300 cursor-pointer uppercase tracking-widest relative group"
           onClick={(e) => {
             e.stopPropagation();
             flyTo(5000, 5000, 0.2);
           }}
         >
-          <CyberBrackets color="border-decoded/50 group-hover:border-white transition-colors duration-300" />
+          <CyberBrackets color="border-system/50 group-hover:border-white transition-colors duration-300" />
           <span className="relative z-10 flex items-center gap-2">
-            <div className="w-1.5 h-1.5 bg-decoded group-hover:bg-white animate-pulse transition-colors duration-300" />
+            <div className="w-1.5 h-1.5 bg-system group-hover:bg-white animate-pulse transition-colors duration-300" />
             RECENTER_MAP
           </span>
         </button>

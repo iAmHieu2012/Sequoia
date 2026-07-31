@@ -29,3 +29,4 @@ logs/
 # Design & Prototypes (if using external large files)
 *.fig
 *.xd
+firestore.rules

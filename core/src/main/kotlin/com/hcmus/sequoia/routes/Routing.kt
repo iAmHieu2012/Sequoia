@@ -35,18 +35,6 @@ fun Application.configureRouting() {
                 call.respond(mapOf("data" to textbooks))
             }
             
-            get("/textbooks/{id}/chapters") {
-                val id = call.parameters["id"] ?: throw BadRequestException("Missing id parameter")
-                val chapters = contentService.getChapters(id)
-                call.respond(mapOf("data" to chapters))
-            }
-            
-            get("/chapters/{id}/articles") {
-                val id = call.parameters["id"] ?: throw BadRequestException("Missing id parameter")
-                val articles = contentService.getArticlesByChapter(id)
-                call.respond(mapOf("data" to articles))
-            }
-
             // --- Topics ---
             get("/topics") {
                 val topics = contentService.getTopics()
@@ -102,7 +90,8 @@ fun Application.configureRouting() {
                     val user = call.principal<MyAuthenticatedUser>()
                     val userId = user?.id ?: throw UnauthorizedException("Invalid or expired token")
                     
-                    val progress = cosmosService.getUserProgress(userId)
+                    val localDate = call.request.queryParameters["localDate"]
+                    val progress = cosmosService.getUserProgress(userId, localDate)
                     call.respond(mapOf("data" to progress))
                 }
 

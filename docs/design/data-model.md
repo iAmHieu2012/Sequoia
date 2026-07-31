@@ -29,22 +29,8 @@ erDiagram
         string id PK
         string title
         string description
-        array authors
+        string pdfUrl
         string coverImageUrl
-        number totalChapters
-        number sortOrder
-        number createdAt
-        number updatedAt
-    }
-
-    chapters {
-        string id PK
-        string textbookId FK
-        string title
-        string description
-        number sortOrder
-        number articleCount
-        number createdAt
     }
 
     topics {
@@ -62,9 +48,7 @@ erDiagram
         string title
         string slug
         string summary
-        string chapterId FK
         string topicId FK
-        string textbookId FK
         array tags
         boolean isPublished
         number createdAt
@@ -106,11 +90,8 @@ erDiagram
         map progressMap
     }
 
-    textbooks ||--o{ chapters : "có nhiều"
-    chapters ||--o{ articles : "chứa"
     topics ||--o{ articles : "chứa"
     articles ||--|| article_contents : "có nội dung"
-    cosmos_maps ||--|| textbooks : "map UI cho"
     cosmos_maps ||--|| topics : "map UI cho"
     user_progress }o--|| users : "tiến độ của"
 ```
@@ -132,31 +113,16 @@ Các Collection này giữ nguyên tính trừu tượng của một CMS giáo d
 | `createdAt` | `number` | ✅ | Thời điểm tạo |
 | `updatedAt` | `number` | ✅ | Thời điểm cập nhật cuối |
 
-### 2.2. `textbooks` (Giáo trình)
+### 2.2. `textbooks` (Kho lưu trữ PDF)
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
 | `id` | `string` | ✅ | Document ID |
-| `title` | `string` | ✅ | Tên giáo trình |
+| `title` | `string` | ✅ | Tên tài liệu/giáo trình |
 | `description` | `string` | ✅ | Mô tả ngắn |
-| `authors` | `array<string>` | ✅ | Tác giả |
+| `pdfUrl` | `string` | ✅ | URL tải file PDF |
 | `coverImageUrl` | `string` | ✅ | Ảnh bìa |
-| `totalChapters` | `number` | ✅ | Tổng số chương |
-| `sortOrder` | `number` | ✅ | Thứ tự sắp xếp |
-| `createdAt` | `number` | ✅ | Thời điểm tạo |
-| `updatedAt` | `number` | ✅ | Thời điểm cập nhật cuối |
 
-### 2.3. `chapters` (Chương)
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `id` | `string` | ✅ | Document ID |
-| `textbookId` | `string` | ✅ | Ref đến `textbooks` |
-| `title` | `string` | ✅ | Tên chương |
-| `description` | `string` | ✅ | Tóm tắt chương |
-| `sortOrder` | `number` | ✅ | Thứ tự |
-| `articleCount` | `number` | ✅ | Số bài viết trong chương |
-| `createdAt` | `number` | ✅ | Thời điểm tạo |
-
-### 2.4. `topics` (Chủ đề độc lập)
+### 2.3. `topics` (Chủ đề học tập)
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
 | `id` | `string` | ✅ | Document ID |
@@ -167,23 +133,21 @@ Các Collection này giữ nguyên tính trừu tượng của một CMS giáo d
 | `articleCount` | `number` | ✅ | Số bài viết trong chủ đề |
 | `createdAt` | `number` | ✅ | Thời điểm tạo |
 
-### 2.5. `articles` (Thông tin bài viết - Metadata)
+### 2.4. `articles` (Thông tin bài viết - Metadata)
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
 | `id` | `string` | ✅ | Document ID |
 | `title` | `string` | ✅ | Tiêu đề |
 | `slug` | `string` | ✅ | URL-friendly slug |
 | `summary` | `string` | ✅ | Tóm tắt ngắn gọn |
-| `chapterId` | `string` | ❌ | Ref đến `chapters` (dành cho bài thuộc giáo trình) |
-| `topicId` | `string` | ❌ | Ref đến `topics` (dành cho bài thuộc chủ đề tự do) |
-| `textbookId` | `string` | ❌ | Ref đến `textbooks` (lưu thừa để query nhanh) |
+| `topicId` | `string` | ❌ | Ref đến `topics` (null nếu là bài viết tự do) |
 | `tags` | `array<string>`| ✅ | Các thẻ phân loại bài viết |
 | `isPublished` | `boolean` | ✅ | Cờ trạng thái xuất bản |
 | `createdAt` | `number` | ✅ | Thời điểm tạo |
 | `updatedAt` | `number` | ✅ | Thời điểm cập nhật cuối |
 | `publishedAt` | `number` | ✅ | Thời điểm xuất bản |
 
-### 2.6. `article_contents` (Nội dung chi tiết)
+### 2.5. `article_contents` (Nội dung chi tiết)
 *Lưu ý: Document ID của bảng này bắt buộc phải trùng khớp 1:1 với Document ID của bảng `articles` để dễ query.*
 
 | Field | Type | Required | Description |
@@ -192,7 +156,7 @@ Các Collection này giữ nguyên tính trừu tượng của một CMS giáo d
 | `content` | `string` | ✅ | Nội dung Markdown |
 | `playgroundBlocks` | `array<map>`| ✅ | Metadata config cho các Interactive Model nhúng |
 
-### 2.7. `models` (Mô hình AI)
+### 2.6. `models` (Mô hình AI)
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
 | `id` | `string` | ✅ | Document ID |
@@ -214,12 +178,12 @@ Các Collection này giữ nguyên tính trừu tượng của một CMS giáo d
 Đây là tầng UI/UX. Chữ tín "Rẻ & Nhanh" đặt lên hàng đầu. Một bản đồ có 100 ngôi sao cũng chỉ tốn **1 read** thay vì 100 reads.
 
 ### 3.1. `cosmos_maps` (Cấu hình bản đồ không gian)
-Document ID bắt buộc trùng với `textbookId` (đối với Giáo trình) hoặc `topicId` (đối với Chủ đề). Riêng với loại `rogue_anomalies`, bản đồ chứa các bài viết tự do (`topicId = null`) nên ID của bản đồ là độc lập (ví dụ: `"papers"`). Ktor tự động đồng bộ (sync) dữ liệu từ `articles` sang đây khi có thay đổi.
+Document ID bắt buộc trùng với `topicId` (đối với Chủ đề). Riêng với loại `rogue_anomalies`, bản đồ chứa các bài viết tự do (`topicId = null`) nên ID của bản đồ là độc lập (ví dụ: `"papers"`). Ktor tự động đồng bộ (sync) dữ liệu từ `articles` sang đây khi có thay đổi.
 
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | ✅ | Map 1:1 với `textbooks` hoặc `topics` (trừ `rogue_anomalies`) |
-| `mapType` | `string` | ✅ | Loại bản đồ: `"textbook"`, `"topic"`, `"rogue_anomalies"` |
+| `id` | `string` | ✅ | Map 1:1 với `topics` (trừ `rogue_anomalies`) |
+| `mapType` | `string` | ✅ | Loại bản đồ: `"topic"`, `"rogue_anomalies"` |
 | `theme` | `string` | ✅ | Theme đang dùng, vd: `"cosmos"`, `"nebula"` |
 | `nodes` | `array<map>` | ✅ | Mảng chứa toàn bộ các ngôi sao (bài học) trên bản đồ |
 | `nodes[].articleId` | `string` | ✅ | ID bài viết tương ứng |
@@ -230,15 +194,17 @@ Document ID bắt buộc trùng với `textbookId` (đối với Giáo trình) h
 | `nodes[].connections` | `array<string>`| ✅ | Mảng các `articleId` mà sao này nối tới (để vẽ tia sáng) |
 
 ### 3.2. `user_progress` (Tiến trình giải mã)
-Document ID là `{userId}_{mapId}`. Gộp toàn bộ tiến trình của 1 user trên 1 bản đồ vào 1 document.
+Document ID là `{userId}`. Gộp toàn bộ tiến trình của 1 user trên hệ thống vào 1 document duy nhất để tiết kiệm số lần đọc Firestore.
 
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | ✅ | `{userId}_{mapId}` |
+| `id` | `string` | ✅ | `userId` |
 | `userId` | `string` | ✅ | ID người dùng |
-| `mapId` | `string` | ✅ | ID bản đồ (`textbookId` hoặc `topicId`) |
-| `progressMap` | `map` | ✅ | Map ánh xạ `articleId` -> `status` |
-| `progressMap.<articleId>` | `string` | ✅ | Trạng thái: `"locked"`, `"decoding"`, `"decoded"` |
+| `completedArticleIds`| `array<string>`| ✅ | Danh sách ID các bài viết đã hoàn thành |
+| `currentStreak` | `number` | ✅ | Số ngày chuỗi liên tiếp hiện tại |
+| `longestStreak` | `number` | ✅ | Kỷ lục chuỗi dài nhất |
+| `activeDates` | `array<string>`| ✅ | Mảng các ngày đã hoạt động (Format: YYYY-MM-DD theo local timezone) |
+| `lastActive` | `number` | ✅ | Timestamp (Long) lần cuối hoạt động |
 
 ### ProgressSummary (Response Model)
 
@@ -246,9 +212,8 @@ Document ID là `{userId}_{mapId}`. Gộp toàn bộ tiến trình của 1 user 
 
 | Field | Type | Description |
 |-------|------|-------------|
-| textbooks | Map<String, CategoryProgress> | Tiến độ theo từng textbook ID |
 | topics | Map<String, CategoryProgress> | Tiến độ theo từng topic ID |
-| standalone | Map<String, String> | Trạng thái từng standalone article (`decoded`/`decoding`/`locked`) |
+| standalone | Map<String, String> | Trạng thái từng standalone article (`decoded`/`unread`) |
 
 ### CategoryProgress (Response Model)
 
@@ -256,7 +221,7 @@ Document ID là `{userId}_{mapId}`. Gộp toàn bộ tiến trình của 1 user 
 |-------|------|-------------|
 | total | Int | Tổng số articles trong category |
 | completed | Int | Số articles đã hoàn thành (decoded) |
-| decoding | Int | Số articles đang học (decoding) |
+
 
 ---
 

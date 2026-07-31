@@ -9,9 +9,7 @@ import kotlinx.serialization.Serializable
  * @property title Title of the article.
  * @property slug URL-friendly slug.
  * @property summary Short summary.
- * @property chapterId Optional reference to a chapter.
  * @property topicId Optional reference to a topic.
- * @property textbookId Optional reference to a textbook.
  * @property tags List of tags for searching and filtering.
  * @property isPublished Boolean indicating if it is published.
  * @property createdAt Timestamp when the article was created.
@@ -24,9 +22,7 @@ data class Article(
     val title: String = "",
     val slug: String = "",
     val summary: String = "",
-    val chapterId: String? = null,
     val topicId: String? = null,
-    val textbookId: String? = null,
     val tags: List<String> = emptyList(),
     @get:com.google.cloud.firestore.annotation.PropertyName("isPublished")
     @set:com.google.cloud.firestore.annotation.PropertyName("isPublished")

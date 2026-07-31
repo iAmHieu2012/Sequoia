@@ -9,7 +9,7 @@ Hệ thống Gamification được thiết kế dưới dạng một Interactive
 - **Vùng không gian (Sectors)**: Ánh xạ 1-1 với collection `textbooks`.
 - **Chòm sao (Constellations)**: Ánh xạ 1-1 với collection `chapters`.
 - **Thiên thể (Celestial Objects)**: Ánh xạ 1-1 với collection `articles`.
-- **Sương mù (Fog of War)**: Trạng thái chưa mở khóa (Locked) của các Node được tính toán dựa trên dữ liệu `UserProgress` (nếu ID không nằm trong mảng `completedArticleIds`, nó bị khóa hoặc là sương mù).
+- **Khám phá tự do (Open Exploration)**: Không có trạng thái Locked hay Fog of War. Mọi node đều có thể truy cập bất kỳ lúc nào để tra cứu.
 
 ## 2. Cấu trúc Dữ liệu UI (Celestial Types)
 
@@ -26,8 +26,8 @@ Hệ thống Gamification được thiết kế dưới dạng một Interactive
 Luồng tương tác vòng lặp của người dùng trên bản đồ:
 
 1. **Khởi tạo dữ liệu**: Client tải Data Class `CosmosMap` (chứa array tọa độ các Node) và `UserProgress` (trạng thái mở khóa hiện tại với mảng các ID đã học).
-2. **Hiển thị Fog of War**: Render SVG/CSS. Các Node có trạng thái `locked` bị che phủ (Opacity thấp, Disable pointer). Các Node `decoded` hoặc `decoding` sáng rõ.
-3. **Thao tác Giải mã (Decoding)**: Người dùng chọn một Node trạng thái `decoding`. Giao diện chuyển sang màn hình bài học định dạng Terminal (Datapad UI).
+2. **Hiển thị Tín hiệu**: Render SVG/CSS. Các Node chưa khám phá (unread) hiển thị bình thường. Các Node decoded phát sáng rực rỡ.
+3. **Thao tác Khám phá**: Người dùng chọn một Node bất kỳ. Giao diện chuyển sang màn hình bài học định dạng Terminal (Datapad UI).
 4. **Xác thực (Verification)**: Hoàn thành bài đọc hoặc chạy Model Playground đạt Threshold. Client gửi request POST `/cosmos/progress/{textbookId}/decode`.
 5. **Cập nhật (Illumination)**: Ktor Backend cập nhật Firestore. Client nhận response trạng thái `decoded`, kích hoạt hiệu ứng CSS mở đường nối (Light Beams) tới các Node liền kề.
 

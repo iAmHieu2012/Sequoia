@@ -21,7 +21,9 @@ export interface CosmosMap {
 export interface UserProgress {
   userId: string;
   completedArticleIds: string[];
-  decodingArticleIds: string[];
+  currentStreak?: number;
+  longestStreak?: number;
+  activeDates?: string[];
 }
 
 export default function useCosmosData(mapId?: string) {
@@ -29,25 +31,31 @@ export default function useCosmosData(mapId?: string) {
   const [userProgress, setUserProgress] = useState<UserProgress | null>(null);
 
   useEffect(() => {
-    if (!mapId) return;
-
-    const fetchMap = async () => {
-      try {
-        const res = await fetch(`/api/v1/cosmos/maps/${mapId}`);
-        const data = await res.json();
-        if (data.data) {
-          setMapData(data.data);
+    if (mapId) {
+      const fetchMap = async () => {
+        try {
+          const res = await fetch(`/api/v1/cosmos/maps/${mapId}`);
+          const data = await res.json();
+          if (data.data) {
+            setMapData(data.data);
+          }
+        } catch (err) {
+          console.error(err);
         }
-      } catch (err) {
-        console.error(err);
-      }
-    };
+      };
+      fetchMap();
+    }
+  }, [mapId]);
 
+  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
           const token = await user.getIdToken();
-          const res = await fetch(`/api/v1/users/progress`, {
+          // Extract the local date string (YYYY-MM-DD) natively
+          const localDate = new Date().toLocaleDateString('en-CA');
+          
+          const res = await fetch(`/api/v1/users/progress?localDate=${localDate}`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           const data = await res.json();
@@ -60,15 +68,12 @@ export default function useCosmosData(mapId?: string) {
       }
     });
 
-    fetchMap();
     return () => unsubscribe();
-  }, [mapId]);
+  }, []);
 
   const getNodeStatus = useCallback((articleId: string) => {
-    if (!userProgress) return 'locked';
-    if (userProgress.completedArticleIds?.includes(articleId)) return 'decoded';
-    if (userProgress.decodingArticleIds?.includes(articleId)) return 'decoding';
-    return 'locked';
+    if (!userProgress) return false;
+    return userProgress.completedArticleIds?.includes(articleId);
   }, [userProgress]);
 
   return { mapData, userProgress, getNodeStatus };

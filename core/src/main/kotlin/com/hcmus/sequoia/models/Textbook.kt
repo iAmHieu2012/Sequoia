@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
  * @property description A brief summary of what the textbook covers.
  * @property authors A list of authors who contributed to the textbook.
  * @property coverImageUrl URL to the textbook cover image.
- * @property totalChapters Number of chapters in this textbook.
+ * @property pdfUrl URL to the textbook PDF.
  * @property sortOrder Used to control the display order on the UI.
  * @property createdAt Timestamp when the textbook was created.
  * @property updatedAt Timestamp when the textbook was last updated.
@@ -22,7 +22,7 @@ data class Textbook(
     val description: String = "",
     val authors: List<String> = emptyList(),
     val coverImageUrl: String = "",
-    val totalChapters: Int = 0,
+    val pdfUrl: String? = null,
     val sortOrder: Int = 0,
     val createdAt: Long = 0L,
     val updatedAt: Long = 0L

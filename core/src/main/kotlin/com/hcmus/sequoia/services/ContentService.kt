@@ -5,6 +5,10 @@ import com.hcmus.sequoia.plugins.FirebaseConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+/**
+ * Service class responsible for retrieving educational content such as Textbooks, Chapters, Topics, and Articles.
+ * Connects to Firestore to fetch and aggregate data.
+ */
 class ContentService {
     suspend fun getTextbooks(): List<Textbook> = withContext(Dispatchers.IO) {
         val snapshot = FirebaseConfig.firestore.collection("textbooks")
@@ -19,20 +23,6 @@ class ContentService {
         }
     }
 
-    suspend fun getChapters(textbookId: String): List<Chapter> = withContext(Dispatchers.IO) {
-        val snapshot = FirebaseConfig.firestore.collection("chapters")
-            .whereEqualTo("textbookId", textbookId)
-            .orderBy("sortOrder")
-            .get()
-            .get()
-
-        snapshot.documents.map { doc ->
-            val chapter = doc.toObject(Chapter::class.java)
-            chapter.id = doc.id
-            chapter
-        }
-    }
-
     suspend fun getStandaloneArticles(): List<Article> = withContext(Dispatchers.IO) {
         val snapshot = FirebaseConfig.firestore.collection("articles")
             .whereEqualTo("isPublished", true)
@@ -42,25 +32,11 @@ class ContentService {
         snapshot.documents.mapNotNull { doc ->
             val article = doc.toObject(Article::class.java)
             article.id = doc.id
-            if (article.textbookId.isNullOrEmpty() && article.topicId.isNullOrEmpty() && article.chapterId.isNullOrEmpty()) {
+            if (article.topicId.isNullOrEmpty()) {
                 article
             } else {
                 null
             }
-        }
-    }
-
-    suspend fun getArticlesByChapter(chapterId: String): List<Article> = withContext(Dispatchers.IO) {
-        val snapshot = FirebaseConfig.firestore.collection("articles")
-            .whereEqualTo("chapterId", chapterId)
-            .whereEqualTo("isPublished", true)
-            .get()
-            .get()
-
-        snapshot.documents.map { doc ->
-            val article = doc.toObject(Article::class.java)
-            article.id = doc.id
-            article
         }
     }
 
@@ -146,9 +122,7 @@ class ContentService {
                 slug = a.slug,
                 summary = a.summary,
                 content = content?.content ?: "",
-                chapterId = a.chapterId,
                 topicId = a.topicId,
-                textbookId = a.textbookId,
                 playgroundBlocks = content?.playgroundBlocks ?: emptyList(),
                 tags = a.tags,
                 isPublished = a.isPublished,
