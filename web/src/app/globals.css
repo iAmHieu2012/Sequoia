@@ -14,8 +14,9 @@
   --color-pink: #ff42ff;
   --color-cyan: #42ffff;
   --color-coral: #ff5050;
-  --color-orange: #f39c12;
-  --color-purple: #9b59b6;
+  --color-orange: #ff9900;
+  --color-turquoise: #00ff99;
+  --color-purple: #9900ff;
   
   --color-system: var(--color-cyan); /* Semantic main theme color */
   --color-text-main: #f0f0f0;
@@ -33,8 +34,9 @@
     --pink: #ff42ff;
     --cyan: #42ffff;
     --coral: #ff5050;
-    --orange: #f39c12;
-    --purple: #9b59b6;
+    --orange: #ff9900;
+    --turquoise: #00ff99;
+    --purple: #9900ff;
     --system: var(--cyan);
 
     --text-main: #f0f0f0;

@@ -23,6 +23,16 @@ class ContentService {
         }
     }
 
+    suspend fun getModels(): List<AiModel> = withContext(Dispatchers.IO) {
+        val snapshot = FirebaseConfig.firestore.collection("models")
+            .get()
+            .get()
+
+        snapshot.documents.map { doc ->
+            mapDocumentToAiModel(doc)
+        }
+    }
+
     suspend fun getStandaloneArticles(): List<Article> = withContext(Dispatchers.IO) {
         val snapshot = FirebaseConfig.firestore.collection("articles")
             .whereEqualTo("isPublished", true)
@@ -136,9 +146,28 @@ class ContentService {
     suspend fun getModel(id: String): AiModel? = withContext(Dispatchers.IO) {
         val doc = FirebaseConfig.firestore.collection("models").document(id).get().get()
         if (doc.exists()) {
-            val m = doc.toObject(AiModel::class.java)
-            m?.id = doc.id
-            m
+            mapDocumentToAiModel(doc)
         } else null
+    }
+
+    private fun mapDocumentToAiModel(doc: com.google.cloud.firestore.DocumentSnapshot): AiModel {
+        val configMap = doc.get("defaultConfig") as? Map<*, *>
+        val mappedConfig = configMap?.entries?.associate { (k, v) ->
+            k.toString() to v.toString()
+        } ?: emptyMap()
+
+        return AiModel(
+            id = doc.id,
+            name = doc.getString("name") ?: "",
+            description = doc.getString("description") ?: "",
+            taskType = doc.getString("taskType") ?: "",
+            fileUrl = doc.getString("fileUrl") ?: "",
+            fileSizeBytes = doc.getLong("fileSizeBytes") ?: 0L,
+            version = doc.getString("version") ?: "1.0",
+            format = doc.getString("format") ?: "litert",
+            defaultConfig = mappedConfig,
+            createdAt = doc.getLong("createdAt") ?: 0L,
+            updatedAt = doc.getLong("updatedAt") ?: 0L
+        )
     }
 }

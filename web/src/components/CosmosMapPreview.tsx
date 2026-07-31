@@ -95,20 +95,20 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
                 >
                   {isAnomaly ? (
                     <>
-                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-pink/10 rounded-full animate-ping" />
-                      <div className={`${styles.star} bg-pink shadow-[0_0_20px_var(--pink)]`} />
-                      <div className={`${styles.objectLabel} text-pink text-xl font-bold animate-pulse`}>{node.title.replace(/ /g, '_').toUpperCase()}</div>
+                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-coral/10 rounded-full animate-ping" />
+                      <div className={`${styles.star} bg-coral shadow-[0_0_20px_var(--coral)]`} />
+                      <div className={`${styles.objectLabel} text-coral text-xl font-bold animate-pulse`}>{node.title.replace(/ /g, '_').toUpperCase()}</div>
                     </>
                   ) : (
                     <>
                         {isCompleted && (
                           <>
-                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border border-system/20 rounded-full animate-[spin_10s_linear_infinite]" />
-                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 border border-system/10 rounded-full animate-[spin_15s_linear_infinite_reverse]" />
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border border-cyan/20 rounded-full animate-[spin_10s_linear_infinite]" />
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 border border-cyan/10 rounded-full animate-[spin_15s_linear_infinite_reverse]" />
                           </>
                         )}
                       <div className={styles.star} />
-                      <div className={`${styles.objectLabel} ${isCompleted ? 'text-system drop-shadow-[0_0_10px_var(--system)]' : ''}`}>{node.title}</div>
+                      <div className={`${styles.objectLabel} ${isCompleted ? 'text-cyan drop-shadow-[0_0_10px_var(--cyan)]' : ''}`}>{node.title}</div>
                     </>
                   )}
 
@@ -138,13 +138,13 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
 
       {/* Zoom HUD */}
       <div className="absolute bottom-6 right-6 font-mono text-[10px] flex flex-col items-end gap-2 pointer-events-none z-[1000]">
-        <div className="relative bg-black/80 border border-system/30 px-4 py-2 flex flex-col items-end backdrop-blur-sm">
-          <CyberBrackets />
-          <div className="flex items-center gap-3 text-system mb-1">
+        <div className="relative bg-black/80 border border-red/30 px-4 py-2 flex flex-col items-end backdrop-blur-sm">
+          <CyberBrackets color="border-red/30" />
+          <div className="flex items-center gap-3 text-red mb-1">
             <span className="tracking-widest opacity-60">SYS_ZOOM</span>
             <span className="font-bold text-sm">{scale.toFixed(2)}x</span>
           </div>
-          <div className="w-full h-[1px] bg-system/20 mb-2" />
+          <div className="w-full h-[1px] bg-red/20 mb-2" />
           <div className="flex items-center gap-2">
             <div className="text-[8px] text-text-dim tracking-widest uppercase">Target_Lock</div>
             <div className="text-white font-bold">{Math.round(-translateX)}, {Math.round(-translateY)}</div>
@@ -152,15 +152,15 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
         </div>
 
         <button
-          className="pointer-events-auto bg-system/10 border border-system/30 text-system px-4 py-2 hover:bg-system/20 hover:text-white transition-all duration-300 cursor-pointer uppercase tracking-widest relative group"
+          className="pointer-events-auto bg-red/10 border border-red/30 text-red px-4 py-2 hover:bg-red/20 hover:text-white transition-all duration-300 cursor-pointer uppercase tracking-widest relative group"
           onClick={(e) => {
             e.stopPropagation();
             flyTo(5000, 5000, 0.2);
           }}
         >
-          <CyberBrackets color="border-system/50 group-hover:border-white transition-colors duration-300" />
+          <CyberBrackets color="border-red/50 group-hover:border-white transition-colors duration-300" />
           <span className="relative z-10 flex items-center gap-2">
-            <div className="w-1.5 h-1.5 bg-system group-hover:bg-white animate-pulse transition-colors duration-300" />
+            <div className="w-1.5 h-1.5 bg-red group-hover:bg-white animate-pulse transition-colors duration-300" />
             RECENTER_MAP
           </span>
         </button>

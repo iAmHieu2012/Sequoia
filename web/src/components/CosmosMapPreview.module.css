@@ -18,18 +18,18 @@
 .celestialObject { position: absolute; width: 28px; height: 28px; transform: translate(-50%, -50%); display: block; cursor: pointer; z-index: 10; }
 .star { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.15); border-radius: 50%; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 .celestialObject:hover .star { transform: scale(1.2); }
-.decoded .star { background: var(--system); box-shadow: 0 0 35px color-mix(in srgb, var(--system) 80%, transparent), 0 0 70px color-mix(in srgb, var(--system) 40%, transparent), 0 0 0 3px var(--system); }
+.decoded .star { background: var(--cyan); box-shadow: 0 0 35px color-mix(in srgb, var(--cyan) 80%, transparent), 0 0 70px color-mix(in srgb, var(--cyan) 40%, transparent), 0 0 0 3px var(--cyan); }
 
 .locked .star { background: #ffffff; box-shadow: 0 0 15px rgba(255,255,255,0.4); border: none; }
-.unknown .star { background: var(--red); box-shadow: 0 0 20px rgba(255,107,107,0.4), 0 0 0 3px rgba(255,107,107,0.2); }
-.anomaly .star { background: var(--pink); box-shadow: 0 0 25px var(--pink), 0 0 0 8px rgba(155, 89, 182, 0.2); animation: pulse-anomaly 2s infinite; }
+.unknown .star { background: #ffffff; box-shadow: 0 0 20px rgba(255,255,255,0.4), 0 0 0 3px rgba(255,255,255,0.2); }
+.anomaly .star { background: var(--coral); box-shadow: 0 0 25px var(--coral), 0 0 0 8px rgba(255, 80, 80, 0.2); animation: pulse-anomaly 2s infinite; }
 @keyframes pulse { 0%, 100% { box-shadow: 0 0 25px var(--green), 0 0 0 8px rgba(243, 156, 18, 0.15); } 50% { box-shadow: 0 0 45px var(--green), 0 0 0 15px rgba(243, 156, 18, 0.3); } }
-@keyframes pulse-anomaly { 0%, 100% { box-shadow: 0 0 25px var(--pink), 0 0 0 8px rgba(155, 89, 182, 0.15); } 50% { box-shadow: 0 0 45px var(--pink), 0 0 0 15px rgba(155, 89, 182, 0.3); } }
+@keyframes pulse-anomaly { 0%, 100% { box-shadow: 0 0 25px var(--coral), 0 0 0 8px rgba(255, 80, 80, 0.15); } 50% { box-shadow: 0 0 45px var(--coral), 0 0 0 15px rgba(255, 80, 80, 0.3); } }
 
 .objectLabel { position: absolute; top: 35px; left: 50%; transform: translateX(-50%); font-family: var(--font-space-grotesk); font-size: 1.3rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 3px; white-space: nowrap; opacity: var(--label-opacity); transition: opacity 0.3s; font-weight: 500; pointer-events: none; }
 .decoded .objectLabel { color: #fff; text-shadow: 0 0 15px rgba(255,255,255,0.6); font-weight: 700; }
 
-.unknown .objectLabel { color: var(--red); text-shadow: 0 0 10px rgba(255, 107, 107, 0.4); font-weight: 500; }
+.unknown .objectLabel { color: #ffffff; text-shadow: 0 0 10px rgba(255, 255, 255, 0.4); font-weight: 500; }
 
 /* Observation Log (Hover Panel) */
 .observationLog {
@@ -54,16 +54,16 @@
 
 .statusIndicator { display: flex; align-items: center; gap: 8px; }
 .statusDot { width: 6px; height: 6px; border-radius: 50%; }
-.decoded .statusDot { background: var(--system); box-shadow: 0 0 8px var(--system); }
+.decoded .statusDot { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
 
-.anomaly .statusDot { background: var(--pink); box-shadow: 0 0 8px var(--pink); animation: blink 0.5s infinite; }
-.unknown .statusDot { background: var(--red); box-shadow: 0 0 8px var(--red); animation: blink 2s infinite; }
+.anomaly .statusDot { background: var(--coral); box-shadow: 0 0 8px var(--coral); animation: blink 0.5s infinite; }
+.unknown .statusDot { background: #ffffff; box-shadow: 0 0 8px #ffffff; animation: blink 2s infinite; }
 
 .statusText { color: var(--text-dim); }
-.decoded .statusText { color: var(--system); }
+.decoded .statusText { color: var(--cyan); }
 
-.anomaly .statusText { color: var(--pink); }
-.unknown .statusText { color: var(--red); }
+.anomaly .statusText { color: var(--coral); }
+.unknown .statusText { color: #ffffff; }
 
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 @keyframes scan { 0% { left: 0; } 100% { left: 60%; } }

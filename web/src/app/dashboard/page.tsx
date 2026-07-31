@@ -10,7 +10,7 @@ import { onAuthStateChanged, signOut, User } from "firebase/auth";
 
 import CyberBrackets from '@/components/ui/CyberBrackets';
 
-type TabId = "nebulas" | "rogue";
+type TabId = "nebulas" | "rogue" | "labs";
 
 interface Textbook {
   id: string;
@@ -51,6 +51,16 @@ interface ProgressSummary {
   standalone: Record<string, boolean>;
 }
 
+interface AiModel {
+  id: string;
+  name: string;
+  description: string;
+  taskType: string;
+  fileUrl: string;
+  version: string;
+  format: string;
+}
+
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<TabId>("nebulas");
   const [mapTarget, setMapTarget] = useState({ x: 7500, y: 2500, scale: 0.2, mapId: undefined as string | undefined, activeNodeId: undefined as string | undefined });
@@ -58,6 +68,30 @@ export default function Dashboard() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [rogueArticles, setRogueArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
+  const [models, setModels] = useState<AiModel[]>([]);
+  const [loadingModels, setLoadingModels] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === 'labs' && models.length === 0) {
+      setLoadingModels(true);
+      fetch('http://127.0.0.1:8080/api/v1/models') // TODO: use configured base URL
+        .then(res => res.json())
+        .then(data => {
+          setModels(data.data || []);
+          setLoadingModels(false);
+        })
+        .catch(err => {
+          console.error(err);
+          setLoadingModels(false);
+        });
+    }
+  }, [activeTab, models.length]);
+  useEffect(() => {
+    setCurrentTime(new Date());
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
   const [progressSummary, setProgressSummary] = useState<ProgressSummary | null>(null);
   const { userProgress } = useCosmosData();
 
@@ -177,12 +211,12 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="bg-black/80 border border-system/30 px-4 py-2 relative hidden md:block">
+          <div className="bg-black/80 border border-cyan/30 px-4 py-2 relative hidden md:block w-[180px]">
             <CyberBrackets />
-            <span className="block text-[9px] font-mono text-text-dim mb-1">NETWORK_STATUS</span>
-            <span className="text-xs font-heading text-system flex items-center gap-2 font-bold tracking-widest">
-              <span className="w-1.5 h-1.5 bg-system shadow-[0_0_8px_var(--system)] animate-pulse" />
-              LINK_ACTIVE
+            <span className="block text-[9px] font-mono text-text-dim mb-1">LOCAL_TIME</span>
+            <span className="text-xs font-mono text-cyan flex items-center gap-2 font-bold tracking-wider uppercase">
+              <span className="w-1.5 h-1.5 bg-cyan shadow-[0_0_8px_var(--cyan)] animate-pulse" />
+              {currentTime ? currentTime.toLocaleString('en-US', { hour12: false, month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'SYNCING...'}
             </span>
           </div>
         </div>
@@ -306,6 +340,7 @@ export default function Dashboard() {
             {[
               { id: "nebulas", label: "NEBULAS", sub: "Topics", accent: "orange", defaultTarget: { x: 7500, y: 2500, scale: 0.2, mapId: topics.length > 0 ? topics[0].id : undefined } },
               { id: "rogue", label: "ROGUE", sub: "Papers", accent: "purple", defaultTarget: { x: 8250, y: 3500, scale: 0.2, mapId: "standalone_articles" } },
+              { id: "labs", label: "LABS", sub: "Playground", accent: "turquoise", defaultTarget: { x: 7500, y: 2500, scale: 0.2, mapId: undefined } },
             ].map(tab => (
               <button
                 key={tab.id}
@@ -323,7 +358,7 @@ export default function Dashboard() {
                 }}
                 className={`flex-1 py-3 px-1 text-center font-heading text-[11px] font-bold tracking-[0.12em] uppercase transition-all cursor-pointer border-b-2 ${
                   activeTab === tab.id
-                    ? tab.id === "nebulas" ? "text-orange border-orange bg-orange/5" : "text-purple border-purple bg-purple/5"
+                    ? tab.id === "nebulas" ? "text-orange border-orange bg-orange/5" : tab.id === "rogue" ? "text-purple border-purple bg-purple/5" : "text-turquoise border-turquoise bg-turquoise/5"
                     : "text-text-dim border-transparent hover:text-white hover:bg-white/5"
                 }`}
               >
@@ -436,6 +471,40 @@ export default function Dashboard() {
               ))
             )}
 
+            {/* LABS tab */}
+            {activeTab === 'labs' && (
+              <>
+                {loadingModels ? (
+                  <div className="p-4 text-turquoise animate-pulse text-xs font-mono">SCANNING FOR MODELS...</div>
+                ) : models.length === 0 ? (
+                  <div className="p-4 text-text-dim text-xs font-mono">NO MODELS DETECTED</div>
+                ) : (
+                  models.map(model => (
+                    <div key={model.id} className="group cursor-pointer border-b border-panel-border px-5 py-4 hover:bg-turquoise/5 transition-all duration-300 relative overflow-hidden">
+                      <div className="absolute left-0 top-0 w-1 h-full bg-turquoise scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--turquoise)]" />
+                      <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-turquoise/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
+                      
+                      <div className="relative z-10">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-heading text-sm font-bold text-white group-hover:text-turquoise group-hover:drop-shadow-[0_0_8px_var(--turquoise)] transition-all duration-300 tracking-wide uppercase">{model.name}</h3>
+                          <div className="text-[9px] font-mono bg-turquoise/10 text-turquoise px-1.5 py-0.5 border border-turquoise/20">{model.taskType.replace(/_/g, ' ')}</div>
+                        </div>
+                        <p className="text-text-dim text-xs font-mono leading-relaxed normal-case line-clamp-2 mb-4">
+                          &gt; {model.description}
+                        </p>
+                        <div className="flex justify-between items-center border-t border-panel-border pt-3">
+                          <span className="text-[10px] text-text-dim font-mono">v{model.version} // {model.format.toUpperCase()}</span>
+                          <button className="text-[10px] font-mono font-bold text-turquoise tracking-wider flex items-center gap-1 group-hover:translate-x-1 transition-transform duration-300">
+                            INIT_RUNTIME <Cpu className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </>
+            )}
+
           </div>
 
           {/* User Profile Bar at bottom of Left Column */}
@@ -469,9 +538,9 @@ export default function Dashboard() {
 
         {/* Right column: Map preview */}
         <div className="flex-1 relative min-h-0 bg-black/60 border border-panel-border overflow-hidden">
-          <CyberBrackets color="border-system/30" />
+          <CyberBrackets color="border-red/30" />
           <div className="absolute top-3 left-3 z-20 pointer-events-none">
-            <span className="bg-black/90 text-system border border-system/30 px-2 py-0.5 text-[8px] font-mono tracking-widest uppercase">
+            <span className="bg-black/90 text-red border border-red/30 px-2 py-0.5 text-[8px] font-mono tracking-widest uppercase">
               MAP_PREVIEW
             </span>
           </div>
@@ -486,29 +555,30 @@ export default function Dashboard() {
           <CyberBrackets color="border-white/10" />
           
           <div className="flex flex-shrink-0 border-b border-panel-border">
-            <button className="flex-1 py-3 px-1 text-center font-heading text-[11px] font-bold tracking-[0.12em] uppercase transition-all cursor-pointer border-b-2 text-system border-system bg-system/5">
+            <div className="flex-1 py-3 px-4 text-left font-heading text-[11px] font-bold tracking-[0.12em] uppercase cursor-default border-b-2 text-system border-system bg-system/5">
               ASSISTANT
               <span className="block text-[8px] font-mono font-normal mt-0.5 opacity-50 normal-case tracking-wider">AI Uplink</span>
-            </button>
-            <button className="flex-1 py-3 px-1 text-center font-heading text-[11px] font-bold tracking-[0.12em] uppercase transition-all cursor-pointer border-b-2 text-text-dim border-transparent hover:text-white hover:bg-white/5">
-              LABS
-              <span className="block text-[8px] font-mono font-normal mt-0.5 opacity-50 normal-case tracking-wider">Playground</span>
-            </button>
+            </div>
           </div>
 
-          <div className="flex-1 p-4 flex flex-col overflow-y-auto">
-            {/* Mock Chat UI */}
-            <div className="flex-1 flex flex-col gap-4">
-              <div className="bg-system/10 border border-system/30 p-3 text-xs font-mono text-system">
-                &gt; SYSTEM_AI_ONLINE
-                <br />
-                &gt; Awaiting operator input...
+          <div className="flex-1 flex flex-col overflow-y-auto min-h-0 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-white/20">
+            <div className="flex-1 flex flex-col p-4">
+              {/* Mock Chat UI */}
+              <div className="flex-1 flex flex-col gap-4 overflow-y-auto min-h-0">
+                <div className="group relative overflow-hidden border border-system/30 bg-system/5 p-4 transition-all duration-300">
+                  <div className="absolute left-0 top-0 w-1 h-full bg-system shadow-[0_0_10px_var(--system)]" />
+                  <div className="relative z-10 text-xs font-mono text-system leading-relaxed">
+                    &gt; SYSTEM_AI_ONLINE
+                    <br />
+                    &gt; Awaiting operator input...
+                  </div>
+                </div>
               </div>
-            </div>
-            
-            <div className="mt-4 pt-3 border-t border-panel-border relative">
-               <input type="text" placeholder="ENTER QUERY..." className="w-full bg-black/50 border border-panel-border text-white text-[10px] tracking-wider font-mono px-3 py-2.5 focus:outline-none focus:border-system transition-colors" />
-               <TerminalSquare className="w-3 h-3 absolute right-3 top-[26px] text-text-dim" />
+              
+              <div className="mt-4 pt-3 border-t border-panel-border relative shrink-0">
+                <input type="text" placeholder="ENTER QUERY..." className="w-full bg-black/50 border border-panel-border text-white text-[10px] tracking-wider font-mono px-3 py-2.5 focus:outline-none focus:border-system transition-colors" />
+                <TerminalSquare className="w-3 h-3 absolute right-3 top-[26px] text-text-dim" />
+              </div>
             </div>
           </div>
         </div>

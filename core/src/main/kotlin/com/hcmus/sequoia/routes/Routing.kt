@@ -70,6 +70,11 @@ fun Application.configureRouting() {
                 call.respond(mapOf("data" to articleDetail))
             }
             
+            get("/models") {
+                val models = contentService.getModels()
+                call.respond(mapOf("data" to models))
+            }
+            
             get("/models/{id}") {
                 val id = call.parameters["id"] ?: throw BadRequestException("Missing id parameter")
                 val aiModel = contentService.getModel(id)
