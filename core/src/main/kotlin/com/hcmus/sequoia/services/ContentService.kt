@@ -6,7 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * Service class responsible for retrieving educational content such as Textbooks, Chapters, Topics, and Articles.
+ * Service class responsible for retrieving educational content such as Textbooks, Topics, and Articles.
  * Connects to Firestore to fetch and aggregate data.
  */
 class ContentService {
@@ -133,7 +133,6 @@ class ContentService {
                 summary = a.summary,
                 content = content?.content ?: "",
                 topicId = a.topicId,
-                playgroundBlocks = content?.playgroundBlocks ?: emptyList(),
                 tags = a.tags,
                 isPublished = a.isPublished,
                 createdAt = a.createdAt,
@@ -151,21 +150,16 @@ class ContentService {
     }
 
     private fun mapDocumentToAiModel(doc: com.google.cloud.firestore.DocumentSnapshot): AiModel {
-        val configMap = doc.get("defaultConfig") as? Map<*, *>
-        val mappedConfig = configMap?.entries?.associate { (k, v) ->
-            k.toString() to v.toString()
-        } ?: emptyMap()
-
         return AiModel(
             id = doc.id,
             name = doc.getString("name") ?: "",
             description = doc.getString("description") ?: "",
             taskType = doc.getString("taskType") ?: "",
             fileUrl = doc.getString("fileUrl") ?: "",
+            metadataUrl = doc.getString("metadataUrl") ?: "",
             fileSizeBytes = doc.getLong("fileSizeBytes") ?: 0L,
             version = doc.getString("version") ?: "1.0",
             format = doc.getString("format") ?: "litert",
-            defaultConfig = mappedConfig,
             createdAt = doc.getLong("createdAt") ?: 0L,
             updatedAt = doc.getLong("updatedAt") ?: 0L
         )

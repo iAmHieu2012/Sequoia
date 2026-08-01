@@ -1,5 +1,5 @@
 @import "tailwindcss";
-
+@plugin "@tailwindcss/typography";
 @theme {
   --font-sans: var(--font-inter);
   --font-heading: var(--font-space-grotesk);
@@ -18,36 +18,16 @@
   --color-turquoise: #00ff99;
   --color-purple: #9900ff;
   
-  --color-system: var(--color-cyan); /* Semantic main theme color */
+  --color-system: #42ffff; /* Tách biệt hoàn toàn khỏi cyan để chỉnh sửa độc lập */
   --color-text-main: #f0f0f0;
   --color-text-dim: #888888;
 }
 
 :root {
-    --space-bg: #020202;
-    --panel-border: rgba(255, 255, 255, 0.08);
-
-    --red: #ff4242;
-    --green: #42ff42;
-    --blue: #4242ff;
-    --yellow: #ffff42;
-    --pink: #ff42ff;
-    --cyan: #42ffff;
-    --coral: #ff5050;
-    --orange: #ff9900;
-    --turquoise: #00ff99;
-    --purple: #9900ff;
-    --system: var(--cyan);
-
-    --text-main: #f0f0f0;
-    --text-dim: #888888;
     --label-opacity: 1;
 }
 
 body {
-    background-color: var(--space-bg); 
-    color: var(--text-main); 
-    font-family: var(--font-inter);
     overflow-x: hidden; 
     min-height: 100vh;
 }

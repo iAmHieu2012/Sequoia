@@ -14,7 +14,6 @@ data class ArticleDetailResponse(
     val summary: String,
     val content: String,
     val topicId: String?,
-    val playgroundBlocks: List<PlaygroundBlock>,
     val tags: List<String>,
     val isPublished: Boolean,
     val createdAt: Long,

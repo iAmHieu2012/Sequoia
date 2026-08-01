@@ -18,14 +18,11 @@ interface CosmosMapPreviewProps {
 }
 
 export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, mapId, activeNodeId }: CosmosMapPreviewProps) {
-  const [mounted, setMounted] = useState(false);
   const viewportRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   const { scale, translateX, translateY, isTransitioning, flyTo, handlers } = usePanZoom(viewportRef);
   const { mapData, getNodeStatus } = useCosmosData(mapId);
-
-  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     if (activeNodeId && mapData) {
@@ -47,14 +44,12 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
       {...handlers}
       style={{ 
         '--label-opacity': labelOpacity,
-        backgroundImage: 'linear-gradient(color-mix(in srgb, var(--system) 5%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--system) 5%, transparent) 1px, transparent 1px)',
+        backgroundImage: 'linear-gradient(color-mix(in srgb, var(--color-system) 5%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--color-system) 5%, transparent) 1px, transparent 1px)',
         backgroundSize: `${200 * scale}px ${200 * scale}px`,
         backgroundPosition: `${translateX}px ${translateY}px`,
         transition: isTransitioning ? 'background-position 0.8s cubic-bezier(0.25, 1, 0.5, 1), background-size 0.8s cubic-bezier(0.25, 1, 0.5, 1)' : 'none',
       } as React.CSSProperties}
     >
-      <div className={`${styles.fogOfWar} absolute inset-0 pointer-events-none z-[1]`} />
-      
       <div
         className={`${styles.mapCanvas} origin-top-left absolute will-change-transform z-[2]`}
         style={{
@@ -96,7 +91,7 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
                   {isAnomaly ? (
                     <>
                       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-coral/10 rounded-full animate-ping" />
-                      <div className={`${styles.star} bg-coral shadow-[0_0_20px_var(--coral)]`} />
+                      <div className={`${styles.star} bg-coral shadow-[0_0_20px_var(--color-coral)]`} />
                       <div className={`${styles.objectLabel} text-coral text-xl font-bold animate-pulse`}>{node.title.replace(/ /g, '_').toUpperCase()}</div>
                     </>
                   ) : (
@@ -108,7 +103,7 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
                           </>
                         )}
                       <div className={styles.star} />
-                      <div className={`${styles.objectLabel} ${isCompleted ? 'text-cyan drop-shadow-[0_0_10px_var(--cyan)]' : ''}`}>{node.title}</div>
+                      <div className={`${styles.objectLabel} ${isCompleted ? 'text-cyan drop-shadow-[0_0_10px_var(--color-cyan)]' : ''}`}>{node.title}</div>
                     </>
                   )}
 

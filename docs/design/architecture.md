@@ -390,14 +390,8 @@ service cloud.firestore {
       allow write: if request.auth != null && request.auth.token.role == "admin";
     }
 
-    // Textbooks, Chapters, Topics: tương tự articles
+    // Textbooks, Topics: tương tự articles
     match /textbooks/{docId} {
-      allow read: if true;
-      allow write: if request.auth != null
-                   && request.auth.token.admin == true;
-    }
-
-    match /chapters/{docId} {
       allow read: if true;
       allow write: if request.auth != null
                    && request.auth.token.admin == true;

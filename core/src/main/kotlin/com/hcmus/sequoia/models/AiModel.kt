@@ -13,7 +13,7 @@ import kotlinx.serialization.Serializable
  * @property fileSizeBytes The size of the model file in bytes.
  * @property version Version string of the model.
  * @property format The format of the model (e.g., litert).
- * @property defaultConfig Map of default configuration parameters (e.g., threshold).
+ * @property metadataUrl URL pointing to the metadata.json file on CDN.
  * @property createdAt Timestamp when the model was created.
  * @property updatedAt Timestamp when the model was last updated.
  */
@@ -27,7 +27,7 @@ data class AiModel(
     val fileSizeBytes: Long = 0L,
     val version: String = "1.0",
     val format: String = "litert",
-    val defaultConfig: Map<String, String> = emptyMap(),
+    val metadataUrl: String = "",
     val createdAt: Long = 0L,
     val updatedAt: Long = 0L
 )

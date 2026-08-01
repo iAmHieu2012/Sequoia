@@ -59,7 +59,6 @@ erDiagram
     article_contents {
         string id PK
         string content
-        array playgroundBlocks
     }
 
     models {
@@ -71,7 +70,7 @@ erDiagram
         number fileSizeBytes
         string version
         string format
-        map defaultConfig
+        string metadataUrl
         number createdAt
         number updatedAt
     }
@@ -154,7 +153,6 @@ Các Collection này giữ nguyên tính trừu tượng của một CMS giáo d
 | --- | --- | --- | --- |
 | `id` | `string` | ✅ | Trùng khớp với ID của bài viết (`articles.id`) |
 | `content` | `string` | ✅ | Nội dung Markdown |
-| `playgroundBlocks` | `array<map>`| ✅ | Metadata config cho các Interactive Model nhúng |
 
 ### 2.6. `models` (Mô hình AI)
 | Field | Type | Required | Description |
@@ -167,7 +165,7 @@ Các Collection này giữ nguyên tính trừu tượng của một CMS giáo d
 | `fileSizeBytes` | `number` | ✅ | Dung lượng file byte |
 | `version` | `string` | ✅ | Phiên bản |
 | `format` | `string` | ✅ | Định dạng (vd: litert) |
-| `defaultConfig` | `map` | ✅ | Tham số mặc định (threshold, inputSize) |
+| `metadataUrl` | `string` | ✅ | URL trỏ tới file metadata.json trên CDN |
 | `createdAt` | `number` | ✅ | Thời điểm tạo |
 | `updatedAt` | `number` | ✅ | Thời điểm cập nhật cuối |
 

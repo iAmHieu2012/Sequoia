@@ -14,7 +14,7 @@ import kotlinx.coroutines.withContext
  * Exposes a dedicated endpoint for injecting dummy data into the Firestore emulator during development.
  * 
  * Comprehensive seed covering all schema requirements:
- * users, textbooks, chapters, topics, articles, models, cosmos_maps, user_progress.
+ * users, textbooks, topics, articles, models, cosmos_maps, user_progress.
  */
 fun Route.configureSeeder() {
     get("/seed-database") {
@@ -54,25 +54,59 @@ fun Route.configureSeeder() {
             ).get()
 
             // Seed Models (For Playground)
-            val modelId = "yolo-v8-nano"
-            db.collection("models").document(modelId).set(
+            val modelsToSeed: List<Map<String, Any>> = listOf(
                 mapOf(
-                    "id" to modelId,
-                    "name" to "YOLOv8 Nano",
+                    "id" to "yolov8n-detect",
+                    "name" to "YOLOv8 Nano (Detect)",
                     "description" to "Real-time object detection model optimized for edge devices.",
                     "taskType" to "object_detection",
-                    "fileUrl" to "https://cdn.sequoia.ai/models/yolov8n.tflite",
-                    "fileSizeBytes" to 3145728, // 3MB
+                    "fileUrl" to "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-detect/model.tflite",
+                    "metadataUrl" to "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-detect/metadata.json",
+                    "fileSizeBytes" to 12841243L,
                     "version" to "1.0",
-                    "format" to "litert",
-                    "defaultConfig" to mapOf(
-                        "threshold" to 0.5,
-                        "inputSize" to 320
-                    ),
-                    "createdAt" to now,
-                    "updatedAt" to now
+                    "format" to "litert"
+                ),
+                mapOf(
+                    "id" to "yolov8n-cls",
+                    "name" to "YOLOv8 Nano (Classify)",
+                    "description" to "Image classification model for edge devices.",
+                    "taskType" to "image_classification",
+                    "fileUrl" to "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-cls/model.tflite",
+                    "metadataUrl" to "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-cls/metadata.json",
+                    "fileSizeBytes" to 10917171L,
+                    "version" to "1.0",
+                    "format" to "litert"
+                ),
+                mapOf(
+                    "id" to "yolov8n-pose",
+                    "name" to "YOLOv8 Nano (Pose)",
+                    "description" to "Real-time human pose estimation model.",
+                    "taskType" to "pose_estimation",
+                    "fileUrl" to "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-pose/model.tflite",
+                    "metadataUrl" to "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-pose/metadata.json",
+                    "fileSizeBytes" to 13510234L,
+                    "version" to "1.0",
+                    "format" to "litert"
+                ),
+                mapOf(
+                    "id" to "yolov8n-seg",
+                    "name" to "YOLOv8 Nano (Seg)",
+                    "description" to "Real-time instance segmentation model.",
+                    "taskType" to "instance_segmentation",
+                    "fileUrl" to "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-seg/model.tflite",
+                    "metadataUrl" to "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-seg/metadata.json",
+                    "fileSizeBytes" to 13876205L,
+                    "version" to "1.0",
+                    "format" to "litert"
                 )
-            ).get()
+            )
+
+            modelsToSeed.forEach { m ->
+                val mWithTimestamps = m.toMutableMap()
+                mWithTimestamps["createdAt"] = now
+                mWithTimestamps["updatedAt"] = now
+                db.collection("models").document(m["id"] as String).set(mWithTimestamps).get()
+            }
 
             // Seed Textbook: Mathematics for Machine Learning
             val textbookId = "textbook_mml"
@@ -114,7 +148,7 @@ fun Route.configureSeeder() {
                     "content" to "## Image Classification\n\nImage classification is the task of assigning a label to an entire image.",
                     "summary" to "An introduction to classifying images.",
                     "tags" to listOf("cv", "classification"),
-                    "playgroundBlocks" to emptyList<Any>(),
+                    
                     "createdAt" to now,
                     "updatedAt" to now,
                     "publishedAt" to now
@@ -122,11 +156,11 @@ fun Route.configureSeeder() {
             )
             cvArticles.forEach { article ->
                 val slug = article["slug"] as String
-                val metadata = article.filterKeys { it != "content" && it != "playgroundBlocks" }
+                val metadata = article.filterKeys { it != "content" }
                 val contents = mapOf(
                     "id" to slug,
                     "content" to article["content"],
-                    "playgroundBlocks" to article["playgroundBlocks"]
+                    
                 )
                 db.collection("articles").document(slug).set(metadata).get()
                 db.collection("article_contents").document(slug).set(contents).get()
@@ -143,7 +177,7 @@ fun Route.configureSeeder() {
                     "content" to "## Attention Is All You Need\n\nThis 2017 paper introduced the Transformer architecture.",
                     "summary" to "A breakdown of the Transformer architecture and self-attention mechanisms.",
                     "tags" to listOf("paper", "nlp", "transformers"),
-                    "playgroundBlocks" to emptyList<Any>(),
+                    
                     "createdAt" to now,
                     "updatedAt" to now,
                     "publishedAt" to now
@@ -156,7 +190,7 @@ fun Route.configureSeeder() {
                     "content" to "## Deep Residual Learning\n\nResNet solves the vanishing gradient problem in ultra-deep networks.",
                     "summary" to "Understanding skip connections and how ResNet enables training of extremely deep networks.",
                     "tags" to listOf("paper", "cv", "resnet"),
-                    "playgroundBlocks" to emptyList<Any>(),
+                    
                     "createdAt" to now,
                     "updatedAt" to now,
                     "publishedAt" to now
@@ -164,11 +198,11 @@ fun Route.configureSeeder() {
             )
             rogueArticlesData.forEach { article ->
                 val slug = article["slug"] as String
-                val metadata = article.filterKeys { it != "content" && it != "playgroundBlocks" }
+                val metadata = article.filterKeys { it != "content" }
                 val contents = mapOf(
                     "id" to slug,
                     "content" to article["content"],
-                    "playgroundBlocks" to article["playgroundBlocks"]
+                    
                 )
                 db.collection("articles").document(slug).set(metadata).get()
             }

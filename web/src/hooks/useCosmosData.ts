@@ -65,6 +65,8 @@ export default function useCosmosData(mapId?: string) {
         } catch (err) {
           console.error('User not authenticated or no progress yet');
         }
+      } else {
+        setUserProgress(null);
       }
     });
 

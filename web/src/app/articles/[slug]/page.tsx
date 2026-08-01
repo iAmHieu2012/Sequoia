@@ -1,7 +1,8 @@
 import Link from "next/link";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { ChevronLeft, TerminalSquare, Lock, AlertTriangle } from "lucide-react";
-
+import CyberBrackets from "@/components/ui/CyberBrackets";
+import ArticleProgressToggle from "@/components/ArticleProgressToggle";
 interface Article {
   id: string;
   title: string;
@@ -10,15 +11,6 @@ interface Article {
   summary: string;
   tags: string[];
 }
-
-const CyberBrackets = ({ color = "border-system/50" }: { color?: string }) => (
-  <>
-    <div className={`absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 ${color}`} />
-    <div className={`absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 ${color}`} />
-    <div className={`absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 ${color}`} />
-    <div className={`absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 ${color}`} />
-  </>
-);
 
 async function getArticle(slug: string): Promise<Article | null> {
   try {
@@ -58,7 +50,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     <div className="min-h-screen w-screen bg-space-bg text-text-main font-sans overflow-x-hidden scanline-effect relative">
       {/* Cyber Grid Background */}
       <div className="fixed inset-0 pointer-events-none z-0 opacity-50" style={{
-        backgroundImage: 'linear-gradient(color-mix(in srgb, var(--system) 3%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--system) 3%, transparent) 1px, transparent 1px)',
+        backgroundImage: 'linear-gradient(color-mix(in srgb, var(--color-system) 3%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--color-system) 3%, transparent) 1px, transparent 1px)',
         backgroundSize: '40px 40px'
       }} />
 
@@ -77,7 +69,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         </div>
 
         {/* Datapad Container */}
-        <article className="bg-black/80 border border-system/20 relative p-8 md:p-12 shadow-[0_0_50px_color-mix(in_srgb,var(--system)_5%,transparent)] backdrop-blur-md">
+        <article className="bg-black/80 border border-system/20 relative p-8 md:p-12 shadow-[0_0_50px_color-mix(in_srgb,var(--color-system)_5%,transparent)] backdrop-blur-md">
           <CyberBrackets color="border-system/40" />
           
           <header className="mb-10 border-b border-panel-border pb-8">
@@ -89,7 +81,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                   </span>
                 ))}
               </div>
-              <div className="flex items-center gap-2 text-green font-mono text-[10px] tracking-widest border border-green/30 bg-green/10 px-2 py-1 uppercase">
+              <div className="flex items-center gap-2 text-white font-mono text-[10px] tracking-widest border border-white/30 bg-white/10 px-2 py-1 uppercase">
                 <Lock className="w-3 h-3" /> CLASSIFIED_DATA
               </div>
             </div>
@@ -109,6 +101,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             <MarkdownRenderer content={article.content} />
           </div>
 
+          <ArticleProgressToggle articleId={article.id} />
         </article>
       </main>
     </div>

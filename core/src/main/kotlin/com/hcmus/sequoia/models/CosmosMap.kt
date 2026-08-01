@@ -3,15 +3,15 @@ package com.hcmus.sequoia.models
 import kotlinx.serialization.Serializable
 
 /**
- * Entity representing the visual arrangement of a textbook's chapters and articles in the Cosmos UI.
+ * Entity representing the visual arrangement of a topic's articles or standalone anomalies in the Cosmos UI.
  * 
  * This is denormalized and stored separately from the core educational entities to minimize Firestore read costs 
  * when initializing the massive Galaxy Map interface.
  *
- * @property id The ID of the textbook or topic this map belongs to.
- * @property mapType The type of map (e.g., "textbook", "topic", "rogue_anomalies").
+ * @property id The ID of the topic or collection this map belongs to.
+ * @property mapType The type of map (e.g., "topic", "rogue_anomalies").
  * @property theme The visual theme of the map (default: "cosmos").
- * @property nodes A list of celestial nodes representing articles and chapters.
+ * @property nodes A list of celestial nodes representing articles.
  */
 @Serializable
 data class CosmosMap(

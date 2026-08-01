@@ -20,8 +20,7 @@ flowchart TD
     F --> H["Client vẽ bản đồ: Các chòm sao, tọa độ, tia sáng"]
     G --> H
     
-    H --> I["Hiển thị Sương mù (Fog of War)"]
-    I --> J["Ngôi sao chưa đọc (unread) sáng bình thường<br/>Ngôi sao 'decoded' phát sáng rực rỡ"]
+    H --> J["Ngôi sao chưa đọc (unread) sáng bình thường<br/>Ngôi sao 'decoded' phát sáng rực rỡ"]
     J --> K["Click vào ngôi sao bất kỳ"]
     K --> L["Mở Datapad (Đọc nội dung bài viết)"]
     L --> M["Ktor API: GET /api/v1/articles/{articleId}"]
@@ -29,7 +28,7 @@ flowchart TD
 
 **Trải nghiệm người dùng:**
 - Giao diện được thiết kế theo chủ đề thám hiểm không gian.
-- Tính năng "Sương mù" (Fog of War) bao phủ các bài học chưa được mở khóa.
+
 - Bản đồ tối ưu thời gian tải nhờ kiến trúc 2-reads.
 
 ---

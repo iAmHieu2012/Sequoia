@@ -45,11 +45,11 @@ graph TD
 
 Ứng dụng sử dụng giao diện vũ trụ trực quan thay cho danh sách văn bản thông thường:
 - Các "Giáo trình" (Textbooks) là các **Sectors** (Vùng không gian).
-- Bên trong Sector là các **Chòm sao** (Chapters).
+
 - Các "Chủ đề tự do" (Topics) là các **Tinh vân (Free Nebulas)** (người dùng được truy cập tự do không cần theo thứ tự).
 - Các "Bài viết đơn lẻ/Paper" là các **Thiên thể lang thang (Rogue Anomalies / Comets)** rải rác trên bản đồ.
 - Các điểm sáng là các **Ngôi sao** (Articles).
-- **Fog of War:** Sao nào chưa học (thuộc lộ trình Sector) thì ẩn trong sương mù. Sao nào đang học thì nhấp nháy. Học xong (decoded) thì sáng rực và bắn tia sáng sang sao tiếp theo. Các ngôi sao thuộc Tinh vân tự do không bị che bởi sương mù.
+
 
 ### 3.2. Datapad (Giao diện Bài viết)
 

@@ -37,7 +37,7 @@ Từ khóa "playground" phản ánh đúng nghiệp vụ lõi (môi trường th
 
 ## 3. Cấu trúc Firestore (Derived Data)
 
-Khi lưu vào collection `article_contents`, mảng cấu hình `playgroundBlocks` được trích xuất ngầm để lưu chung với document.
+Khi lưu vào collection `article_contents`, nội dung bài viết sẽ được lưu dưới dạng Markdown string gốc.
 
 ```json
 {
@@ -46,16 +46,7 @@ Khi lưu vào collection `article_contents`, mảng cấu hình `playgroundBlock
   "slug": "vector-spaces",
   "content": "# Transmission Received\n\n...",
   "summary": "Brief summary of the transmission",
-  "isPublished": true,
-  "playgroundBlocks": [
-    {
-      "modelId": "yolo-v8-nano",
-      "position": 1,
-      "defaultConfig": {
-        "threshold": "0.5"
-      }
-    }
-  ]
+  "isPublished": true
 }
 ```
 

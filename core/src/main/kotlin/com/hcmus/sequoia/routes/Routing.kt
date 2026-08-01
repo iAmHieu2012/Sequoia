@@ -10,6 +10,7 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.auth.*
+import io.ktor.server.request.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -115,6 +116,18 @@ fun Application.configureRouting() {
 
                     // Implementation stub for decode logic
                     call.respond(mapOf("message" to "Decode started for $mapId by user $userId"))
+                }
+
+                post("/articles/{articleId}/progress") {
+                    val articleId = call.parameters["articleId"] ?: throw BadRequestException("Missing articleId parameter")
+                    val user = call.principal<MyAuthenticatedUser>()
+                    val userId = user?.id ?: throw UnauthorizedException("Invalid or expired token")
+                    
+                    val requestParams = call.receive<Map<String, Boolean>>()
+                    val completed = requestParams["completed"] ?: true
+
+                    val newStatus = cosmosService.toggleArticleCompletion(userId, articleId, completed)
+                    call.respond(mapOf("data" to mapOf("articleId" to articleId, "completed" to newStatus)))
                 }
             }
 

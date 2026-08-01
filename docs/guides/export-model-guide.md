@@ -84,10 +84,7 @@ Sau khi có file `.tflite` hợp lệ, cần tải lên R2 để client (Web/And
   "fileSizeBytes": 3200000,
   "version": "1.0",
   "format": "litert",
-  "defaultConfig": {
-    "threshold": 0.5,
-    "inputSize": 640
-  },
+  "metadataUrl": "https://cdn.jsdelivr.net/gh/USERNAME/sequoia-models/yolov8n/metadata.json",
   "createdAt": "2023-10-25T10:00:00Z"
 }
 ```

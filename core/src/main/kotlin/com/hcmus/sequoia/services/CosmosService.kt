@@ -128,4 +128,28 @@ class CosmosService {
             standalone = standaloneStatus
         )
     }
+
+    suspend fun toggleArticleCompletion(userId: String, articleId: String, completed: Boolean): Boolean = withContext(Dispatchers.IO) {
+        val docRef = FirebaseConfig.firestore.collection("user_progress").document(userId)
+        val doc = docRef.get().get()
+        
+        var progress = if (doc.exists()) {
+            val p = doc.toObject(UserProgress::class.java)
+            p?.id = doc.id
+            p ?: UserProgress(id = userId, userId = userId)
+        } else {
+            UserProgress(id = userId, userId = userId)
+        }
+
+        val completedSet = progress.completedArticleIds.toMutableSet()
+        if (completed) {
+            completedSet.add(articleId)
+        } else {
+            completedSet.remove(articleId)
+        }
+        
+        progress = progress.copy(completedArticleIds = completedSet.toList())
+        docRef.set(progress).get()
+        completed
+    }
 }

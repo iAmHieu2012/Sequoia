@@ -13,7 +13,7 @@ Kiến trúc bảo mật của Sequoia dựa trên mô hình **Defense-in-depth 
 
 - `users`: Người dùng chỉ có quyền đọc và ghi vào document của chính mình (`request.auth.uid == resource.id`).
 - `textbooks`: Bất kỳ ai cũng có thể đọc (public read), nhưng chỉ admin (kiểm tra qua custom claim `isAdmin`) mới được ghi/xóa/sửa.
-- `chapters`: Ai cũng có thể đọc, chỉ admin mới có quyền ghi.
+
 - `topics`: Ai cũng có thể đọc, chỉ admin mới có quyền ghi.
 - `articles`: Chỉ cho phép đọc các bài viết đã xuất bản (`isPublished == true`), admin có thể đọc và ghi toàn bộ bài viết (kể cả bản nháp).
 - `models`: Ai cũng có thể đọc thông tin cấu hình mô hình, chỉ admin mới có quyền ghi.
@@ -51,11 +51,7 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // Rules for chapters
-    match /chapters/{chapterId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
+
 
     // Rules for topics
     match /topics/{topicId} {

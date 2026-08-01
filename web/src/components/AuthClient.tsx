@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Mail, Lock, User, ArrowRight, Orbit } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Mail, Lock, User, ArrowRight, Orbit, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { auth } from '@/lib/firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail, onAuthStateChanged } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import CyberBrackets from '@/components/ui/CyberBrackets';
 import { initializeUserRecord } from '@/lib/services/auth';
@@ -18,6 +18,37 @@ export default function AuthClient() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        router.push('/dashboard');
+      }
+    });
+    return () => unsubscribe();
+  }, [router]);
+
+  const mapFirebaseError = (errorCode: string): string => {
+    switch (errorCode) {
+      case 'auth/email-already-in-use': return 'EMAIL_ALREADY_REGISTERED';
+      case 'auth/invalid-credential': return 'INVALID_CREDENTIALS';
+      case 'auth/user-not-found': return 'USER_NOT_FOUND';
+      case 'auth/wrong-password': return 'INVALID_PASSWORD';
+      case 'auth/network-request-failed': return 'NETWORK_CONNECTION_FAILED';
+      case 'auth/too-many-requests': return 'TOO_MANY_ATTEMPTS._TRY_LATER';
+      case 'auth/invalid-email': return 'INVALID_EMAIL_FORMAT';
+      case 'auth/weak-password': return 'PASSWORD_TOO_WEAK';
+      default: return 'AUTHENTICATION_FAILED';
+    }
+  };
+
+  const toggleAuthMode = () => {
+    setIsLogin(!isLogin);
+    setError('');
+    setMessage('');
+    setName('');
+    setPassword('');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +66,7 @@ export default function AuthClient() {
       }
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Authentication failed. Please check your credentials.');
+      setError(mapFirebaseError(err.code) || err.message);
     } finally {
       setLoading(false);
     }
@@ -51,7 +82,9 @@ export default function AuthClient() {
       await initializeUserRecord(userCredential.user, userCredential.user.displayName || '');
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Google authentication failed.');
+      if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
+        setError(mapFirebaseError(err.code) || err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -81,7 +114,7 @@ export default function AuthClient() {
       
       {/* Cyber Grid Background */}
       <div className="fixed inset-0 pointer-events-none z-0" style={{
-        backgroundImage: 'linear-gradient(color-mix(in srgb, var(--system) 3%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--system) 3%, transparent) 1px, transparent 1px)',
+        backgroundImage: 'linear-gradient(color-mix(in srgb, var(--color-system) 3%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--color-system) 3%, transparent) 1px, transparent 1px)',
         backgroundSize: '40px 40px'
       }} />
 
@@ -95,7 +128,7 @@ export default function AuthClient() {
           <div className="flex items-center gap-2 mb-1 text-system">
             <span className="font-mono text-[10px] tracking-[0.3em]">SYS.AUTH.PROTOCOL</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-heading font-black text-white tracking-[0.15em] m-0 leading-none drop-shadow-[0_0_15px_var(--system)]">
+          <h1 className="text-4xl md:text-5xl font-heading font-black text-white tracking-[0.15em] m-0 leading-none drop-shadow-[0_0_15px_var(--color-system)]">
             SEQUOIA
           </h1>
         </div>
@@ -118,14 +151,14 @@ export default function AuthClient() {
 
           <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-5 [@media(max-height:750px)]:space-y-3">
             {error && (
-              <div className="bg-pink/10 border border-pink/50 text-pink p-3 text-xs font-mono flex items-center gap-2">
-                <span className="animate-pulse">⚠️</span>
+              <div className="bg-red/10 border border-red/50 text-red p-3 text-xs font-mono flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 animate-pulse shrink-0" />
                 {error}
               </div>
             )}
             {message && (
               <div className="bg-system/10 border border-system/50 text-system p-3 text-xs font-mono flex items-center gap-2">
-                <span className="animate-pulse">✓</span>
+                <CheckCircle2 className="w-4 h-4 animate-pulse shrink-0" />
                 {message}
               </div>
             )}
@@ -234,7 +267,7 @@ export default function AuthClient() {
           <div className="mt-4 sm:mt-8 [@media(max-height:750px)]:mt-4 text-center text-[9px] sm:text-[10px] font-mono tracking-widest text-text-dim uppercase flex items-center justify-center gap-2">
             {isLogin ? "NO_IDENTIFIER_FOUND?" : "IDENTIFIER_EXISTS?"}
             <button
-              onClick={() => setIsLogin(!isLogin)}
+              onClick={toggleAuthMode}
               className="text-system hover:text-system/80 transition-colors"
             >
               [{isLogin ? 'INIT_REGISTRATION' : 'START_AUTH'}]

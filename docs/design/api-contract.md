@@ -247,26 +247,8 @@ Lấy toàn bộ nội dung bài viết kèm cấu hình playground dựa trên 
     "content": "# Norms and Inner Products\n\nIn this log, we explore...",
     "summary": "Understanding distance and angles in vector spaces...",
     "topicId": "Hj3kM7nPqS9w",
-    "playgroundBlocks": [
-      {
-        "modelId": "Rt6uI0oLkJ2h",
-        "position": 3,
-        "defaultConfig": {
-          "threshold": 0.45,
-          "inputSize": 320,
-          "showBoundingBoxes": true
-        },
-        "model": {
-          "id": "Rt6uI0oLkJ2h",
-          "name": "YOLOv8n Object Detection",
-          "taskType": "object_detection",
-          "fileUrl": "https://r2.sequoia.dev/models/yolov8n-v1.0.0.tflite",
-          "fileSizeBytes": 6340096,
-          "format": "litert"
-        }
-      }
-    ],
-    "tags": ["linear-algebra", "geometry", "vectors"],
+    "tags": [
+      "linear-algebra", "geometry", "vectors"],
     "isPublished": true,
     "createdAt": 1781053200000,
     "updatedAt": 1784013900000
@@ -377,10 +359,7 @@ Lấy metadata và URL tải model AI.
     "fileSizeBytes": 6340096,
     "version": "1.0.0",
     "format": "litert",
-    "defaultConfig": {
-      "threshold": 0.5,
-      "inputSize": 640
-    },
+    "metadataUrl": "https://cdn.jsdelivr.net/gh/USERNAME/sequoia-models/yolov8n/metadata.json",
     "createdAt": 1780272000000,
     "updatedAt": 1782871200000
   }
@@ -577,9 +556,9 @@ Trả về toàn bộ cấu trúc bản đồ của một Chủ đề hoặc b�
 
 ---
 
-### 2.11. GET `/api/v1/cosmos/progress/:mapId` — Lấy Tiến trình (Fog of War)
+### 2.11. GET `/api/v1/cosmos/progress/:mapId` — Lấy Tiến trình
 
-Trả về trạng thái mở khóa của user trên bản đồ.
+Trả về trạng thái tiến độ của user trên bản đồ.
 
 | | |
 | --- | --- |

@@ -35,7 +35,7 @@ export default function LandingClient() {
       
       {/* Cyber Grid Background */}
       <div className="fixed inset-0 pointer-events-none z-0 opacity-50" style={{
-        backgroundImage: 'linear-gradient(color-mix(in srgb, var(--system) 3%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--system) 3%, transparent) 1px, transparent 1px)',
+        backgroundImage: 'linear-gradient(color-mix(in srgb, var(--color-system) 3%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--color-system) 3%, transparent) 1px, transparent 1px)',
         backgroundSize: '40px 40px'
       }} />
 
@@ -52,7 +52,7 @@ export default function LandingClient() {
           </span>
         </div>
 
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-black text-white tracking-[0.15em] m-0 mb-4 leading-none drop-shadow-[0_0_20px_var(--system)]">
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-black text-white tracking-[0.15em] m-0 mb-4 leading-none drop-shadow-[0_0_20px_var(--color-system)]">
           SEQUOIA
         </h1>
         

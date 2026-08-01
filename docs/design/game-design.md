@@ -7,15 +7,15 @@ Tài liệu đặc tả kiến trúc và luồng dữ liệu cho Game Domain ("T
 Hệ thống Gamification được thiết kế dưới dạng một Interactive 2D Canvas (Bản đồ không gian), đóng vai trò là giao diện điều hướng chính (Navigation UI) thay thế cho dạng danh sách dọc truyền thống.
 
 - **Vùng không gian (Sectors)**: Ánh xạ 1-1 với collection `textbooks`.
-- **Chòm sao (Constellations)**: Ánh xạ 1-1 với collection `chapters`.
+
 - **Thiên thể (Celestial Objects)**: Ánh xạ 1-1 với collection `articles`.
-- **Khám phá tự do (Open Exploration)**: Không có trạng thái Locked hay Fog of War. Mọi node đều có thể truy cập bất kỳ lúc nào để tra cứu.
+- **Khám phá tự do (Open Exploration)**: Không có trạng thái Locked. Mọi node đều có thể truy cập bất kỳ lúc nào để tra cứu.
 
 ## 2. Cấu trúc Dữ liệu UI (Celestial Types)
 
 | Thành phần UI | Tương quan Backend | Loại hiển thị | Logic xử lý |
 | --- | --- | --- | --- |
-| Cụm sao (Cluster) | `chapters` | Nhóm Node | Định tuyến tạo các chòm sao, nhóm tọa độ |
+
 | Node cơ bản | `articles` (Lý thuyết) | Star | Thay đổi CSS/SVG sáng lên khi hoàn thành (Decoded) |
 | Node phức hợp | `articles` (Thuật toán lớn) | Binary Star | Hiệu ứng quỹ đạo quay quanh (Animation) |
 | Node thực hành | `articles` (Chứa Playground) | Nebula | Yêu cầu phải chạy LiteRT thành công để qua bài |
