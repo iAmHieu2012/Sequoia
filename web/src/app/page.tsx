@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import LandingClient from '@/components/LandingClient';
+import LandingClient from '@/components/landing/LandingClient';
 
 export const metadata: Metadata = {
   title: 'Sequoia - The Neural Cosmos',

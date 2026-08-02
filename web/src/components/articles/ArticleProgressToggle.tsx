@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { CheckCircle2, XCircle, Cpu, Loader2 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
-import CyberBrackets from "./ui/CyberBrackets";
+import CyberBrackets from "@/components/ui/CyberBrackets";
 import Link from "next/link";
 
 interface ArticleProgressToggleProps {
@@ -90,7 +90,7 @@ export default function ArticleProgressToggle({ articleId }: ArticleProgressTogg
           Signal interception successful, but neural uplink is severed. Establish a connection to record your decoding progress.
         </p>
         <Link 
-          href="/login" 
+          href="/auth" 
           className="mt-2 px-6 py-2 border border-system/50 text-system hover:bg-system/10 font-mono text-xs uppercase tracking-widest transition-all duration-300 shadow-[0_0_15px_rgba(66,255,255,0.05)] hover:shadow-[0_0_20px_rgba(66,255,255,0.2)]"
         >
           Initialize Uplink (Login)

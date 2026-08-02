@@ -1,5 +1,8 @@
 import { BoundingBox } from './types';
 
+let cachedMaskCanvas: HTMLCanvasElement | null = null;
+let cachedMaskCtx: CanvasRenderingContext2D | null = null;
+
 export function renderSegmentation(
   dCtx: CanvasRenderingContext2D,
   b: BoundingBox,
@@ -28,10 +31,13 @@ export function renderSegmentation(
     maskChannels = protoShape[3] || 32;
   }
   
-  const maskCanvas = document.createElement('canvas');
-  maskCanvas.width = maskW;
-  maskCanvas.height = maskH;
-  const maskCtx = maskCanvas.getContext('2d');
+  if (!cachedMaskCanvas || cachedMaskCanvas.width !== maskW || cachedMaskCanvas.height !== maskH) {
+    cachedMaskCanvas = document.createElement('canvas');
+    cachedMaskCanvas.width = maskW;
+    cachedMaskCanvas.height = maskH;
+    cachedMaskCtx = cachedMaskCanvas.getContext('2d');
+  }
+  const maskCtx = cachedMaskCtx;
   if (!maskCtx) return;
 
   const imgData = maskCtx.createImageData(maskW, maskH);
@@ -72,5 +78,5 @@ export function renderSegmentation(
     }
   }
   maskCtx.putImageData(imgData, 0, 0);
-  dCtx.drawImage(maskCanvas, 0, 0, maskW, maskH, 0, 0, canvasWidth, canvasHeight);
+  dCtx.drawImage(cachedMaskCanvas!, 0, 0, maskW, maskH, 0, 0, canvasWidth, canvasHeight);
 }

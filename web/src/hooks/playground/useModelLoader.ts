@@ -1,0 +1,96 @@
+import { useState, useRef, useEffect, Dispatch, SetStateAction } from 'react';
+import { loadLiteRt, loadAndCompile, CompiledModel } from '@litertjs/core';
+import { AiModel } from './index';
+
+export function useModelLoader(
+  modelId: string,
+  setLogs: Dispatch<SetStateAction<string[]>>
+) {
+  const [model, setModel] = useState<AiModel | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [booting, setBooting] = useState(true);
+  
+  const compiledModelRef = useRef<CompiledModel | null>(null);
+  const [compiledModelReady, setCompiledModelReady] = useState(false);
+  
+  const initialized = useRef(false);
+
+  function simulateBootSequence(loadedModelData: AiModel) {
+    const sequence = [
+      "> ALLOCATING TENSORS...",
+      "> LOADING WEIGHTS...",
+      "> WARMING UP NEURAL ENGINE...",
+      "> RUNTIME ESTABLISHED. STANDBY."
+    ];
+    let i = 0;
+    const interval = setInterval(() => {
+      setLogs(prev => [...prev, sequence[i]]);
+      i++;
+      if (i >= sequence.length) {
+        clearInterval(interval);
+        setTimeout(() => {
+          setBooting(false);
+          initLiteRtModel(loadedModelData);
+        }, 500);
+      }
+    }, 600);
+  };
+
+  async function initLiteRtModel(modelData: AiModel) {
+    try {
+      setLogs(prev => [...prev, "> INITIALIZING LiteRT WASM ENGINE..."]);
+      try {
+        await loadLiteRt("https://cdn.jsdelivr.net/npm/@litertjs/core@2.5.3/wasm/");
+      } catch (err: unknown) {
+        if (err instanceof Error && !err.message?.includes("already loading") && !err.message?.includes("already loaded")) {
+           throw err;
+        }
+      }
+      
+      setLogs(prev => [...prev, "> DOWNLOADING MODEL DATA..."]);
+      
+      const loadedModel = await loadAndCompile(modelData.fileUrl);
+      compiledModelRef.current = loadedModel;
+      setCompiledModelReady(true);
+      
+      setLogs(prev => [...prev, "> MODEL COMPILED SUCCESSFULLY."]);
+    } catch (err: unknown) {
+      console.error(err);
+      setLogs(prev => [...prev, "> ERROR: LiteRT COMPILE FAILED."]);
+    }
+  };
+
+  useEffect(() => {
+    if (initialized.current) return;
+    initialized.current = true;
+
+    fetch(`/api/v1/models/${modelId}`)
+      .then(res => res.json())
+      .then(async data => {
+        const modelData = data.data;
+        if (modelData.metadataUrl) {
+          try {
+            const metaRes = await fetch(modelData.metadataUrl);
+            const metaJson = await metaRes.json();
+            modelData.labels = metaJson.labels;
+            modelData.inputSize = metaJson.input_size;
+          } catch (e) {
+            console.warn("Failed to fetch metadata.json from CDN", e);
+          }
+        }
+        setModel(modelData);
+        setLoading(false);
+        simulateBootSequence(modelData);
+      })
+      .catch(err => {
+        console.error(err);
+        setLogs(prev => [...prev, "> ERROR: FAILED TO FETCH MODEL MATRIX."]);
+        setLoading(false);
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modelId]);
+
+
+
+  return { model, loading, booting, compiledModelRef, compiledModelReady };
+}

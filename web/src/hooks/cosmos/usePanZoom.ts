@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 
 const CANVAS_SIZE = 10000;
 
@@ -6,22 +6,31 @@ interface PanZoomOptions {
   initialScale?: number;
   minScale?: number;
   maxScale?: number;
+  onUpdate?: (x: number, y: number, s: number, isTransitioning: boolean) => void;
 }
 
 export default function usePanZoom(
   viewportRef: React.RefObject<HTMLDivElement | null>,
   options: PanZoomOptions = {}
 ) {
-  const { initialScale = 0.5, minScale: minScaleOverride, maxScale = 2 } = options;
+  const { initialScale = 0.5, minScale: minScaleOverride, maxScale = 2, onUpdate } = options;
 
-  const [scale, setScale] = useState(initialScale);
-  const [translateX, setTranslateX] = useState(0);
-  const [translateY, setTranslateY] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const scale = useRef(initialScale);
+  const translateX = useRef(0);
+  const translateY = useRef(0);
+  const isTransitioning = useRef(false);
 
   const isDragging = useRef(false);
   const startX = useRef(0);
   const startY = useRef(0);
+
+  const notifyUpdate = useCallback(() => {
+    if (onUpdate) {
+      requestAnimationFrame(() => {
+        onUpdate(translateX.current, translateY.current, scale.current, isTransitioning.current);
+      });
+    }
+  }, [onUpdate]);
 
   const getContainerSize = useCallback(() => {
     if (viewportRef.current) {
@@ -51,18 +60,22 @@ export default function usePanZoom(
   }, [getContainerSize]);
 
   const flyTo = useCallback((x: number, y: number, s?: number) => {
-    setIsTransitioning(true);
+    isTransitioning.current = true;
     const computedMinScale = getMinScale();
     const newScale = Math.max(s ?? 0.6, computedMinScale);
     const { w, h } = getContainerSize();
     const rawX = (w / 2) - (x * newScale);
     const rawY = (h / 2) - (y * newScale);
     const clamped = clampTranslate(rawX, rawY, newScale);
-    setTranslateX(clamped.x);
-    setTranslateY(clamped.y);
-    setScale(newScale);
-    setTimeout(() => setIsTransitioning(false), 800);
-  }, [getMinScale, getContainerSize, clampTranslate]);
+    translateX.current = clamped.x;
+    translateY.current = clamped.y;
+    scale.current = newScale;
+    notifyUpdate();
+    setTimeout(() => {
+      isTransitioning.current = false;
+      notifyUpdate();
+    }, 800);
+  }, [getMinScale, getContainerSize, clampTranslate, notifyUpdate]);
 
   // Wheel zoom
   useEffect(() => {
@@ -73,39 +86,41 @@ export default function usePanZoom(
       e.preventDefault();
       const delta = -e.deltaY * 0.002;
       const computedMinScale = getMinScale();
-      let newScale = scale * Math.exp(delta);
+      let newScale = scale.current * Math.exp(delta);
       newScale = Math.max(computedMinScale, Math.min(newScale, maxScale));
 
       const rect = viewport.getBoundingClientRect();
       const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
 
-      const rawX = mouseX - (mouseX - translateX) * (newScale / scale);
-      const rawY = mouseY - (mouseY - translateY) * (newScale / scale);
+      const rawX = mouseX - (mouseX - translateX.current) * (newScale / scale.current);
+      const rawY = mouseY - (mouseY - translateY.current) * (newScale / scale.current);
       const clamped = clampTranslate(rawX, rawY, newScale);
 
-      setTranslateX(clamped.x);
-      setTranslateY(clamped.y);
-      setScale(newScale);
+      translateX.current = clamped.x;
+      translateY.current = clamped.y;
+      scale.current = newScale;
+      notifyUpdate();
     };
 
     viewport.addEventListener('wheel', handleWheel, { passive: false });
     return () => viewport.removeEventListener('wheel', handleWheel);
-  }, [scale, translateX, translateY, getMinScale, clampTranslate, maxScale, viewportRef]);
+  }, [getMinScale, clampTranslate, maxScale, viewportRef, notifyUpdate]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     isDragging.current = true;
-    startX.current = e.clientX - translateX;
-    startY.current = e.clientY - translateY;
+    startX.current = e.clientX - translateX.current;
+    startY.current = e.clientY - translateY.current;
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging.current) return;
     const rawX = e.clientX - startX.current;
     const rawY = e.clientY - startY.current;
-    const clamped = clampTranslate(rawX, rawY, scale);
-    setTranslateX(clamped.x);
-    setTranslateY(clamped.y);
+    const clamped = clampTranslate(rawX, rawY, scale.current);
+    translateX.current = clamped.x;
+    translateY.current = clamped.y;
+    notifyUpdate();
   };
 
   const handleMouseUp = () => {
@@ -113,10 +128,6 @@ export default function usePanZoom(
   };
 
   return {
-    scale,
-    translateX,
-    translateY,
-    isTransitioning,
     flyTo,
     handlers: {
       onMouseDown: handleMouseDown,

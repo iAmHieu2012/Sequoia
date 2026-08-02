@@ -1,8 +1,9 @@
 import Link from "next/link";
-import MarkdownRenderer from "@/components/MarkdownRenderer";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 import { ChevronLeft, TerminalSquare, Lock, AlertTriangle } from "lucide-react";
 import CyberBrackets from "@/components/ui/CyberBrackets";
-import ArticleProgressToggle from "@/components/ArticleProgressToggle";
+import CyberGrid from "@/components/ui/CyberGrid";
+import ArticleProgressToggle from "@/components/articles/ArticleProgressToggle";
 interface Article {
   id: string;
   title: string;
@@ -48,11 +49,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
   return (
     <div className="min-h-screen w-screen bg-space-bg text-text-main font-sans overflow-x-hidden scanline-effect relative">
-      {/* Cyber Grid Background */}
-      <div className="fixed inset-0 pointer-events-none z-0 opacity-50" style={{
-        backgroundImage: 'linear-gradient(color-mix(in srgb, var(--color-system) 3%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--color-system) 3%, transparent) 1px, transparent 1px)',
-        backgroundSize: '40px 40px'
-      }} />
+      <CyberGrid />
 
       <main className="max-w-4xl mx-auto px-4 py-8 relative z-10">
         

@@ -2,8 +2,9 @@
 
 import { useParams } from "next/navigation";
 import { ArrowLeft, Camera, Upload, Cpu, Activity, Zap } from "lucide-react";
+import CyberGrid from "@/components/ui/CyberGrid";
 import CyberBrackets from "@/components/ui/CyberBrackets";
-import { usePlayground } from "@/hooks/usePlayground";
+import { usePlayground } from "@/hooks/playground";
 
 export default function Playground() {
   const params = useParams();
@@ -47,11 +48,7 @@ export default function Playground() {
 
   return (
     <div className="h-screen w-screen bg-space-bg text-text-main font-sans overflow-hidden flex flex-col relative select-none">
-      {/* Cyber Grid Background */}
-      <div className="fixed inset-0 pointer-events-none z-0 opacity-50" style={{
-        backgroundImage: 'linear-gradient(color-mix(in srgb, var(--color-system) 3%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--color-system) 3%, transparent) 1px, transparent 1px)',
-        backgroundSize: '40px 40px'
-      }} />
+      <CyberGrid />
 
       {/* Header */}
       <header className="relative z-50 flex items-center justify-between px-6 py-4 border-b border-panel-border bg-black/60">
@@ -130,7 +127,7 @@ export default function Playground() {
             <div className="flex justify-between items-center">
               <span className="text-[10px] font-mono text-text-dim tracking-widest">MEMORY</span>
               <span className="text-sm font-mono text-white tracking-widest flex items-center gap-1">
-                {cameraActive ? '128' : '--'} <span className="text-[9px] text-system">MB</span>
+                {cameraActive ? ((performance as any).memory ? Math.round((performance as any).memory.usedJSHeapSize / 1048576) : 'N/A') : '--'} <span className="text-[9px] text-system">MB</span>
               </span>
             </div>
           </div>

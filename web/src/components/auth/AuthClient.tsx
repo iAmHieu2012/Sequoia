@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Mail, Lock, User, ArrowRight, Orbit, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Orbit, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { auth } from '@/lib/firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail, onAuthStateChanged } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import CyberBrackets from '@/components/ui/CyberBrackets';
 import { initializeUserRecord } from '@/lib/services/auth';
+import LoginForm from './LoginForm';
+import RegisterForm from './RegisterForm';
 
 export default function AuthClient() {
   const [isLogin, setIsLogin] = useState(true);
@@ -111,7 +113,6 @@ export default function AuthClient() {
 
   return (
     <div className="h-[100dvh] w-full bg-space-bg flex flex-col items-center justify-center p-2 sm:p-4 relative overflow-hidden text-text-main font-sans select-none fixed inset-0">
-      
       {/* Cyber Grid Background */}
       <div className="fixed inset-0 pointer-events-none z-0" style={{
         backgroundImage: 'linear-gradient(color-mix(in srgb, var(--color-system) 3%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--color-system) 3%, transparent) 1px, transparent 1px)',
@@ -149,7 +150,7 @@ export default function AuthClient() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-5 [@media(max-height:750px)]:space-y-3">
+          <div className="space-y-3 mb-4">
             {error && (
               <div className="bg-red/10 border border-red/50 text-red p-3 text-xs font-mono flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 animate-pulse shrink-0" />
@@ -162,79 +163,30 @@ export default function AuthClient() {
                 {message}
               </div>
             )}
-            {/* Name Input (Register Only) */}
-            <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isLogin ? 'max-h-0 opacity-0 m-0' : 'max-h-24 opacity-100'}`}>
-              <div className="relative group/input">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-4 w-4 text-text-dim group-focus-within/input:text-system transition-colors" />
-                </div>
-                <input
-                  type="text"
-                  placeholder="DISPLAY_NAME"
-                  className="w-full pl-10 pr-4 py-3 [@media(max-height:750px)]:py-2 bg-black/40 border border-panel-border focus:border-system/50 outline-none transition-all placeholder:text-text-dim/50 text-sm font-mono tracking-wider text-white"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required={!isLogin}
-                />
-              </div>
-            </div>
+          </div>
 
-            {/* Email Input */}
-            <div className="relative group/input">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-4 w-4 text-text-dim group-focus-within/input:text-system transition-colors" />
-              </div>
-              <input
-                type="email"
-                placeholder="EMAIL_ADDRESS"
-                className="w-full pl-10 pr-4 py-3 [@media(max-height:750px)]:py-2 bg-black/40 border border-panel-border focus:border-system/50 outline-none transition-all placeholder:text-text-dim/50 text-sm font-mono tracking-wider text-white"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-
-            {/* Password Input */}
-            <div className="relative group/input">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-4 w-4 text-text-dim group-focus-within/input:text-system transition-colors" />
-              </div>
-              <input
-                type="password"
-                placeholder="PASSWORD_KEY"
-                className="w-full pl-10 pr-4 py-3 [@media(max-height:750px)]:py-2 bg-black/40 border border-panel-border focus:border-system/50 outline-none transition-all placeholder:text-text-dim/50 text-sm font-mono tracking-wider text-white"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-
-            {isLogin && (
-              <div className="flex justify-end">
-                <button 
-                  type="button" 
-                  onClick={handleResetPassword}
-                  disabled={loading}
-                  className="text-[10px] font-mono tracking-widest text-system/70 hover:text-system transition-colors uppercase disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Forgot Key?
-                </button>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className={`w-full py-3 [@media(max-height:750px)]:py-2 px-4 relative group overflow-hidden bg-system/10 border border-system/30 transition-all duration-300 mt-4 [@media(max-height:750px)]:mt-2 ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-system/20'}`}
-            >
-              <div className="absolute left-0 top-0 w-1 h-full bg-system scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out" />
-              <span className="relative z-10 flex items-center justify-center font-heading font-bold tracking-[0.2em] text-system text-sm uppercase">
-                {loading ? "PROCESSING..." : (isLogin ? "AUTHENTICATE" : "ESTABLISH_LINK")}
-                {!loading && <ArrowRight className="ml-2 h-4 w-4 opacity-70 group-hover:translate-x-1 transition-transform" />}
-              </span>
-              {!loading && <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-system/20 to-transparent transition-transform duration-700 ease-out pointer-events-none" />}
-            </button>
-          </form>
+          {isLogin ? (
+            <LoginForm 
+              email={email}
+              setEmail={setEmail}
+              password={password}
+              setPassword={setPassword}
+              loading={loading}
+              onSubmit={handleSubmit}
+              onResetPassword={handleResetPassword}
+            />
+          ) : (
+            <RegisterForm 
+              email={email}
+              setEmail={setEmail}
+              password={password}
+              setPassword={setPassword}
+              name={name}
+              setName={setName}
+              loading={loading}
+              onSubmit={handleSubmit}
+            />
+          )}
 
           <div className="mt-4 sm:mt-8 [@media(max-height:750px)]:mt-4">
             <div className="relative flex items-center justify-center">

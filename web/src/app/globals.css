@@ -18,7 +18,7 @@
   --color-turquoise: #00ff99;
   --color-purple: #9900ff;
   
-  --color-system: #42ffff; /* Tách biệt hoàn toàn khỏi cyan để chỉnh sửa độc lập */
+  --color-system: #ffffff; 
   --color-text-main: #f0f0f0;
   --color-text-dim: #888888;
 }

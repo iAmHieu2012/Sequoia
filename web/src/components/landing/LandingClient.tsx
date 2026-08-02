@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { ArrowRight, Sparkles, Network, Orbit } from 'lucide-react';
+import CyberGrid from '@/components/ui/CyberGrid';
 
 import CyberBrackets from '@/components/ui/CyberBrackets';
 
@@ -26,18 +27,14 @@ export default function LandingClient() {
     if (user) {
       router.push('/dashboard');
     } else {
-      router.push('/login');
+      router.push('/auth');
     }
   };
 
   return (
     <div className="min-h-screen bg-space-bg flex flex-col items-center justify-center p-4 relative overflow-hidden text-text-main font-sans select-none">
       
-      {/* Cyber Grid Background */}
-      <div className="fixed inset-0 pointer-events-none z-0 opacity-50" style={{
-        backgroundImage: 'linear-gradient(color-mix(in srgb, var(--color-system) 3%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--color-system) 3%, transparent) 1px, transparent 1px)',
-        backgroundSize: '40px 40px'
-      }} />
+      <CyberGrid />
 
       {/* Center Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] md:w-[50vw] md:h-[50vw] rounded-full bg-system/5 blur-[120px] pointer-events-none" />
