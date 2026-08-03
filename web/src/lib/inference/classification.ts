@@ -1,3 +1,4 @@
+
 export function renderClassification(
   dCtx: CanvasRenderingContext2D,
   outData: Float32Array,
@@ -31,7 +32,7 @@ export function renderClassification(
     dCtx.fillStyle = 'rgba(0, 0, 0, 0.7)';
     dCtx.fillRect(10, 30, textWidth + 20, 28);
     
-    dCtx.fillStyle = '#00F0FF';
+    dCtx.fillStyle = '#49AEAE';
     dCtx.fillText(text, 20, 49);
   }
 }

@@ -1,9 +1,12 @@
 import Link from "next/link";
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
-import { ChevronLeft, TerminalSquare, Lock, AlertTriangle } from "lucide-react";
+import { ChevronLeft, TerminalSquare, Lock } from "lucide-react";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 import CyberGrid from "@/components/ui/CyberGrid";
 import ArticleProgressToggle from "@/components/articles/ArticleProgressToggle";
+import { notFound } from "next/navigation";
+import { Metadata } from "next";
+
 interface Article {
   id: string;
   title: string;
@@ -27,44 +30,110 @@ async function getArticle(slug: string): Promise<Article | null> {
   }
 }
 
+export async function generateStaticParams() {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080';
+  const slugs: { slug: string }[] = [];
+
+  try {
+    // 1. Fetch standalone articles
+    const rogueRes = await fetch(`${baseUrl}/api/v1/articles/standalone`);
+    if (rogueRes.ok) {
+      const rogueJson = await rogueRes.json();
+      const articles = rogueJson.data || [];
+      articles.forEach((a: any) => slugs.push({ slug: a.slug }));
+    }
+
+    // 2. Fetch all topics and their articles
+    const tpRes = await fetch(`${baseUrl}/api/v1/topics`);
+    if (tpRes.ok) {
+      const tpJson = await tpRes.json();
+      const topics = tpJson.data || [];
+      for (const topic of topics) {
+        const tArtRes = await fetch(`${baseUrl}/api/v1/topics/${topic.id}/articles`);
+        if (tArtRes.ok) {
+          const tArtJson = await tArtRes.json();
+          const articles = tArtJson.data || [];
+          articles.forEach((a: any) => slugs.push({ slug: a.slug }));
+        }
+      }
+    }
+  } catch (e) {
+    console.error("Failed to generate static params", e);
+  }
+
+  return slugs;
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const article = await getArticle(slug);
+  
+  if (!article) {
+    return {
+      title: 'Signal Lost | Sequoia',
+      description: 'Error 404: Datapad transmission could not be intercepted.'
+    };
+  }
+
+  return {
+    title: `${article.title} | Sequoia`,
+    description: article.summary,
+    openGraph: {
+      title: article.title,
+      description: article.summary,
+      type: 'article',
+      tags: article.tags,
+    }
+  };
+}
+
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const article = await getArticle(slug);
 
   if (!article) {
-    return (
-      <div className="min-h-screen w-screen bg-space-bg text-text-main font-sans flex items-center justify-center scanline-effect">
-        <div className="bg-pink/10 border border-pink/30 p-8 max-w-md w-full text-center relative">
-          <CyberBrackets color="border-pink/50" />
-          <AlertTriangle className="w-12 h-12 text-pink mx-auto mb-4 animate-pulse" />
-          <h1 className="text-2xl font-heading font-bold text-pink uppercase mb-2">Signal Lost</h1>
-          <p className="font-mono text-xs text-text-dim mb-6">Error 404: Datapad transmission could not be intercepted or has been encrypted by rogue entities.</p>
-          <Link href="/" className="inline-flex items-center text-[10px] font-mono tracking-widest uppercase border border-pink/50 text-pink px-4 py-2 hover:bg-pink/20 transition-colors">
-            <ChevronLeft className="w-3 h-3 mr-1" /> Abort_Intercept
-          </Link>
-        </div>
-      </div>
-    );
+    notFound();
   }
 
   return (
-    <div className="min-h-screen w-screen bg-space-bg text-text-main font-sans overflow-x-hidden scanline-effect relative">
+    <div className="min-h-screen w-screen bg-space-bg text-text-main font-sans overflow-x-hidden scanline-effect relative flex flex-col">
       <CyberGrid />
 
-      <main className="max-w-4xl mx-auto px-4 py-8 relative z-10">
-        
-        {/* Header/Nav */}
-        <div className="flex items-center justify-between mb-8 border-b border-panel-border pb-4">
-          <Link href="/" className="inline-flex items-center text-text-dim hover:text-white font-mono text-[11px] tracking-widest uppercase transition-colors group">
-            <ChevronLeft className="w-4 h-4 mr-1 group-hover:-translate-x-1 transition-transform" />
-            ABORT_INTERCEPT
+      {/* Universal Header */}
+      <header className="flex-shrink-0 relative z-50 flex items-center justify-between px-6 py-4 border-b border-panel-border bg-black/80 backdrop-blur-md">
+        <div className="flex items-center gap-6">
+          <Link href="/dashboard" className="inline-flex items-center text-[10px] font-mono tracking-widest uppercase bg-system/5 text-system px-4 py-2 hover:bg-system/20 hover:text-white transition-all duration-300 relative group overflow-hidden">
+            <CyberBrackets color="border-system/30 group-hover:border-system transition-colors duration-300" />
+            <div className="absolute left-0 top-0 w-1 h-full bg-system scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--color-system)]" />
+            <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-system/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
+            <span className="relative z-10 flex items-center gap-1 group-hover:drop-shadow-[0_0_8px_var(--color-system)]">
+              <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
+              [ ESC ] ABORT_INTERCEPT
+            </span>
           </Link>
-          <div className="flex items-center gap-3">
-            <span className="font-mono text-[10px] text-system tracking-widest animate-pulse">DATAPAD_SYNCED</span>
-            <TerminalSquare className="w-4 h-4 text-system" />
+
+          <div className="flex-col hidden sm:flex">
+            <span className="text-[9px] font-mono text-text-dim tracking-widest uppercase">ACTIVE_DATAPAD</span>
+            <span className="text-sm font-heading font-bold text-white tracking-widest uppercase flex items-center gap-2">
+              <TerminalSquare className="w-4 h-4 text-system" />
+              {article.title}
+            </span>
           </div>
         </div>
 
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col items-end">
+            <span className="text-[9px] font-mono text-text-dim tracking-widest uppercase">SYS_STATUS</span>
+            <span className="text-xs font-mono text-system tracking-widest uppercase flex items-center gap-2">
+              DATAPAD_SYNCED
+              <span className="w-2 h-2 bg-system shadow-[0_0_8px_var(--color-system)]" />
+            </span>
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-1 max-w-4xl mx-auto px-4 py-8 relative z-10 w-full">
+        
         {/* Datapad Container */}
         <article className="bg-black/80 border border-system/20 relative p-8 md:p-12 shadow-[0_0_50px_color-mix(in_srgb,var(--color-system)_5%,transparent)] backdrop-blur-md">
           <CyberBrackets color="border-system/40" />

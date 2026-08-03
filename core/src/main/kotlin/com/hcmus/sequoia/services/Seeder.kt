@@ -108,15 +108,14 @@ fun Route.configureSeeder() {
                 db.collection("models").document(m["id"] as String).set(mWithTimestamps).get()
             }
 
-            // Seed Textbook: Mathematics for Machine Learning
             val textbookId = "textbook_mml"
             val textbook = mapOf(
                 "id" to textbookId, 
                 "title" to "Mathematics for Machine Learning", 
                 "description" to "The fundamental mathematical tools needed to understand machine learning.", 
                 "authors" to listOf("Marc Peter Deisenroth", "A. Aldo Faisal", "Cheng Soon Ong"), 
-                "coverImageUrl" to "https://cdn.sequoia.ai/covers/mml-book.jpg",
-                "pdfUrl" to "https://example.com/dummy.pdf",
+                "coverImageUrl" to "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-assets@main/covers/mml.jpg",
+                "pdfUrl" to "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-assets@main/pdfs/mml.pdf",
                 "sortOrder" to 1,
                 "createdAt" to now,
                 "updatedAt" to now
@@ -201,10 +200,10 @@ fun Route.configureSeeder() {
                 val metadata = article.filterKeys { it != "content" }
                 val contents = mapOf(
                     "id" to slug,
-                    "content" to article["content"],
-                    
+                    "content" to article["content"]
                 )
                 db.collection("articles").document(slug).set(metadata).get()
+                db.collection("article_contents").document(slug).set(contents).get()
             }
 
             // Seed Cosmos Maps

@@ -117,24 +117,30 @@ export default function ArticleProgressToggle({ articleId }: ArticleProgressTogg
       <button 
         onClick={toggleStatus}
         disabled={isUpdating}
-        className={`relative z-10 flex items-center gap-3 px-6 py-3 border font-mono text-xs tracking-widest uppercase transition-all duration-300 min-w-[220px] justify-center
+        className={`relative group overflow-hidden flex items-center justify-center gap-3 px-6 py-3 font-mono text-xs tracking-widest uppercase transition-all duration-300 min-w-[220px]
           ${isCompleted 
-            ? 'border-red/50 text-red hover:bg-red/10 hover:border-red' 
-            : 'border-system/50 text-system bg-system/10 hover:bg-system/20 hover:border-system shadow-[0_0_15px_rgba(66,255,255,0.15)] hover:shadow-[0_0_20px_rgba(66,255,255,0.3)]'}
+            ? 'text-coral bg-coral/5 hover:text-white hover:bg-coral/20' 
+            : 'text-system bg-system/5 hover:text-white hover:bg-system/20'}
           ${isUpdating ? 'opacity-50 cursor-not-allowed' : ''}
         `}
       >
-        {isUpdating ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
-        ) : isCompleted ? (
-          <>
-            <XCircle className="w-4 h-4" /> REVERT STATUS
-          </>
-        ) : (
-          <>
-            <CheckCircle2 className="w-4 h-4" /> MARK DECODED
-          </>
-        )}
+        <CyberBrackets color={`transition-colors duration-300 ${isCompleted ? 'border-coral/30 group-hover:border-coral' : 'border-system/30 group-hover:border-system'}`} />
+        <div className={`absolute left-0 top-0 w-1 h-full scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out ${isCompleted ? 'bg-coral shadow-[0_0_10px_var(--color-coral)]' : 'bg-system shadow-[0_0_10px_var(--color-system)]'}`} />
+        <div className={`absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent to-transparent transition-transform duration-700 ease-out pointer-events-none ${isCompleted ? 'via-coral/10' : 'via-system/10'}`} />
+        
+        <span className={`relative z-10 flex items-center gap-3 transition-all duration-300 ${isCompleted ? 'group-hover:drop-shadow-[0_0_8px_var(--color-coral)]' : 'group-hover:drop-shadow-[0_0_8px_var(--color-system)]'}`}>
+          {isUpdating ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : isCompleted ? (
+            <>
+              <XCircle className="w-4 h-4" /> REVERT STATUS
+            </>
+          ) : (
+            <>
+              <CheckCircle2 className="w-4 h-4" /> MARK DECODED
+            </>
+          )}
+        </span>
       </button>
     </div>
   );

@@ -1,5 +1,6 @@
 import { BoundingBox } from './types';
 
+
 export function renderPose(
   dCtx: CanvasRenderingContext2D,
   b: BoundingBox
@@ -12,7 +13,7 @@ export function renderPose(
     [3, 5], [4, 6]
   ];
   
-  dCtx.strokeStyle = '#00F0FF';
+  dCtx.strokeStyle = '#49AEAE';
   dCtx.lineWidth = 2;
   
   for (const [i, j] of skeleton) {
@@ -24,7 +25,7 @@ export function renderPose(
     }
   }
 
-  dCtx.fillStyle = '#FF3366';
+  dCtx.fillStyle = '#FF5050';
   for (const kp of kps) {
     if (kp.conf > 0.3) {
       dCtx.beginPath();

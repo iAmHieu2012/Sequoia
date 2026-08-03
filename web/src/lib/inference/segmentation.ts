@@ -13,7 +13,7 @@ export function renderSegmentation(
 ) {
   if (!b.maskCoeffs) return;
   if (!protoData) {
-    dCtx.fillStyle = '#00F0FF';
+    dCtx.fillStyle = '#49AEAE';
     dCtx.fillText("ERR: NO PROTOTYPE TENSOR", b.cx - b.w / 2, b.cy - b.h / 2 - 20);
     return;
   }
@@ -50,7 +50,11 @@ export function renderSegmentation(
   const bottom = Math.min(maskH, Math.ceil((b.cy + b.h / 2) * maskScaleY));
 
   const colors = [
-    [255, 51, 102], [0, 240, 255], [0, 255, 128], [255, 200, 0], [200, 0, 255]
+    [73, 174, 174],
+    [255, 80, 80],
+    [0, 255, 153],
+    [255, 153, 0],
+    [153, 0, 255]
   ];
   const c = colors[b.classId % colors.length];
 
