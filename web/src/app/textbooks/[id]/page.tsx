@@ -111,7 +111,7 @@ export default async function TextbookPage({ params }: { params: Promise<{ id: s
         <div className="w-full h-full bg-black/80 border border-system/20 relative shadow-[0_0_30px_color-mix(in_srgb,var(--color-system)_10%,transparent)] backdrop-blur-md flex flex-col transition-all hover:border-system/40 hover:shadow-[0_0_40px_color-mix(in_srgb,var(--color-system)_20%,transparent)]">
           <CyberBrackets color="border-system/40" />
           
-          <div className="flex-1 w-full h-full p-1 relative z-10 bg-[#05050A]">
+          <div className="flex-1 w-full h-full p-1 relative z-10 bg-black/80">
             <iframe 
                 src={textbook.pdfUrl} 
                 className="w-full h-full border-0 rounded-sm"

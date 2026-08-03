@@ -33,7 +33,7 @@ Luồng tương tác vòng lặp của người dùng trên bản đồ:
 
 ## 4. Thiết kế Giao diện (UI/UX Specifications)
 
-- **Mã màu hệ thống**: Dark Space Background (`#05050A`), Decoded State (`#00e5ff`), Decoding State (`#f39c12`), Anomaly State (`#9b59b6`).
+- **Mã màu hệ thống**: Dark Space Background (`#050505`), Decoded State (`#00e5ff`), Decoding State (`#f39c12`), Anomaly State (`#9b59b6`).
 - **Typography**: Cặp phông chữ kỹ thuật (Space Grotesk cho hệ thống UI, Inter cho nội dung bài đọc).
 - **Render Engine**: Yêu cầu bắt buộc sử dụng cấu trúc HTML/CSS/SVG DOM rendering (chỉ dùng Absolute Positioning và Transform Scale/Translate) để vẽ bản đồ, tuyệt đối không dùng WebGL hay Three.js nhằm tối ưu hiệu năng trên thiết bị di động yếu.
 

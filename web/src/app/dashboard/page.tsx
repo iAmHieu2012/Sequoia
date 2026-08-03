@@ -14,8 +14,8 @@ import CyberGrid from '@/components/ui/CyberGrid';
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsBar from "@/components/dashboard/StatsBar";
 import ContentBrowser, { TabTarget } from "@/components/dashboard/ContentBrowser";
-import CommandZone from "@/components/dashboard/CommandZone";
-
+import InferenceLabs from "@/components/dashboard/InferenceLabs";
+import AiAssistant from "@/components/dashboard/AiAssistant";
 type TabId = "nebulas" | "rogue" | "modules";
 
 interface Textbook {
@@ -71,7 +71,7 @@ interface AiModel {
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<TabId>("nebulas");
-  const [activeCommandPanel, setActiveCommandPanel] = useState<'labs' | 'assistant'>('labs');
+  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   const [mapTarget, setMapTarget] = useState<TabTarget>({ x: 7500, y: 2500, scale: 0.2, mapId: undefined, activeNodeId: undefined });
   
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -189,7 +189,7 @@ export default function Dashboard() {
       <div className="flex-1 flex gap-4 px-6 py-4 min-h-0 overflow-hidden relative z-10">
 
         {/* === EXPLORE ZONE (LEFT) === */}
-        <div className="flex-1 flex flex-col gap-4 min-w-0">
+        <div className={`flex-1 flex flex-col gap-4 min-w-0 transition-all duration-500 ${isAssistantOpen ? 'opacity-0 w-0 flex-none overflow-hidden -ml-4' : 'opacity-100'}`}>
           
           <StatsBar 
             user={user} 
@@ -233,12 +233,15 @@ export default function Dashboard() {
         </div>
 
         {/* === COMMAND ZONE (RIGHT) === */}
-        <CommandZone 
-          activeCommandPanel={activeCommandPanel}
-          setActiveCommandPanel={setActiveCommandPanel}
-          models={models}
-          loadingModels={loadingModels}
-        />
+        <div className={`flex-shrink-0 flex flex-col gap-4 min-h-0 transition-all duration-500 ${isAssistantOpen ? 'w-full lg:w-full' : 'w-full lg:w-[350px]'}`}>
+          <div className={`flex flex-col transition-all duration-500 overflow-hidden ${isAssistantOpen ? 'h-0 opacity-0' : 'flex-1 min-h-0 opacity-100'}`}>
+            <InferenceLabs 
+              models={models}
+              loadingModels={loadingModels}
+            />
+          </div>
+          <AiAssistant isOpen={isAssistantOpen} setIsOpen={setIsAssistantOpen} />
+        </div>
 
       </div>
     </div>

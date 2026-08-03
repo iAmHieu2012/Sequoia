@@ -147,7 +147,7 @@ function CodeBlock({ node, className, children, ...props }: any) {
       <div className="absolute top-0 w-full px-4 py-2 bg-black/5 dark:bg-white/5 border-b border-black/10 dark:border-white/10 flex items-center justify-between text-xs font-mono text-gray-500">
         <span>{match[1]}</span>
         <button onClick={handleCopy} className="hover:text-primary transition-colors">
-          {copied ? "Copied! ✅" : "Copy"}
+          {copied ? "Copied" : "Copy"}
         </button>
       </div>
       <div className="pt-10 pb-4 px-4 bg-black/5 dark:bg-white/5 overflow-x-auto">

@@ -163,7 +163,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           </header>
 
           {/* Nội dung bài viết với Markdown Renderer */}
-          <div className="prose prose-invert prose-p:font-sans prose-headings:font-heading prose-headings:uppercase prose-headings:tracking-wide prose-a:text-system max-w-none prose-pre:bg-[#05050A] prose-pre:border prose-pre:border-panel-border">
+          <div className="prose prose-invert prose-p:font-sans prose-headings:font-heading prose-headings:uppercase prose-headings:tracking-wide prose-a:text-system max-w-none prose-pre:bg-black/80 prose-pre:border prose-pre:border-panel-border">
             <MarkdownRenderer content={article.content} />
           </div>
 

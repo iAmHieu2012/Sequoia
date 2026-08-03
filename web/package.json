@@ -9,8 +9,12 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/google": "^4.0.31",
+    "@ai-sdk/openai": "^4.0.27",
+    "@ai-sdk/react": "^4.0.51",
     "@litertjs/core": "^2.5.3",
     "@tailwindcss/typography": "^0.5.20",
+    "ai": "^7.0.48",
     "firebase": "^12.16.0",
     "katex": "^0.17.0",
     "lucide-react": "^1.24.0",
