@@ -4,6 +4,7 @@ import React, { useState, useRef } from "react";
 import { Bot, TerminalSquare, X } from "lucide-react";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 
 interface AiAssistantProps {
@@ -16,28 +17,38 @@ export default function AiAssistant({ isOpen, setIsOpen }: AiAssistantProps) {
   const [modelId, setModelId] = useState('gemini-3.5-flash-lite');
   const modelIdRef = useRef(modelId);
   React.useEffect(() => { modelIdRef.current = modelId; }, [modelId]);
-  React.useEffect(() => {
-    const originalFetch = window.fetch;
-    window.fetch = async (inputUrl, init) => {
-      if (typeof inputUrl === 'string' && inputUrl.includes('/api/chat') && init && init.body) {
-        try {
-          const bodyObj = JSON.parse(init.body as string);
-          bodyObj.modelId = modelIdRef.current;
-          init = { ...init, body: JSON.stringify(bodyObj) };
-        } catch (e) {}
-      }
-      return originalFetch(inputUrl, init);
-    };
-    return () => { window.fetch = originalFetch; };
-  }, []);
 
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { messages, sendMessage, status, error } = useChat();
+  const pendingModelRef = useRef(modelId);
+  const [messageModels, setMessageModels] = useState<Record<string, string>>({});
+  const { messages, sendMessage, status, error } = useChat({
+    transport: new DefaultChatTransport({
+      api: '/api/chat',
+      prepareSendMessagesRequest({ messages, id }) {
+        return { body: { messages, id, modelId: modelIdRef.current } };
+      },
+    }),
+  });
+
+  React.useEffect(() => {
+    setMessageModels(prev => {
+      const next = { ...prev };
+      let changed = false;
+      messages.forEach((m: any) => {
+        if (m.role === 'assistant' && !next[m.id]) {
+          next[m.id] = pendingModelRef.current;
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, [messages]);
+
   const isLoading = status === 'streaming';
   
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
+    pendingModelRef.current = modelIdRef.current;
     sendMessage({ text: input });
     setInput('');
   };
@@ -92,8 +103,13 @@ export default function AiAssistant({ isOpen, setIsOpen }: AiAssistantProps) {
                 <div className={`group relative overflow-hidden border p-3 transition-all duration-300 max-w-[85%] ${m.role === 'user' ? 'border-text-dim/30 bg-text-dim/5 text-right' : 'border-system/30 bg-system/5'}`}>
                   <div className={`absolute top-0 w-1 h-full ${m.role === 'user' ? 'right-0 bg-text-dim shadow-[0_0_10px_var(--color-text-dim)]' : 'left-0 bg-system shadow-[0_0_10px_var(--color-system)]'}`} />
                   <div className={`relative z-10 text-xs font-mono whitespace-pre-wrap ${m.role === 'user' ? 'text-text-main pr-2 leading-relaxed' : 'text-system pl-2'}`}>
-                    <div className={`opacity-50 text-[10px] mb-1 ${m.role === 'user' ? 'text-right' : 'text-left'}`}>
-                      &gt; {m.role === 'user' ? 'OPERATOR_QUERY' : 'SYSTEM_RESPONSE'}
+                    <div className={`opacity-50 text-[10px] mb-1 flex ${m.role === 'user' ? 'justify-end' : 'justify-between'}`}>
+                      <span>&gt; {m.role === 'user' ? 'OPERATOR_QUERY' : 'SYSTEM_RESPONSE'}</span>
+                      {m.role === 'assistant' && messageModels[m.id] && (
+                        <span className="text-system/60">
+                          [{messageModels[m.id] === 'gemini-3.5-flash' ? 'FLASH' : 'FLASH LITE'}]
+                        </span>
+                      )}
                     </div>
                     {m.parts ? m.parts.map((part: any, i: number) => {
                       switch (part.type) {
@@ -139,38 +155,24 @@ export default function AiAssistant({ isOpen, setIsOpen }: AiAssistantProps) {
                   </span>
                 </div>
                 
-                <div className="relative group">
+                <div className="relative group flex items-center">
                   <CyberBrackets color="border-system/30 group-hover:border-system/60 transition-colors" />
-                  
-                  {/* Custom Dropdown Trigger */}
-                  <div 
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="bg-black/60 border border-system/20 text-system text-[9px] font-mono pl-3 pr-8 py-1.5 cursor-pointer hover:bg-system/10 transition-colors relative z-10 min-w-[140px] flex items-center justify-between"
-                  >
-                    <span>{modelId === 'gemini-3.5-flash' ? 'GEMINI 3.5 FLASH' : 'GEMINI 3.5 FLASH LITE'}</span>
-                    <span className="text-system/50 text-[8px] pointer-events-none">▼</span>
+                  <div className="bg-black/60 border border-system/20 relative z-10 flex items-center p-0.5">
+                    <button
+                      type="button"
+                      onClick={() => setModelId('gemini-3.5-flash-lite')}
+                      className={`px-3 py-1 cursor-pointer text-[9px] font-mono transition-all ${modelId === 'gemini-3.5-flash-lite' ? 'bg-system/20 text-system shadow-[0_0_10px_var(--color-system)]' : 'text-system/50 hover:text-system/80'}`}
+                    >
+                      FLASH LITE
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setModelId('gemini-3.5-flash')}
+                      className={`px-3 py-1 cursor-pointer text-[9px] font-mono transition-all ${modelId === 'gemini-3.5-flash' ? 'bg-system/20 text-system shadow-[0_0_10px_var(--color-system)]' : 'text-system/50 hover:text-system/80'}`}
+                    >
+                      FLASH
+                    </button>
                   </div>
-
-                  {/* Custom Dropdown Menu */}
-                  {isDropdownOpen && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} />
-                      <div className="absolute bottom-full left-0 mb-1 w-full bg-black/90 border border-system/40 shadow-[0_0_15px_var(--color-system)] z-50 flex flex-col font-mono text-[9px]">
-                        {[
-                          { id: 'gemini-3.5-flash', label: 'GEMINI 3.5 FLASH' },
-                          { id: 'gemini-3.5-flash-lite', label: 'GEMINI 3.5 LITE' }
-                        ].map(model => (
-                          <div 
-                            key={model.id}
-                            onClick={() => { setModelId(model.id); setIsDropdownOpen(false); }}
-                            className={`px-3 py-2 cursor-pointer transition-colors ${modelId === model.id ? 'bg-system/20 text-white' : 'text-system/70 hover:bg-system/10 hover:text-system'}`}
-                          >
-                            {model.label}
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  )}
                 </div>
               </div>
             )}

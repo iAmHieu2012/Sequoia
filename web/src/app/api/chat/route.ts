@@ -12,6 +12,8 @@ export async function POST(req: Request) {
   try {
     const { messages, modelId: requestedModelId } = await req.json();
     const modelId = requestedModelId || 'gemini-3.5-flash-lite';
+    
+    console.log(`[API CHAT] Processing request with model: ${modelId}`);
 
     const google = createGoogleGenerativeAI({
       apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY || '',
@@ -27,12 +29,9 @@ export async function POST(req: Request) {
       stream: toUIMessageStream({ stream: result.stream }),
     });
   } catch (error: any) {
-    const errorMessage = `[SYSTEM ERROR]: ${error.message || 'Unknown error occurred.'}`;
-    // Return a Vercel AI SDK text chunk formatted response so it displays in the UI
-    const encodedError = JSON.stringify(errorMessage).slice(1, -1);
-    return new Response(`0:"${encodedError}"\n`, { 
-      status: 200, // Return 200 so the frontend parses it as a message chunk
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' }
-    });
+    return Response.json(
+      { error: error.message || 'Unknown error occurred.' },
+      { status: 500 }
+    );
   }
 }
