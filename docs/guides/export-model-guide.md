@@ -79,7 +79,7 @@ Sau khi có file `.tflite` hợp lệ, cần tải lên R2 để client (Web/And
   "id": "yolo-v8-nano",
   "name": "YOLOv8 Nano",
   "description": "Mô hình nhận diện vật thể nhẹ và nhanh nhất của YOLOv8.",
-  "taskType": "object_detection",
+  "taskType": "object-detection",
   "fileUrl": "https://cdn.sequoia.app/models/yolov8/yolov8n_int8.tflite",
   "fileSizeBytes": 3200000,
   "version": "1.0",

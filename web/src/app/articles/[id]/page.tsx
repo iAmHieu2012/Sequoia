@@ -10,15 +10,14 @@ import { Metadata } from "next";
 interface Article {
   id: string;
   title: string;
-  slug: string;
   content: string;
   summary: string;
   tags: string[];
 }
 
-async function getArticle(slug: string): Promise<Article | null> {
+async function getArticle(id: string): Promise<Article | null> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080'}/api/v1/articles/${slug}`, { 
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080'}/api/v1/articles/${id}`, { 
       cache: "no-store" 
     });
     if (!res.ok) return null;
@@ -32,7 +31,7 @@ async function getArticle(slug: string): Promise<Article | null> {
 
 export async function generateStaticParams() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080';
-  const slugs: { slug: string }[] = [];
+  const ids: { id: string }[] = [];
 
   try {
     // 1. Fetch standalone articles
@@ -40,7 +39,7 @@ export async function generateStaticParams() {
     if (rogueRes.ok) {
       const rogueJson = await rogueRes.json();
       const articles = rogueJson.data || [];
-      articles.forEach((a: any) => slugs.push({ slug: a.slug }));
+      articles.forEach((a: any) => ids.push({ id: a.id }));
     }
 
     // 2. Fetch all topics and their articles
@@ -53,7 +52,7 @@ export async function generateStaticParams() {
         if (tArtRes.ok) {
           const tArtJson = await tArtRes.json();
           const articles = tArtJson.data || [];
-          articles.forEach((a: any) => slugs.push({ slug: a.slug }));
+          articles.forEach((a: any) => ids.push({ id: a.id }));
         }
       }
     }
@@ -61,12 +60,12 @@ export async function generateStaticParams() {
     console.error("Failed to generate static params", e);
   }
 
-  return slugs;
+  return ids;
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params;
-  const article = await getArticle(slug);
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const article = await getArticle(id);
   
   if (!article) {
     return {
@@ -87,9 +86,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-  const article = await getArticle(slug);
+export default async function ArticlePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const article = await getArticle(id);
 
   if (!article) {
     notFound();

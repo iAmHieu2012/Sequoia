@@ -177,7 +177,7 @@ export function useInference({
           const currentThreshold = thresholdRef.current / 100.0;
           const currentIou = iouThresholdRef.current / 100.0;
 
-          if (currentModel.taskType === 'image_classification' && outShape.length >= 2) {
+          if (currentModel.taskType === 'image-classification' && outShape.length >= 2) {
             renderClassification(dCtx, outData, outShape, currentModel.labels || [], displayCanvas.width);
           } 
           else if (outShape.length === 3) {
@@ -187,11 +187,11 @@ export function useInference({
             );
 
             for (const b of boxes) {
-              if (currentModel.taskType === 'instance_segmentation' && b.maskCoeffs && protoData) {
+              if (currentModel.taskType === 'instance-segmentation' && b.maskCoeffs && protoData) {
                 renderSegmentation(dCtx, b, protoData, protoShape, displayCanvas.width, displayCanvas.height);
               }
               
-              if (currentModel.taskType === 'pose_estimation') {
+              if (currentModel.taskType === 'pose-estimation') {
                 renderPose(dCtx, b);
               } else {
                 renderDetection(dCtx, b, numClasses, currentModel.labels);

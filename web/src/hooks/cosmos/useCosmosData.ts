@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
-interface CosmosNode {
+export interface CosmosNode {
   articleId: string;
   title: string;
   celestialType: string;
@@ -26,7 +26,7 @@ export interface UserProgress {
   activeDates?: string[];
 }
 
-export default function useCosmosData(mapId?: string) {
+export default function useCosmosData(mapId?: string, refreshKey?: number) {
   const [mapData, setMapData] = useState<CosmosMap | null>(null);
   const [userProgress, setUserProgress] = useState<UserProgress | null>(null);
 
@@ -45,7 +45,7 @@ export default function useCosmosData(mapId?: string) {
       };
       fetchMap();
     }
-  }, [mapId]);
+  }, [mapId, refreshKey]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {

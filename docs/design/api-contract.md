@@ -38,7 +38,7 @@ Mọi lỗi trả về cùng format thống nhất:
   "code": "RESOURCE_NOT_FOUND",
   "message": "Article not found.",
   "details": {
-    "slug": "invalid-article-slug"
+    "id": "invalid-article-id"
   }
 }
 ```
@@ -158,7 +158,6 @@ Lấy danh sách bài viết đã publish thuộc một chủ đề, mới nhấ
     {
       "id": "attention-is-all-you-need",
       "title": "Attention Is All You Need",
-      "slug": "attention-is-all-you-need",
       "summary": "The foundational paper introducing the Transformer architecture...",
       "tags": ["nlp", "transformers", "attention"],
       "isPublished": true,
@@ -188,7 +187,7 @@ curl -X GET "https://api.sequoia.dev/api/v1/topics/Hj3kM7nPqS9w/articles"
 
 ### 2.4. GET `/api/v1/articles/standalone` — Danh sách bài viết tự do (Standalone Articles)
 
-Lấy danh sách tất cả các bài viết tự do (không thuộc giáo trình hay chủ đề, `textbookId = null` và `topicId = null`). Các bài viết này thường được map vào các bản đồ `rogue_anomalies`.
+Lấy danh sách tất cả các bài viết tự do (không thuộc giáo trình hay chủ đề, `textbookId = null` và `topicId = null`). Các bài viết này thường được map vào các bản đồ `rogue-anomalies`.
 
 | | |
 | --- | --- |
@@ -203,7 +202,6 @@ Lấy danh sách tất cả các bài viết tự do (không thuộc giáo trìn
     {
       "id": "attention-is-all-you-need",
       "title": "Attention Is All You Need",
-      "slug": "attention-is-all-you-need",
       "summary": "The foundational paper introducing the Transformer architecture...",
       "tags": ["nlp", "transformers", "attention"],
       "isPublished": true,
@@ -221,9 +219,9 @@ curl -X GET "https://api.sequoia.dev/api/v1/articles/standalone"
 
 ---
 
-### 2.5. GET `/api/v1/articles/:slug` — Chi tiết bài viết
+### 2.5. GET `/api/v1/articles/:id` — Chi tiết bài viết
 
-Lấy toàn bộ nội dung bài viết kèm cấu hình playground dựa trên slug.
+Lấy toàn bộ nội dung bài viết kèm cấu hình playground dựa trên ID.
 
 | | |
 | --- | --- |
@@ -234,7 +232,7 @@ Lấy toàn bộ nội dung bài viết kèm cấu hình playground dựa trên 
 
 | Param | Type | Description |
 | --- | --- | --- |
-| `slug` | `string` | Slug (URL-friendly ID) của bài viết |
+| `id` | `string` | ID của bài viết |
 
 #### Response 200
 
@@ -243,7 +241,6 @@ Lấy toàn bộ nội dung bài viết kèm cấu hình playground dựa trên 
   "data": {
     "id": "norms-and-inner-products",
     "title": "Norms and Inner Products",
-    "slug": "norms-and-inner-products",
     "content": "# Norms and Inner Products\n\nIn this log, we explore...",
     "summary": "Understanding distance and angles in vector spaces...",
     "topicId": "Hj3kM7nPqS9w",
@@ -265,7 +262,7 @@ Lấy toàn bộ nội dung bài viết kèm cấu hình playground dựa trên 
 {
   "code": "RESOURCE_NOT_FOUND",
   "message": "Article not found.",
-  "details": { "slug": "invalid-article-slug" }
+  "details": { "id": "invalid-article-id" }
 }
 ```
 
@@ -300,7 +297,6 @@ Tìm kiếm bài viết theo từ khóa (dựa trên Tiền tố của `title` H
     {
       "id": "norms-and-inner-products",
       "title": "Norms and Inner Products",
-      "slug": "norms-and-inner-products",
       "summary": "Understanding distance and angles in vector spaces...",
       "tags": ["linear-algebra", "geometry", "vectors"],
       "isPublished": true,
@@ -354,7 +350,7 @@ Lấy metadata và URL tải model AI.
     "id": "Rt6uI0oLkJ2h",
     "name": "YOLOv8n Object Detection",
     "description": "YOLOv8 nano — lightweight object detection model...",
-    "taskType": "object_detection",
+    "taskType": "object-detection",
     "fileUrl": "https://r2.sequoia.dev/models/yolov8n-v1.0.0.tflite",
     "fileSizeBytes": 6340096,
     "version": "1.0.0",

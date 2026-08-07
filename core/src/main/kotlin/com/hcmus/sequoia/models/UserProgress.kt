@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
  * Stored as a single document per user. Using arrays to store completed article IDs
  * ensures that progress is decoupled from specific maps/textbooks and minimizes Firestore reads.
  *
- * @property id The unique document ID, always equal to the userId.
+ * @property id The Firestore document ID, always equal to the userId.
  * @property userId The ID of the user.
  * @property completedArticleIds List of article IDs the user has completed.
  * @property currentStreak The number of consecutive days the user has been active.

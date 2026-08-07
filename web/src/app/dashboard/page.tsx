@@ -43,7 +43,6 @@ interface Article {
   id: string;
   title: string;
   summary: string;
-  slug: string;
 }
 
 interface CategoryProgress {

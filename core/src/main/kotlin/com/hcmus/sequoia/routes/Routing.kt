@@ -44,13 +44,13 @@ fun Application.configureRouting() {
             
             get("/topics/{id}/articles") {
                 val id = call.parameters["id"] ?: throw BadRequestException("Missing id parameter")
-                val articles = contentService.getArticlesByTopic(id)
+                val articles = contentService.getArticlesByTopic(id, false)
                 call.respond(mapOf("data" to articles))
             }
 
             // --- Articles & Models ---
             get("/articles/standalone") {
-                val articles = contentService.getStandaloneArticles()
+                val articles = contentService.getStandaloneArticles(false)
                 call.respond(mapOf("data" to articles))
             }
             
@@ -64,11 +64,103 @@ fun Application.configureRouting() {
                 call.respond(mapOf("data" to articles))
             }
 
-            get("/articles/{slug}") {
-                val slug = call.parameters["slug"] ?: throw BadRequestException("Missing slug parameter")
-                val articleDetail = contentService.getArticleDetail(slug)
-                    ?: throw NotFoundException("Article not found", mapOf("slug" to slug))
+            get("/articles/{id}") {
+                val id = call.parameters["id"] ?: throw BadRequestException("Missing id parameter")
+                val articleDetail = contentService.getArticleDetail(id, false)
+                    ?: throw NotFoundException("Article not found", mapOf("id" to id))
                 call.respond(mapOf("data" to articleDetail))
+            }
+            
+            // --- Admin endpoints ---
+            authenticate {
+                route("/admin") {
+                    intercept(ApplicationCallPipeline.Call) {
+                        val user = call.principal<MyAuthenticatedUser>()
+                        if (user?.isAdmin != true) {
+                            call.respond(HttpStatusCode.Forbidden, mapOf("error" to "Admin privileges required"))
+                            finish()
+                        }
+                    }
+
+                    post("/articles") {
+                        val requestParams = call.receive<CreateArticleRequest>()
+                        
+                        val article = contentService.createArticle(requestParams.id, requestParams.title, requestParams.category, requestParams.summary, requestParams.content, requestParams.tags, requestParams.x, requestParams.y, requestParams.connections, requestParams.celestialType, requestParams.isPublished)
+                        call.respond(mapOf("data" to article))
+                    }
+                    
+                    post("/topics") {
+                        val requestParams = call.receive<CreateTopicRequest>()
+                        
+                        val topic = contentService.createTopic(requestParams.name, requestParams.description, requestParams.sortOrder)
+                        call.respond(mapOf("data" to topic))
+                    }
+                    
+                    post("/models") {
+                        val requestParams = call.receive<CreateModelRequest>()
+                        
+                        val model = contentService.createModel(requestParams.id, requestParams.name, requestParams.description, requestParams.taskType, requestParams.fileUrl, requestParams.metadataUrl, requestParams.version, requestParams.format, requestParams.fileSizeBytes)
+                        call.respond(mapOf("data" to model))
+                    }
+                    
+                    post("/textbooks") {
+                        val requestParams = call.receive<CreateTextbookRequest>()
+                        
+                        val textbook = contentService.createTextbook(requestParams.id, requestParams.title, requestParams.description, requestParams.authors, requestParams.coverImageUrl, requestParams.pdfUrl, requestParams.sortOrder)
+                        call.respond(mapOf("data" to textbook))
+                    }
+                    
+                    get("/articles/standalone") {
+                        val articles = contentService.getStandaloneArticles(true)
+                        call.respond(mapOf("data" to articles))
+                    }
+                    
+                    get("/topics/{id}/articles") {
+                        val id = call.parameters["id"] ?: throw BadRequestException("Missing id parameter")
+                        val articles = contentService.getArticlesByTopic(id, true)
+                        call.respond(mapOf("data" to articles))
+                    }
+                    
+                    get("/articles/{id}") {
+                        val id = call.parameters["id"] ?: throw BadRequestException("Missing id parameter")
+                        val articleDetail = contentService.getArticleDetail(id, true)
+                            ?: throw NotFoundException("Article not found", mapOf("id" to id))
+                        call.respond(mapOf("data" to articleDetail))
+                    }
+                    
+                    delete("/articles/{id}") {
+                        val id = call.parameters["id"] ?: throw BadRequestException("Missing id")
+                        contentService.deleteArticle(id)
+                        call.respond(mapOf("success" to true))
+                    }
+                    delete("/topics/{id}") {
+                        val id = call.parameters["id"] ?: throw BadRequestException("Missing id")
+                        contentService.deleteTopic(id)
+                        call.respond(mapOf("success" to true))
+                    }
+                    delete("/models/{id}") {
+                        val id = call.parameters["id"] ?: throw BadRequestException("Missing id")
+                        contentService.deleteModel(id)
+                        call.respond(mapOf("success" to true))
+                    }
+                    delete("/textbooks/{id}") {
+                        val id = call.parameters["id"] ?: throw BadRequestException("Missing id")
+                        contentService.deleteTextbook(id)
+                        call.respond(mapOf("success" to true))
+                    }
+                    
+                    put("/cosmos/maps/{mapId}") {
+                        val mapId = call.parameters["mapId"] ?: throw BadRequestException("Missing mapId")
+                        val requestParams = call.receive<UpdateMapNodesRequest>()
+                        
+                        val success = contentService.updateMapNodes(mapId, requestParams.nodes)
+                        if (success) {
+                            call.respond(mapOf("success" to true))
+                        } else {
+                            throw NotFoundException("Map not found", mapOf("mapId" to mapId))
+                        }
+                    }
+                }
             }
             
             get("/models") {
@@ -127,7 +219,7 @@ fun Application.configureRouting() {
                     val completed = requestParams["completed"] ?: true
 
                     val newStatus = cosmosService.toggleArticleCompletion(userId, articleId, completed)
-                    call.respond(mapOf("data" to mapOf("articleId" to articleId, "completed" to newStatus)))
+                    call.respond(mapOf("data" to ProgressResponse(articleId, newStatus)))
                 }
             }
 

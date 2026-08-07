@@ -44,6 +44,7 @@ fun Route.configureSeeder() {
             val userId = "mock-user-123"
             db.collection("users").document(userId).set(
                 mapOf(
+                    "id" to userId,
                     "uid" to userId,
                     "email" to "test@sequoia.ai",
                     "displayName" to "Test User",
@@ -59,7 +60,7 @@ fun Route.configureSeeder() {
                     "id" to "yolov8n-detect",
                     "name" to "YOLOv8 Nano (Detect)",
                     "description" to "Real-time object detection model optimized for edge devices.",
-                    "taskType" to "object_detection",
+                    "taskType" to "object-detection",
                     "fileUrl" to "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-detect/model.tflite",
                     "metadataUrl" to "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-detect/metadata.json",
                     "fileSizeBytes" to 12841243L,
@@ -70,7 +71,7 @@ fun Route.configureSeeder() {
                     "id" to "yolov8n-cls",
                     "name" to "YOLOv8 Nano (Classify)",
                     "description" to "Image classification model for edge devices.",
-                    "taskType" to "image_classification",
+                    "taskType" to "image-classification",
                     "fileUrl" to "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-cls/model.tflite",
                     "metadataUrl" to "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-cls/metadata.json",
                     "fileSizeBytes" to 10917171L,
@@ -81,7 +82,7 @@ fun Route.configureSeeder() {
                     "id" to "yolov8n-pose",
                     "name" to "YOLOv8 Nano (Pose)",
                     "description" to "Real-time human pose estimation model.",
-                    "taskType" to "pose_estimation",
+                    "taskType" to "pose-estimation",
                     "fileUrl" to "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-pose/model.tflite",
                     "metadataUrl" to "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-pose/metadata.json",
                     "fileSizeBytes" to 13510234L,
@@ -92,7 +93,7 @@ fun Route.configureSeeder() {
                     "id" to "yolov8n-seg",
                     "name" to "YOLOv8 Nano (Seg)",
                     "description" to "Real-time instance segmentation model.",
-                    "taskType" to "instance_segmentation",
+                    "taskType" to "instance-segmentation",
                     "fileUrl" to "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-seg/model.tflite",
                     "metadataUrl" to "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-seg/metadata.json",
                     "fileSizeBytes" to 13876205L,
@@ -108,9 +109,9 @@ fun Route.configureSeeder() {
                 db.collection("models").document(m["id"] as String).set(mWithTimestamps).get()
             }
 
-            val textbookId = "textbook_mml"
+            val textbookId = "mml"
             val textbook = mapOf(
-                "id" to textbookId, 
+                "id" to textbookId,
                 "title" to "Mathematics for Machine Learning", 
                 "description" to "The fundamental mathematical tools needed to understand machine learning.", 
                 "authors" to listOf("Marc Peter Deisenroth", "A. Aldo Faisal", "Cheng Soon Ong"), 
@@ -124,12 +125,11 @@ fun Route.configureSeeder() {
 
 
             // Seed a Topic (Free Nebula) for the Nebulas tab
-            val cvTopicId = "topic_cv"
+            val cvTopicId = "computer-vision"
             val cvTopic = mapOf(
                 "id" to cvTopicId,
                 "name" to "Computer Vision",
                 "description" to "Exploring visual data understanding algorithms and architectures.",
-                "iconUrl" to "https://cdn.sequoia.ai/icons/cv.png",
                 "articleCount" to 1,
                 "sortOrder" to 1,
                 "createdAt" to now
@@ -139,71 +139,64 @@ fun Route.configureSeeder() {
             // Seed Topic Articles (Free Nebulas)
             val cvArticles = listOf(
                 mapOf(
-                    "id" to "article_cv_1",
+                    "id" to "image-classification",
                     "title" to "Image Classification Basics",
-                    "slug" to "image-classification",
                     "topicId" to cvTopicId,
                     "isPublished" to true,
                     "content" to "## Image Classification\n\nImage classification is the task of assigning a label to an entire image.",
                     "summary" to "An introduction to classifying images.",
                     "tags" to listOf("cv", "classification"),
-                    
                     "createdAt" to now,
                     "updatedAt" to now,
                     "publishedAt" to now
                 )
             )
             cvArticles.forEach { article ->
-                val slug = article["slug"] as String
+                val id = article["id"] as String
                 val metadata = article.filterKeys { it != "content" }
                 val contents = mapOf(
-                    "id" to slug,
-                    "content" to article["content"],
-                    
+                    "id" to id,
+                    "content" to article["content"]
                 )
-                db.collection("articles").document(slug).set(metadata).get()
-                db.collection("article_contents").document(slug).set(contents).get()
+                db.collection("articles").document(id).set(metadata).get()
+                db.collection("article_contents").document(id).set(contents).get()
             }
 
             // Seed Rogue Anomalies
-            val rogueId = "standalone_articles"
+            val rogueId = "standalone-articles"
             val rogueArticlesData = listOf(
                 mapOf(
-                    "id" to "article_rogue_attention",
+                    "id" to "attention-paper",
                     "title" to "Attention Is All You Need",
-                    "slug" to "attention-paper",
                     "isPublished" to true,
                     "content" to "## Attention Is All You Need\n\nThis 2017 paper introduced the Transformer architecture.",
                     "summary" to "A breakdown of the Transformer architecture and self-attention mechanisms.",
                     "tags" to listOf("paper", "nlp", "transformers"),
-                    
                     "createdAt" to now,
                     "updatedAt" to now,
                     "publishedAt" to now
                 ),
                 mapOf(
-                    "id" to "article_rogue_resnet",
+                    "id" to "resnet-paper",
                     "title" to "Deep Residual Learning",
-                    "slug" to "resnet-paper",
                     "isPublished" to true,
                     "content" to "## Deep Residual Learning\n\nResNet solves the vanishing gradient problem in ultra-deep networks.",
                     "summary" to "Understanding skip connections and how ResNet enables training of extremely deep networks.",
                     "tags" to listOf("paper", "cv", "resnet"),
-                    
                     "createdAt" to now,
                     "updatedAt" to now,
                     "publishedAt" to now
                 )
             )
             rogueArticlesData.forEach { article ->
-                val slug = article["slug"] as String
+                val id = article["id"] as String
                 val metadata = article.filterKeys { it != "content" }
                 val contents = mapOf(
-                    "id" to slug,
+                    "id" to id,
                     "content" to article["content"]
                 )
-                db.collection("articles").document(slug).set(metadata).get()
-                db.collection("article_contents").document(slug).set(contents).get()
+                db.collection("articles").document(id).set(metadata).get()
+                db.collection("article_contents").document(id).set(contents).get()
             }
 
             // Seed Cosmos Maps
@@ -211,7 +204,7 @@ fun Route.configureSeeder() {
                 mapOf(
                     "articleId" to "image-classification",
                     "title" to "Image Classification Basics",
-                    "celestialType" to "nebula",
+                    "celestialType" to "star",
                     "x" to 7500.0,
                     "y" to 2500.0,
                     "connections" to emptyList<String>()
@@ -247,7 +240,7 @@ fun Route.configureSeeder() {
 
             val rogueMap = mapOf(
                 "id" to rogueId,
-                "mapType" to "rogue_anomalies",
+                "mapType" to "rogue-anomalies",
                 "theme" to "nebula",
                 "nodes" to rogueNodes
             )

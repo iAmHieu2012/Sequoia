@@ -43,7 +43,6 @@ Khi lưu vào collection `article_contents`, nội dung bài viết sẽ đượ
 {
   "id": "vector-spaces",
   "title": "Vector Spaces",
-  "slug": "vector-spaces",
   "content": "# Transmission Received\n\n...",
   "summary": "Brief summary of the transmission",
   "isPublished": true

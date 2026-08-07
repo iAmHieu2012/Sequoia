@@ -20,7 +20,8 @@ fun Application.configureSecurity() {
             }
             realm = "My Server"
             validate { token ->
-                MyAuthenticatedUser(id = token.uid)
+                val isAdmin = token.claims["isAdmin"] == true
+                MyAuthenticatedUser(id = token.uid, isAdmin = isAdmin)
             }
         }
     }

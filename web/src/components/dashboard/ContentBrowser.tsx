@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { Rocket, ArrowRight, User as UserIcon, LogOut, Cpu } from "lucide-react";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 import { User } from "firebase/auth";
@@ -40,6 +41,22 @@ export default function ContentBrowser({
   fetchTopicArticles, setMapTarget, user, getNodeStatus,
   progressSummary, handleLogout
 }: ContentBrowserProps) {
+  const [mapData, setMapData] = useState<any>(null);
+  const currentMapId = activeTab === "rogue" ? "standalone-articles" : (activeTab === "nebulas" && selectedTopic ? selectedTopic.id : undefined);
+
+  useEffect(() => {
+    if (currentMapId) {
+      fetch(`/api/v1/cosmos/maps/${currentMapId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.data) setMapData(data.data);
+        })
+        .catch(err => console.error(err));
+    } else {
+      setMapData(null);
+    }
+  }, [currentMapId]);
+
   return (
     <div className="flex-shrink-0 w-full lg:w-[320px] flex flex-col min-h-0 bg-black/40 border border-panel-border relative">
       <CyberBrackets color="border-white/10" />
@@ -48,7 +65,7 @@ export default function ContentBrowser({
       <div className="flex flex-shrink-0 border-b border-panel-border">
         {[
           { id: "nebulas", label: "NEBULAS", sub: "Topics", accent: "turquoise", defaultTarget: { x: 7500, y: 2500, scale: 0.2, mapId: topics.length > 0 ? topics[0].id : undefined } },
-          { id: "rogue", label: "ROGUE", sub: "Papers", accent: "purple", defaultTarget: { x: 8250, y: 3500, scale: 0.2, mapId: "standalone_articles" } },
+          { id: "rogue", label: "ROGUE", sub: "Papers", accent: "purple", defaultTarget: { x: 8250, y: 3500, scale: 0.2, mapId: "standalone-articles" } },
           { id: "modules", label: "MODULES", sub: "Textbooks", accent: "orange", defaultTarget: { x: 7500, y: 2500, scale: 0.2, mapId: undefined } },
         ].map(tab => (
           <button
@@ -91,7 +108,10 @@ export default function ContentBrowser({
                 articles.map((article) => (
                   <div key={article.id} 
                        className="group cursor-pointer border-b border-panel-border px-5 py-4 hover:bg-turquoise/5 transition-all duration-300 relative overflow-hidden"
-                       onMouseEnter={() => setMapTarget(prev => ({ ...prev, scale: 0.6, activeNodeId: article.id }))}
+                       onMouseEnter={() => setMapTarget(prev => {
+                         const node = mapData?.nodes?.find((n: any) => n.articleId === article.id);
+                         return { ...prev, x: node ? node.x : prev.x, y: node ? node.y : prev.y, scale: 0.6, activeNodeId: article.id };
+                       })}
                        onMouseLeave={() => setMapTarget(prev => ({ ...prev, activeNodeId: undefined }))}
                   >
                     <div className="absolute left-0 top-0 w-1 h-full bg-turquoise scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--color-turquoise)]" />
@@ -102,7 +122,7 @@ export default function ContentBrowser({
                         <div className="flex gap-4 text-xs font-mono">
                           <span className="text-text-dim">STATUS: <span className={`font-bold ${user && getNodeStatus(article.id) ? 'text-white' : 'text-text-dim'}`}>{user && getNodeStatus(article.id) ? 'DECODED' : 'UNEXPLORED'}</span></span>
                         </div>
-                        <Link href={`/articles/${article.slug}`} onClick={e => e.stopPropagation()} className="text-[10px] font-mono font-bold text-turquoise tracking-wider flex items-center gap-1 group-hover:translate-x-1 transition-transform duration-300">
+                        <Link href={`/articles/${article.id}`} onClick={e => e.stopPropagation()} className="text-[10px] font-mono font-bold text-turquoise tracking-wider flex items-center gap-1 group-hover:translate-x-1 transition-transform duration-300">
                           INTERCEPT <Rocket className="w-3 h-3" />
                         </Link>
                       </div>
@@ -154,7 +174,10 @@ export default function ContentBrowser({
             <div
               key={article.id}
               className="group cursor-pointer border-b border-panel-border px-5 py-4 hover:bg-purple/5 transition-all duration-300 relative overflow-hidden"
-              onMouseEnter={() => setMapTarget(prev => ({ ...prev, scale: 0.6, mapId: "standalone_articles", activeNodeId: article.id }))}
+              onMouseEnter={() => setMapTarget(prev => {
+                const node = mapData?.nodes?.find((n: any) => n.articleId === article.id);
+                return { ...prev, x: node ? node.x : prev.x, y: node ? node.y : prev.y, scale: 0.6, mapId: "standalone-articles", activeNodeId: article.id };
+              })}
               onMouseLeave={() => setMapTarget(prev => ({ ...prev, activeNodeId: undefined }))}
             >
               <div className="absolute left-0 top-0 w-1 h-full bg-purple scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--color-purple)]" />
@@ -174,7 +197,7 @@ export default function ContentBrowser({
                   <div className="flex gap-4 text-xs font-mono">
                     <span className="text-text-dim">STATUS: <span className={`font-bold ${progressSummary?.standalone?.[article.id] ? 'text-white' : 'text-text-dim'}`}>{progressSummary?.standalone?.[article.id] ? 'DECODED' : 'DETECTED'}</span></span>
                   </div>
-                  <Link href={`/articles/${article.slug}`} onClick={e => e.stopPropagation()} className="text-[10px] font-mono font-bold text-purple tracking-wider flex items-center gap-1 group-hover:translate-x-1 transition-transform duration-300">
+                  <Link href={`/articles/${article.id}`} onClick={e => e.stopPropagation()} className="text-[10px] font-mono font-bold text-purple tracking-wider flex items-center gap-1 group-hover:translate-x-1 transition-transform duration-300">
                     INTERCEPT <Rocket className="w-3 h-3" />
                   </Link>
                 </div>

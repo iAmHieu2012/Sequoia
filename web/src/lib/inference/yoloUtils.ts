@@ -38,10 +38,10 @@ export function parseYoloBoxes(
   let hasMasks = false;
   const MASK_COEFFICIENTS = 32;
   
-  if (taskType === 'pose_estimation') {
+  if (taskType === 'pose-estimation') {
     numClasses = 1;
     hasKeypoints = true;
-  } else if (taskType === 'instance_segmentation') {
+  } else if (taskType === 'instance-segmentation') {
     // numFeatures = 4 (bbox) + numClasses + 32 (mask coefficients)
     numClasses = numFeatures - 4 - MASK_COEFFICIENTS;
     hasMasks = true;

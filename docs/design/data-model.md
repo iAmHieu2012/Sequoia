@@ -46,7 +46,6 @@ erDiagram
     articles {
         string id PK
         string title
-        string slug
         string summary
         string topicId FK
         array tags
@@ -137,7 +136,6 @@ Các Collection này giữ nguyên tính trừu tượng của một CMS giáo d
 | --- | --- | --- | --- |
 | `id` | `string` | ✅ | Document ID |
 | `title` | `string` | ✅ | Tiêu đề |
-| `slug` | `string` | ✅ | URL-friendly slug |
 | `summary` | `string` | ✅ | Tóm tắt ngắn gọn |
 | `topicId` | `string` | ❌ | Ref đến `topics` (null nếu là bài viết tự do) |
 | `tags` | `array<string>`| ✅ | Các thẻ phân loại bài viết |
@@ -160,7 +158,7 @@ Các Collection này giữ nguyên tính trừu tượng của một CMS giáo d
 | `id` | `string` | ✅ | Document ID |
 | `name` | `string` | ✅ | Tên model |
 | `description` | `string` | ✅ | Mô tả mô hình |
-| `taskType` | `string` | ✅ | Loại tác vụ (vd: object_detection) |
+| `taskType` | `string` | ✅ | Loại tác vụ (vd: object-detection) |
 | `fileUrl` | `string` | ✅ | R2 public URL tải file `.tflite` |
 | `fileSizeBytes` | `number` | ✅ | Dung lượng file byte |
 | `version` | `string` | ✅ | Phiên bản |
@@ -176,12 +174,12 @@ Các Collection này giữ nguyên tính trừu tượng của một CMS giáo d
 Đây là tầng UI/UX. Chữ tín "Rẻ & Nhanh" đặt lên hàng đầu. Một bản đồ có 100 ngôi sao cũng chỉ tốn **1 read** thay vì 100 reads.
 
 ### 3.1. `cosmos_maps` (Cấu hình bản đồ không gian)
-Document ID bắt buộc trùng với `topicId` (đối với Chủ đề). Riêng với loại `rogue_anomalies`, bản đồ chứa các bài viết tự do (`topicId = null`) nên ID của bản đồ là độc lập (ví dụ: `"papers"`). Ktor tự động đồng bộ (sync) dữ liệu từ `articles` sang đây khi có thay đổi.
+Document ID bắt buộc trùng với `topicId` (đối với Chủ đề). Riêng với loại `rogue-anomalies`, bản đồ chứa các bài viết tự do (`topicId = null`) nên ID của bản đồ là độc lập (ví dụ: `"standalone-articles"`). Ktor tự động đồng bộ (sync) dữ liệu từ `articles` sang đây khi có thay đổi.
 
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | ✅ | Map 1:1 với `topics` (trừ `rogue_anomalies`) |
-| `mapType` | `string` | ✅ | Loại bản đồ: `"topic"`, `"rogue_anomalies"` |
+| `id` | `string` | ✅ | Map 1:1 với `topics` (trừ `rogue-anomalies`) |
+| `mapType` | `string` | ✅ | Loại bản đồ: `"topic"`, `"rogue-anomalies"` |
 | `theme` | `string` | ✅ | Theme đang dùng, vd: `"cosmos"`, `"nebula"` |
 | `nodes` | `array<map>` | ✅ | Mảng chứa toàn bộ các ngôi sao (bài học) trên bản đồ |
 | `nodes[].articleId` | `string` | ✅ | ID bài viết tương ứng |

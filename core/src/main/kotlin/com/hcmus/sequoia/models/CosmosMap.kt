@@ -8,17 +8,17 @@ import kotlinx.serialization.Serializable
  * This is denormalized and stored separately from the core educational entities to minimize Firestore read costs 
  * when initializing the massive Galaxy Map interface.
  *
- * @property id The ID of the topic or collection this map belongs to.
- * @property mapType The type of map (e.g., "topic", "rogue_anomalies").
+ * @property id The Firestore document ID (matches topic ID or collection ID).
+ * @property mapType The type of map (e.g., "topic", "rogue-anomalies").
  * @property theme The visual theme of the map (default: "cosmos").
  * @property nodes A list of celestial nodes representing articles.
  */
 @Serializable
 data class CosmosMap(
     var id: String = "",
-    val mapType: String = "textbook",
-    val theme: String = "cosmos",
-    val nodes: List<CosmosNode> = emptyList()
+    var mapType: String = "topic",
+    var theme: String = "cosmos",
+    var nodes: List<CosmosNode> = emptyList()
 )
 
 /**
@@ -35,10 +35,10 @@ data class CosmosMap(
  */
 @Serializable
 data class CosmosNode(
-    val articleId: String = "",
-    val title: String = "",
-    val celestialType: String = "",
-    val x: Double = 0.0,
-    val y: Double = 0.0,
-    val connections: List<String> = emptyList()
+    var articleId: String = "",
+    var title: String = "",
+    var celestialType: String = "",
+    var x: Double = 0.0,
+    var y: Double = 0.0,
+    var connections: List<String> = emptyList()
 )

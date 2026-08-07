@@ -33,11 +33,9 @@ class ContentService {
         }
     }
 
-    suspend fun getStandaloneArticles(): List<Article> = withContext(Dispatchers.IO) {
-        val snapshot = FirebaseConfig.firestore.collection("articles")
-            .whereEqualTo("isPublished", true)
-            .get()
-            .get()
+    suspend fun getStandaloneArticles(includeDrafts: Boolean = false): List<Article> = withContext(Dispatchers.IO) {
+        val query = FirebaseConfig.firestore.collection("articles")
+        val snapshot = if (includeDrafts) query.get().get() else query.whereEqualTo("isPublished", true).get().get()
 
         snapshot.documents.mapNotNull { doc ->
             val article = doc.toObject(Article::class.java)
@@ -63,12 +61,9 @@ class ContentService {
         }
     }
 
-    suspend fun getArticlesByTopic(topicId: String): List<Article> = withContext(Dispatchers.IO) {
-        val snapshot = FirebaseConfig.firestore.collection("articles")
-            .whereEqualTo("topicId", topicId)
-            .whereEqualTo("isPublished", true)
-            .get()
-            .get()
+    suspend fun getArticlesByTopic(topicId: String, includeDrafts: Boolean = false): List<Article> = withContext(Dispatchers.IO) {
+        val query = FirebaseConfig.firestore.collection("articles").whereEqualTo("topicId", topicId)
+        val snapshot = if (includeDrafts) query.get().get() else query.whereEqualTo("isPublished", true).get().get()
 
         snapshot.documents.map { doc ->
             val article = doc.toObject(Article::class.java)
@@ -107,39 +102,38 @@ class ContentService {
         combinedMap.values.toList()
     }
 
-    suspend fun getArticleDetail(slug: String): ArticleDetailResponse? = withContext(Dispatchers.IO) {
-        val snapshot = FirebaseConfig.firestore.collection("articles")
-            .whereEqualTo("slug", slug)
-            .whereEqualTo("isPublished", true)
-            .limit(1)
+    suspend fun getArticleDetail(articleId: String, includeDrafts: Boolean = false): ArticleDetailResponse? = withContext(Dispatchers.IO) {
+        val doc = FirebaseConfig.firestore.collection("articles")
+            .document(articleId)
             .get()
             .get()
 
-        snapshot.documents.firstOrNull()?.let { doc ->
-            val a = doc.toObject(Article::class.java)
-            a.id = doc.id
+        if (!doc.exists()) return@withContext null
+        
+        val a = doc.toObject(Article::class.java) ?: return@withContext null
+        a.id = doc.id
+        
+        if (!a.isPublished && !includeDrafts) return@withContext null
             
-            val contentDoc = FirebaseConfig.firestore.collection("article_contents")
-                .document(doc.id)
-                .get()
-                .get()
+        val contentDoc = FirebaseConfig.firestore.collection("article_contents")
+            .document(doc.id)
+            .get()
+            .get()
                 
-            val content = if (contentDoc.exists()) contentDoc.toObject(ArticleContent::class.java) else null
+        val content = if (contentDoc.exists()) contentDoc.toObject(ArticleContent::class.java) else null
             
-            ArticleDetailResponse(
-                id = a.id,
-                title = a.title,
-                slug = a.slug,
-                summary = a.summary,
-                content = content?.content ?: "",
-                topicId = a.topicId,
-                tags = a.tags,
-                isPublished = a.isPublished,
-                createdAt = a.createdAt,
-                updatedAt = a.updatedAt,
-                publishedAt = a.publishedAt
-            )
-        }
+        ArticleDetailResponse(
+            id = a.id,
+            title = a.title,
+            summary = a.summary,
+            content = content?.content ?: "",
+            topicId = a.topicId,
+            tags = a.tags,
+            isPublished = a.isPublished,
+            createdAt = a.createdAt,
+            updatedAt = a.updatedAt,
+            publishedAt = a.publishedAt
+        )
     }
 
     suspend fun getModel(id: String): AiModel? = withContext(Dispatchers.IO) {
@@ -163,5 +157,236 @@ class ContentService {
             createdAt = doc.getLong("createdAt") ?: 0L,
             updatedAt = doc.getLong("updatedAt") ?: 0L
         )
+    }
+
+    suspend fun createArticle(id: String?, title: String, category: String, summary: String, content: String, tags: List<String>, x: Double, y: Double, connections: List<String>, celestialType: String, isPublished: Boolean): Article = withContext(Dispatchers.IO) {
+        val docId = id ?: title.lowercase().replace(Regex("[^a-z0-9]+"), "-").trim('-')
+        val now = System.currentTimeMillis()
+        
+        val articleRef = FirebaseConfig.firestore.collection("articles").document(docId)
+        val existingDoc = articleRef.get().get()
+        val isUpdate = existingDoc.exists()
+        val oldTopicId = if (isUpdate) existingDoc.getString("topicId") else null
+        
+        val article = Article(
+            id = docId,
+            title = title,
+            topicId = category.ifEmpty { null },
+            summary = summary,
+            tags = tags,
+            isPublished = isPublished,
+            createdAt = if (isUpdate) existingDoc.getLong("createdAt") ?: now else now,
+            updatedAt = now,
+            publishedAt = if (isUpdate) existingDoc.getLong("publishedAt") ?: now else now
+        )
+        
+        val articleContent = ArticleContent(
+            id = docId,
+            content = content
+        )
+
+        // Save metadata and content
+        articleRef.set(article).get()
+        FirebaseConfig.firestore.collection("article_contents").document(docId).set(articleContent).get()
+
+        // Update Cosmos Map
+        val mapId = article.topicId ?: "standalone-articles"
+        val mapRef = FirebaseConfig.firestore.collection("cosmos_maps").document(mapId)
+        val mapDoc = mapRef.get().get()
+        
+        val cosmosNode = CosmosNode(
+            articleId = docId,
+            title = title,
+            celestialType = celestialType,
+            x = x,
+            y = y,
+            connections = connections
+        )
+
+        if (mapDoc.exists()) {
+            val existingMap = mapDoc.toObject(CosmosMap::class.java)!!
+            val updatedNodes = existingMap.nodes.filter { it.articleId != docId } + cosmosNode
+            mapRef.set(existingMap.copy(nodes = updatedNodes)).get()
+        } else if (mapId == "standalone-articles") {
+            val newMap = CosmosMap(id = mapId, mapType = "rogue-anomalies", theme = "nebula", nodes = listOf(cosmosNode))
+            mapRef.set(newMap).get()
+        }
+        
+        // If topic changed during update, remove from old map
+        if (isUpdate && oldTopicId != article.topicId) {
+            val oldMapId = oldTopicId ?: "standalone-articles"
+            val oldMapRef = FirebaseConfig.firestore.collection("cosmos_maps").document(oldMapId)
+            val oldMapDoc = oldMapRef.get().get()
+            if (oldMapDoc.exists()) {
+                val oldMap = oldMapDoc.toObject(CosmosMap::class.java)!!
+                val newNodes = oldMap.nodes.filter { it.articleId != docId }
+                oldMapRef.set(oldMap.copy(nodes = newNodes)).get()
+            }
+        }
+
+        // Update topic article count
+        if (!isUpdate && article.topicId != null) {
+            // New article in a topic
+            val topicRef = FirebaseConfig.firestore.collection("topics").document(article.topicId)
+            FirebaseConfig.firestore.runTransaction { transaction ->
+                val topicDoc = transaction.get(topicRef).get()
+                if (topicDoc.exists()) {
+                    val currentCount = topicDoc.getLong("articleCount") ?: 0L
+                    transaction.update(topicRef, "articleCount", currentCount + 1)
+                }
+                null
+            }.get()
+        } else if (isUpdate && oldTopicId != article.topicId) {
+            // Topic changed
+            if (oldTopicId != null) {
+                val oldTopicRef = FirebaseConfig.firestore.collection("topics").document(oldTopicId)
+                FirebaseConfig.firestore.runTransaction { transaction ->
+                    val topicDoc = transaction.get(oldTopicRef).get()
+                    if (topicDoc.exists()) {
+                        val currentCount = topicDoc.getLong("articleCount") ?: 0L
+                        if (currentCount > 0) transaction.update(oldTopicRef, "articleCount", currentCount - 1)
+                    }
+                    null
+                }.get()
+            }
+            if (article.topicId != null) {
+                val newTopicRef = FirebaseConfig.firestore.collection("topics").document(article.topicId)
+                FirebaseConfig.firestore.runTransaction { transaction ->
+                    val topicDoc = transaction.get(newTopicRef).get()
+                    if (topicDoc.exists()) {
+                        val currentCount = topicDoc.getLong("articleCount") ?: 0L
+                        transaction.update(newTopicRef, "articleCount", currentCount + 1)
+                    }
+                    null
+                }.get()
+            }
+        }
+
+        article
+    }
+
+    suspend fun createTopic(name: String, description: String, sortOrder: Int): Topic = withContext(Dispatchers.IO) {
+        val id = name.lowercase().replace(Regex("[^a-z0-9]+"), "-").trim('-')
+        val now = System.currentTimeMillis()
+        
+        val topic = Topic(
+            id = id,
+            name = name,
+            description = description,
+            articleCount = 0,
+            sortOrder = sortOrder,
+            createdAt = now
+        )
+        
+        FirebaseConfig.firestore.collection("topics").document(id).set(topic).get()
+        
+        // Also ensure a cosmos_map exists for this topic
+        val mapRef = FirebaseConfig.firestore.collection("cosmos_maps").document(id)
+        if (!mapRef.get().get().exists()) {
+            val newMap = CosmosMap(id = id, mapType = "topic", theme = "nebula", nodes = emptyList())
+            mapRef.set(newMap).get()
+        }
+        
+        topic
+    }
+
+    suspend fun createModel(id: String, name: String, description: String, taskType: String, fileUrl: String, metadataUrl: String, version: String, format: String, fileSizeBytes: Long): AiModel = withContext(Dispatchers.IO) {
+        val now = System.currentTimeMillis()
+        
+        val model = AiModel(
+            id = id,
+            name = name,
+            description = description,
+            taskType = taskType,
+            fileUrl = fileUrl,
+            metadataUrl = metadataUrl,
+            fileSizeBytes = fileSizeBytes,
+            version = version,
+            format = format,
+            createdAt = now,
+            updatedAt = now
+        )
+        
+        FirebaseConfig.firestore.collection("models").document(id).set(model).get()
+        model
+    }
+
+    suspend fun createTextbook(id: String, title: String, description: String, authors: List<String>, coverImageUrl: String, pdfUrl: String, sortOrder: Int): Textbook = withContext(Dispatchers.IO) {
+        val now = System.currentTimeMillis()
+        
+        val textbook = Textbook(
+            id = id,
+            title = title,
+            description = description,
+            authors = authors,
+            coverImageUrl = coverImageUrl,
+            pdfUrl = pdfUrl,
+            sortOrder = sortOrder,
+            createdAt = now,
+            updatedAt = now
+        )
+        
+        FirebaseConfig.firestore.collection("textbooks").document(id).set(textbook).get()
+        textbook
+    }
+
+    suspend fun updateMapNodes(mapId: String, newNodes: List<CosmosNode>): Boolean = withContext(Dispatchers.IO) {
+        val mapRef = FirebaseConfig.firestore.collection("cosmos_maps").document(mapId)
+        val mapDoc = mapRef.get().get()
+        if (mapDoc.exists()) {
+            val existingMap = mapDoc.toObject(CosmosMap::class.java)!!
+            
+            mapRef.set(existingMap.copy(nodes = newNodes)).get()
+            true
+        } else {
+            false
+        }
+    }
+
+    suspend fun deleteArticle(id: String): Boolean = withContext(Dispatchers.IO) {
+        val doc = FirebaseConfig.firestore.collection("articles").document(id).get().get()
+        if (!doc.exists()) return@withContext false
+        val article = doc.toObject(Article::class.java)
+
+        FirebaseConfig.firestore.collection("articles").document(id).delete().get()
+        FirebaseConfig.firestore.collection("article_contents").document(id).delete().get()
+        
+        val mapId = article?.topicId ?: "standalone-articles"
+        val mapRef = FirebaseConfig.firestore.collection("cosmos_maps").document(mapId)
+        val mapDoc = mapRef.get().get()
+        if (mapDoc.exists()) {
+            val map = mapDoc.toObject(CosmosMap::class.java)!!
+            val newNodes = map.nodes.filter { it.articleId != id }
+            mapRef.set(map.copy(nodes = newNodes)).get()
+        }
+        
+        if (article?.topicId != null) {
+            val topicRef = FirebaseConfig.firestore.collection("topics").document(article.topicId)
+            FirebaseConfig.firestore.runTransaction { transaction ->
+                val topicDoc = transaction.get(topicRef).get()
+                if (topicDoc.exists()) {
+                    val count = topicDoc.getLong("articleCount") ?: 0L
+                    if (count > 0) transaction.update(topicRef, "articleCount", count - 1)
+                }
+                null
+            }.get()
+        }
+        true
+    }
+
+    suspend fun deleteTopic(id: String): Boolean = withContext(Dispatchers.IO) {
+        FirebaseConfig.firestore.collection("topics").document(id).delete().get()
+        FirebaseConfig.firestore.collection("cosmos_maps").document(id).delete().get()
+        true
+    }
+
+    suspend fun deleteModel(id: String): Boolean = withContext(Dispatchers.IO) {
+        FirebaseConfig.firestore.collection("models").document(id).delete().get()
+        true
+    }
+
+    suspend fun deleteTextbook(id: String): Boolean = withContext(Dispatchers.IO) {
+        FirebaseConfig.firestore.collection("textbooks").document(id).delete().get()
+        true
     }
 }

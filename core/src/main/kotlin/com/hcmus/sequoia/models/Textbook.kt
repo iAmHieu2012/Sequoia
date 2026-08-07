@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 /**
  * Data class representing a Textbook in the Sequoia platform.
  * 
- * @property id The unique document ID from Firestore.
+ * @property id The Firestore document ID.
  * @property title The title of the textbook.
  * @property description A brief summary of what the textbook covers.
  * @property authors A list of authors who contributed to the textbook.
