@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import usePanZoom from "@/hooks/cosmos/usePanZoom";
+import { useAuth } from "@/contexts/AuthContext";
 import useCosmosData, { CosmosNode } from "@/hooks/cosmos/useCosmosData";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 import { Save, Plus } from "lucide-react";
@@ -21,6 +22,7 @@ interface CosmosMapEditorProps {
 }
 
 export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, mapId, activeNodeId, className = "", refreshKey }: CosmosMapEditorProps) {
+  const { user } = useAuth();
   const viewportRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const hudScaleRef = useRef<HTMLSpanElement>(null);
@@ -107,12 +109,13 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
   }, [targetX, targetY, targetScale, flyTo, activeNodeId, localNodes.length]);
 
   const handleSaveMap = async () => {
-    if (!mapId || localNodes.length === 0) return;
+    if (!mapId || localNodes.length === 0 || !user) return;
     setIsSaving(true);
     try {
+      const token = await user.getIdToken(true);
       const res = await fetch(`/api/v1/admin/cosmos/maps/${mapId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ nodes: localNodes })
       });
       if (res.ok) alert("Map saved successfully!");

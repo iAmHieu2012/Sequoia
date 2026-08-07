@@ -4,6 +4,7 @@ import CyberBrackets from "@/components/ui/CyberBrackets";
 import CyberGrid from "@/components/ui/CyberGrid";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import { cache } from "react";
 
 interface Textbook {
   id: string;
@@ -14,20 +15,19 @@ interface Textbook {
   authors: string[];
 }
 
-async function getTextbook(id: string): Promise<Textbook | null> {
+const getTextbook = cache(async (id: string): Promise<Textbook | null> => {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080'}/api/v1/textbooks`, { 
-      cache: "no-store" 
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080'}/api/v1/textbooks/${id}`, { 
+      next: { revalidate: 3600 } 
     });
     if (!res.ok) return null;
     const json = await res.json();
-    const textbooks: Textbook[] = json.data || [];
-    return textbooks.find(t => t.id === id) || null;
+    return json.data;
   } catch (error) {
     console.error("Error fetching textbook:", error);
     return null;
   }
-}
+});
 
 export async function generateStaticParams() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080';

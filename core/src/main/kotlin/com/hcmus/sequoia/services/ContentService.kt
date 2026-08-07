@@ -23,6 +23,17 @@ class ContentService {
         }
     }
 
+    suspend fun getTextbook(id: String): Textbook? = withContext(Dispatchers.IO) {
+        val doc = FirebaseConfig.firestore.collection("textbooks").document(id).get().get()
+        if (doc.exists()) {
+            val textbook = doc.toObject(Textbook::class.java)
+            textbook?.id = doc.id
+            textbook
+        } else {
+            null
+        }
+    }
+
     suspend fun getModels(): List<AiModel> = withContext(Dispatchers.IO) {
         val snapshot = FirebaseConfig.firestore.collection("models")
             .get()
@@ -265,36 +276,39 @@ class ContentService {
         article
     }
 
-    suspend fun createTopic(name: String, description: String, sortOrder: Int): Topic = withContext(Dispatchers.IO) {
-        val id = name.lowercase().replace(Regex("[^a-z0-9]+"), "-").trim('-')
+    suspend fun createTopic(id: String? = null, name: String, description: String, sortOrder: Int): Topic = withContext(Dispatchers.IO) {
+        val topicId = id ?: name.lowercase().replace(Regex("[^a-z0-9]+"), "-").trim('-')
         val now = System.currentTimeMillis()
         
+        val existingDoc = if (id != null) FirebaseConfig.firestore.collection("topics").document(topicId).get().get() else null
+        
         val topic = Topic(
-            id = id,
+            id = topicId,
             name = name,
             description = description,
-            articleCount = 0,
+            articleCount = existingDoc?.getLong("articleCount")?.toInt() ?: 0,
             sortOrder = sortOrder,
-            createdAt = now
+            createdAt = existingDoc?.getLong("createdAt") ?: now
         )
         
-        FirebaseConfig.firestore.collection("topics").document(id).set(topic).get()
+        FirebaseConfig.firestore.collection("topics").document(topicId).set(topic).get()
         
         // Also ensure a cosmos_map exists for this topic
-        val mapRef = FirebaseConfig.firestore.collection("cosmos_maps").document(id)
+        val mapRef = FirebaseConfig.firestore.collection("cosmos_maps").document(topicId)
         if (!mapRef.get().get().exists()) {
-            val newMap = CosmosMap(id = id, mapType = "topic", theme = "nebula", nodes = emptyList())
+            val newMap = CosmosMap(id = topicId, mapType = "topic", theme = "nebula", nodes = emptyList())
             mapRef.set(newMap).get()
         }
         
         topic
     }
 
-    suspend fun createModel(id: String, name: String, description: String, taskType: String, fileUrl: String, metadataUrl: String, version: String, format: String, fileSizeBytes: Long): AiModel = withContext(Dispatchers.IO) {
+    suspend fun createModel(id: String? = null, name: String, description: String, taskType: String, fileUrl: String, metadataUrl: String, version: String, format: String, fileSizeBytes: Long): AiModel = withContext(Dispatchers.IO) {
+        val modelId = id ?: name.lowercase().replace(Regex("[^a-z0-9]+"), "-").trim('-')
         val now = System.currentTimeMillis()
         
         val model = AiModel(
-            id = id,
+            id = modelId,
             name = name,
             description = description,
             taskType = taskType,
@@ -307,15 +321,16 @@ class ContentService {
             updatedAt = now
         )
         
-        FirebaseConfig.firestore.collection("models").document(id).set(model).get()
+        FirebaseConfig.firestore.collection("models").document(modelId).set(model).get()
         model
     }
 
-    suspend fun createTextbook(id: String, title: String, description: String, authors: List<String>, coverImageUrl: String, pdfUrl: String, sortOrder: Int): Textbook = withContext(Dispatchers.IO) {
+    suspend fun createTextbook(id: String? = null, title: String, description: String, authors: List<String>, coverImageUrl: String, pdfUrl: String, sortOrder: Int): Textbook = withContext(Dispatchers.IO) {
+        val textbookId = id ?: title.lowercase().replace(Regex("[^a-z0-9]+"), "-").trim('-')
         val now = System.currentTimeMillis()
         
         val textbook = Textbook(
-            id = id,
+            id = textbookId,
             title = title,
             description = description,
             authors = authors,
@@ -326,7 +341,7 @@ class ContentService {
             updatedAt = now
         )
         
-        FirebaseConfig.firestore.collection("textbooks").document(id).set(textbook).get()
+        FirebaseConfig.firestore.collection("textbooks").document(textbookId).set(textbook).get()
         textbook
     }
 

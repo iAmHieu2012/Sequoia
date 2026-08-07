@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
-import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, User } from 'firebase/auth';
+import { useAuth } from '@/contexts/AuthContext';
 import { ArrowRight, Sparkles, Network, Orbit } from 'lucide-react';
 import CyberGrid from '@/components/ui/CyberGrid';
 
@@ -11,16 +10,7 @@ import CyberBrackets from '@/components/ui/CyberBrackets';
 
 export default function LandingClient() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
+  const { user, loading } = useAuth();
 
   const handleEnterSystem = () => {
     if (loading) return;

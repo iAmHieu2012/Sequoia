@@ -6,6 +6,7 @@ import CyberGrid from "@/components/ui/CyberGrid";
 import ArticleProgressToggle from "@/components/articles/ArticleProgressToggle";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import { cache } from "react";
 
 interface Article {
   id: string;
@@ -15,11 +16,9 @@ interface Article {
   tags: string[];
 }
 
-async function getArticle(id: string): Promise<Article | null> {
+const getArticle = cache(async (id: string): Promise<Article | null> => {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080'}/api/v1/articles/${id}`, { 
-      cache: "no-store" 
-    });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080'}/api/v1/articles/${id}`);
     if (!res.ok) return null;
     const json = await res.json();
     return json.data;
@@ -27,7 +26,7 @@ async function getArticle(id: string): Promise<Article | null> {
     console.error("Error fetching article:", error);
     return null;
   }
-}
+});
 
 export async function generateStaticParams() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080';
@@ -162,7 +161,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
           </header>
 
           {/* Nội dung bài viết với Markdown Renderer */}
-          <div className="prose prose-invert prose-p:font-sans prose-headings:font-heading prose-headings:uppercase prose-headings:tracking-wide prose-a:text-system max-w-none prose-pre:bg-black/80 prose-pre:border prose-pre:border-panel-border">
+          <div className="mt-8 w-full">
             <MarkdownRenderer content={article.content} />
           </div>
 

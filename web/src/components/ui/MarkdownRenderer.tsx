@@ -31,10 +31,10 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
 
   const toc = React.useMemo(() => {
     const headings = [];
-    const regex = /^(#{2,3})\s+(.+)$/gm; // Only H2 and H3 for TOC
+    const contentWithoutCode = content.replace(/```[\s\S]*?```/g, '');
+    const regex = /^(#{2,3})\s+(.+)$/gm;
     let match;
-    while ((match = regex.exec(content)) !== null) {
-      // Clean up markdown syntax like **bold** in TOC text
+    while ((match = regex.exec(contentWithoutCode)) !== null) {
       const cleanText = match[2].replace(/[*_`]/g, '');
       headings.push({
         level: match[1].length,
@@ -80,14 +80,14 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
         </div>
       )}
 
-      <div className="prose dark:prose-invert prose-slate dark:prose-zinc prose-lg max-w-none clear-both">
+      <div className="w-full clear-both text-text-main font-sans text-base">
         <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[rehypeKatex]}
         components={{
           h1: ({ node, children, ...props }) => <h1 id={getHeadingId(children)} className="text-3xl md:text-4xl font-heading font-black uppercase text-white mt-10 mb-6 drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] scroll-mt-24" {...props}>{children}</h1>,
           h2: ({ node, children, ...props }) => <h2 id={getHeadingId(children)} className="text-2xl md:text-3xl font-heading font-bold uppercase text-system mt-10 mb-4 border-b border-panel-border pb-2 shadow-[0_1px_0_color-mix(in_srgb,var(--color-system)_30%,transparent)] scroll-mt-24" {...props}>{children}</h2>,
-          h3: ({ node, children, ...props }) => <h3 id={getHeadingId(children)} className="text-xl md:text-2xl font-heading font-bold uppercase text-white mt-8 mb-4 flex items-center gap-2 scroll-mt-24"><span className="text-system opacity-50">&gt;</span> <span {...props}>{children}</span></h3>,
+          h3: ({ node, children, ...props }) => <h3 id={getHeadingId(children)} className="text-xl md:text-2xl font-heading font-bold uppercase text-white mt-8 mb-4 flex items-center gap-2 scroll-mt-24" {...props}><span className="text-system opacity-50">&gt;</span> <span>{children}</span></h3>,
           p: ({ node, ...props }) => <p className="text-base font-sans text-text-main leading-relaxed mb-6" {...props} />,
           ul: ({ node, ...props }) => <ul className="list-disc list-outside space-y-2 mb-6 text-text-main pl-6 marker:text-system" {...props} />,
           ol: ({ node, ...props }) => <ol className="list-decimal list-outside space-y-2 mb-6 text-text-main pl-6 marker:text-system marker:font-mono" {...props} />,
@@ -117,6 +117,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
               </figure>
             );
           },
+          pre: ({ node, children, ...props }) => <pre className="p-0 m-0 bg-transparent" {...props}>{children}</pre>,
           code: CodeBlock
         }}
       >
@@ -143,21 +144,21 @@ function CodeBlock({ node, className, children, ...props }: any) {
   };
 
   return match ? (
-    <div className="relative group my-6 rounded-lg overflow-hidden border border-black/10 dark:border-white/10">
-      <div className="absolute top-0 w-full px-4 py-2 bg-black/5 dark:bg-white/5 border-b border-black/10 dark:border-white/10 flex items-center justify-between text-xs font-mono text-gray-500">
-        <span>{match[1]}</span>
-        <button onClick={handleCopy} className="hover:text-primary transition-colors">
-          {copied ? "Copied" : "Copy"}
+    <div className="relative group my-6 border border-panel-border bg-black/80 font-mono shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+      <div className="absolute top-0 w-full px-4 py-2 bg-system/10 border-b border-system/30 flex items-center justify-between text-[10px] uppercase tracking-widest text-system z-10">
+        <span>[ {match[1]} ]</span>
+        <button onClick={handleCopy} className="hover:text-white transition-colors flex items-center gap-2">
+          {copied ? "COPIED_TO_CLIPBOARD" : "COPY_CODE"}
         </button>
       </div>
-      <div className="pt-10 pb-4 px-4 bg-black/5 dark:bg-white/5 overflow-x-auto">
+      <div className="pt-12 pb-4 px-4 overflow-x-auto text-sm text-text-main relative z-0">
         <code className={className} {...props}>
           {children}
         </code>
       </div>
     </div>
   ) : (
-    <code className="bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono text-sm" {...props}>
+    <code className="bg-system/10 text-system border border-system/20 px-1.5 py-0.5 font-mono text-sm uppercase tracking-wider" {...props}>
       {children}
     </code>
   );

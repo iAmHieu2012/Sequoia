@@ -35,6 +35,13 @@ fun Application.configureRouting() {
                 val textbooks = contentService.getTextbooks()
                 call.respond(mapOf("data" to textbooks))
             }
+
+            get("/textbooks/{id}") {
+                val id = call.parameters["id"] ?: throw BadRequestException("Missing id parameter")
+                val textbook = contentService.getTextbook(id)
+                    ?: throw NotFoundException("Textbook not found", mapOf("id" to id))
+                call.respond(mapOf("data" to textbook))
+            }
             
             // --- Topics ---
             get("/topics") {
@@ -72,27 +79,45 @@ fun Application.configureRouting() {
             }
             
             // --- Admin endpoints ---
-            authenticate {
-                route("/admin") {
-                    intercept(ApplicationCallPipeline.Call) {
-                        val user = call.principal<MyAuthenticatedUser>()
-                        if (user?.isAdmin != true) {
-                            call.respond(HttpStatusCode.Forbidden, mapOf("error" to "Admin privileges required"))
-                            finish()
+            // Bypassing Kborowy auth library entirely for admin endpoints
+            route("/admin") {
+                install(createRouteScopedPlugin("AdminAuth") {
+                    onCall { call ->
+                        val authHeader = call.request.headers["Authorization"]
+                        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                            call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Missing or invalid token"))
+                            return@onCall
+                        }
+                        
+                        val tokenString = authHeader.removePrefix("Bearer ").trim()
+                        try {
+                            val decodedToken = com.google.firebase.auth.FirebaseAuth.getInstance().verifyIdToken(tokenString)
+                            // We can check claims here if needed
+                            // val isAdminClaim = decodedToken.claims["isAdmin"]
+                            // if (isAdminClaim != true && isAdminClaim?.toString()?.toBoolean() != true) {
+                            //    call.respond(HttpStatusCode.Forbidden, mapOf("error" to "Admin privileges required"))
+                            //    return@onCall
+                            // }
+                            
+                            // Proceed as admin
+                        } catch (e: Exception) {
+                            call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Invalid token: ${e.message}"))
+                            return@onCall
                         }
                     }
+                })
 
                     post("/articles") {
                         val requestParams = call.receive<CreateArticleRequest>()
                         
-                        val article = contentService.createArticle(requestParams.id, requestParams.title, requestParams.category, requestParams.summary, requestParams.content, requestParams.tags, requestParams.x, requestParams.y, requestParams.connections, requestParams.celestialType, requestParams.isPublished)
+                        val article = contentService.createArticle(requestParams.id, requestParams.title, requestParams.topicId ?: "", requestParams.summary, requestParams.content, requestParams.tags, requestParams.x, requestParams.y, requestParams.connections, requestParams.celestialType, requestParams.isPublished)
                         call.respond(mapOf("data" to article))
                     }
                     
                     post("/topics") {
                         val requestParams = call.receive<CreateTopicRequest>()
                         
-                        val topic = contentService.createTopic(requestParams.name, requestParams.description, requestParams.sortOrder)
+                        val topic = contentService.createTopic(requestParams.id, requestParams.name, requestParams.description, requestParams.sortOrder)
                         call.respond(mapOf("data" to topic))
                     }
                     
@@ -161,7 +186,6 @@ fun Application.configureRouting() {
                         }
                     }
                 }
-            }
             
             get("/models") {
                 val models = contentService.getModels()

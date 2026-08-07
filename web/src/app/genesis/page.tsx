@@ -8,14 +8,23 @@ import CosmosMapEditor from "@/components/admin/CosmosMapEditor";
 import EntityForge from "@/components/admin/EntityForge";
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 import { useRouter } from "next/navigation";
-import { auth } from "@/lib/firebase";
-import { onAuthStateChanged } from "firebase/auth";
+import { useAuth } from "@/contexts/AuthContext";
 
 export type AdminTab = "nebulas" | "anomalies" | "models" | "textbooks";
 
 export default function GenesisPage() {
   const router = useRouter();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  const authFetch = async (url: string, options: RequestInit = {}) => {
+    if (!user) throw new Error("Unauthenticated");
+    const token = await user.getIdToken(true);
+    return fetch(url, {
+      ...options,
+      headers: { ...options.headers, Authorization: `Bearer ${token}` }
+    });
+  };
   const [activeTab, setActiveTab] = useState<AdminTab>("nebulas");
   const [selectedTopic, setSelectedTopic] = useState<any | null>(null);
 
@@ -39,24 +48,14 @@ export default function GenesisPage() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (!currentUser) {
+    if (!authLoading) {
+      if (!user || !isAdmin) {
         router.push("/dashboard");
-        return;
+      } else {
+        setIsCheckingAuth(false);
       }
-      try {
-        const token = await currentUser.getIdTokenResult();
-        if (token.claims.isAdmin !== true) {
-          router.push("/dashboard");
-        } else {
-          setIsCheckingAuth(false);
-        }
-      } catch (err) {
-        router.push("/dashboard");
-      }
-    });
-    return () => unsubscribe();
-  }, [router]);
+    }
+  }, [user, isAdmin, authLoading, router]);
 
   const [rightPanelMode, setRightPanelMode] = useState<'map' | 'preview'>('map');
   const [selectedArticleContent, setSelectedArticleContent] = useState<string>('');
@@ -68,11 +67,11 @@ export default function GenesisPage() {
     setLoading(true);
     try {
       const [tRes, rRes, mRes, txRes, mapRes] = await Promise.all([
-        fetch("/api/v1/topics").catch(() => null),
-        fetch("/api/v1/admin/articles/standalone").catch(() => null),
-        fetch("/api/v1/models").catch(() => null),
-        fetch("/api/v1/textbooks").catch(() => null),
-        fetch("/api/v1/cosmos/maps/standalone-articles").catch(() => null)
+        authFetch("/api/v1/topics").catch(() => null),
+        authFetch("/api/v1/admin/articles/standalone").catch(() => null),
+        authFetch("/api/v1/models").catch(() => null),
+        authFetch("/api/v1/textbooks").catch(() => null),
+        authFetch("/api/v1/cosmos/maps/standalone-articles").catch(() => null)
       ]);
       if (tRes && tRes.ok) {
         const data = (await tRes.json()).data || [];
@@ -97,8 +96,8 @@ export default function GenesisPage() {
     setDrilldownLoading(true);
     try {
       const [artRes, mapRes] = await Promise.all([
-        fetch(`/api/v1/admin/topics/${topic.id}/articles`),
-        fetch(`/api/v1/cosmos/maps/${topic.id}`).catch(() => null)
+        authFetch(`/api/v1/admin/topics/${topic.id}/articles`),
+        authFetch(`/api/v1/cosmos/maps/${topic.id}`).catch(() => null)
       ]);
       if (artRes.ok) setArticles((await artRes.json()).data || []);
       if (mapRes && mapRes.ok) setMapNodes((await mapRes.json()).data?.nodes || []);
@@ -110,15 +109,16 @@ export default function GenesisPage() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (!isCheckingAuth) fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCheckingAuth]);
 
   const handleArticleSelect = async (article: any, targetX: number, targetY: number, mapId: string) => {
     setSelectedArticleId(article.id);
     setHoverTarget({ x: targetX, y: targetY, scale: 1.5, mapId, activeNodeId: article.id });
     setSelectedArticleContent('LOADING_DATA_STREAM...');
     try {
-      const res = await fetch(`/api/v1/admin/articles/${article.id}`);
+      const res = await authFetch(`/api/v1/admin/articles/${article.id}`);
       if (res.ok) {
         const data = await res.json();
         setSelectedArticleContent(data.data.content || '');
@@ -138,7 +138,7 @@ export default function GenesisPage() {
     if (tab === 'stars' || tab === 'anomalies') {
       try {
         const articleId = item.id;
-        const res = await fetch(`/api/v1/admin/articles/${articleId}`);
+        const res = await authFetch(`/api/v1/admin/articles/${articleId}`);
         if (res.ok) {
           const detail = (await res.json()).data;
           fullItem = { ...fullItem, ...detail };
@@ -176,7 +176,7 @@ export default function GenesisPage() {
       else if (forgeTab === 'textbooks') endpoint = '/api/v1/admin/textbooks';
 
       if (!endpoint) return;
-      const res = await fetch(endpoint, {
+      const res = await authFetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -204,7 +204,7 @@ export default function GenesisPage() {
       else if (tab === 'textbooks') endpoint = `/api/v1/admin/textbooks/${item.id}`;
 
       if (!endpoint) return;
-      const res = await fetch(endpoint, { method: 'DELETE' });
+      const res = await authFetch(endpoint, { method: 'DELETE' });
       if (res.ok) {
         fetchData();
         setRefreshKey(prev => prev + 1);
@@ -278,7 +278,7 @@ export default function GenesisPage() {
                     setHoverTarget({ x: 7500, y: 2500, scale: 0.2, mapId: topics.length > 0 ? topics[0].id : undefined, activeNodeId: undefined });
                   } else if (tab.id === 'anomalies') {
                     setHoverTarget({ x: 7500, y: 2500, scale: 0.2, mapId: 'standalone-articles', activeNodeId: undefined });
-                    fetch("/api/v1/cosmos/maps/standalone-articles")
+                    authFetch("/api/v1/cosmos/maps/standalone-articles")
                       .then(r => r.json())
                       .then(d => setMapNodes(d.data?.nodes || []))
                       .catch(() => setMapNodes([]));

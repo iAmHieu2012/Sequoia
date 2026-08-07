@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CheckCircle2, XCircle, Cpu, Loader2 } from "lucide-react";
-import { auth } from "@/lib/firebase";
-import { onAuthStateChanged, User } from "firebase/auth";
+import { CheckCircle2, XCircle, Cpu, Loader2, AlertTriangle } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 import Link from "next/link";
 
@@ -12,17 +11,19 @@ interface ArticleProgressToggleProps {
 }
 
 export default function ArticleProgressToggle({ articleId }: ArticleProgressToggleProps) {
-  const [user, setUser] = useState<User | null>(null);
+  const { user, loading: authLoading } = useAuth();
   const [isCompleted, setIsCompleted] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
+    if (authLoading) return;
+    
+    if (user) {
+      const fetchProgress = async () => {
         try {
-          const token = await currentUser.getIdToken();
+          const token = await user.getIdToken();
           const localDate = new Date().toLocaleDateString('en-CA');
           const res = await fetch(`/api/v1/users/progress?localDate=${localDate}`, {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -36,19 +37,21 @@ export default function ArticleProgressToggle({ articleId }: ArticleProgressTogg
         } catch (e) {
           console.error("Failed to fetch progress", e);
           setIsCompleted(false);
+        } finally {
+          setIsLoading(false);
         }
-      } else {
-        setIsCompleted(null);
-      }
+      };
+      fetchProgress();
+    } else {
+      setIsCompleted(null);
       setIsLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [articleId]);
+    }
+  }, [articleId, user, authLoading]);
 
   const toggleStatus = async () => {
     if (!user || isCompleted === null) return;
     setIsUpdating(true);
+    setErrorMsg(null);
     try {
       const token = await user.getIdToken();
       const targetStatus = !isCompleted;
@@ -63,9 +66,12 @@ export default function ArticleProgressToggle({ articleId }: ArticleProgressTogg
       
       if (res.ok) {
         setIsCompleted(targetStatus);
+      } else {
+        throw new Error("Failed to update status");
       }
     } catch (e) {
       console.error("Failed to update progress", e);
+      setErrorMsg("SYS_ERR: NEURAL UPLINK DISCONNECTED");
     } finally {
       setIsUpdating(false);
     }
@@ -112,6 +118,11 @@ export default function ArticleProgressToggle({ articleId }: ArticleProgressTogg
             ? 'Tài liệu này đã được lưu vào hệ thống thần kinh của bạn. Bạn có thể xem lại bất cứ lúc nào.' 
             : 'Đánh dấu hoàn thành để ghi nhận dữ liệu vào hồ sơ tiến trình (Orbital Streak) của bạn.'}
         </p>
+        {errorMsg && (
+          <div className="mt-3 text-[10px] font-mono text-coral uppercase tracking-widest flex items-center justify-center md:justify-start gap-2 bg-coral/10 border border-coral/30 px-3 py-1.5 w-fit">
+            <AlertTriangle className="w-3 h-3" /> {errorMsg}
+          </div>
+        )}
       </div>
 
       <button 

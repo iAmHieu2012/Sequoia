@@ -128,7 +128,7 @@ export default function EntityForge({ activeTab, onClose, onSave, initialData }:
     if (activeTab === 'stars' || activeTab === 'anomalies') {
       onSave({ 
         id: entityId || undefined,
-        title, category, summary, content,
+        title, topicId: category, summary, content,
         tags: tags.split(',').map(t => t.trim()).filter(Boolean),
         x: parseFloat(x) || 0,
         y: parseFloat(y) || 0,

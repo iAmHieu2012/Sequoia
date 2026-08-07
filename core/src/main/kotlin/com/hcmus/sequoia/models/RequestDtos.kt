@@ -5,8 +5,9 @@ import kotlinx.serialization.Serializable
 /**
  * DTO for creating a new Article and its associated CosmosNode.
  * 
+ * @property id The optional explicit ID for the article (for editing).
  * @property title The title of the new article.
- * @property category The topic ID or "standalone" if it's a rogue anomaly.
+ * @property topicId The topic ID or null if it's a rogue anomaly.
  * @property summary A brief summary of the article.
  * @property content The markdown content of the article.
  * @property tags A list of relevant tags.
@@ -20,7 +21,7 @@ import kotlinx.serialization.Serializable
 data class CreateArticleRequest(
     val id: String? = null,
     val title: String,
-    val category: String = "",
+    val topicId: String? = null,
     val summary: String = "",
     val content: String = "",
     val tags: List<String> = emptyList(),
@@ -34,12 +35,14 @@ data class CreateArticleRequest(
 /**
  * DTO for creating a new Topic (Nebula).
  * 
+ * @property id The optional explicit ID for the topic (for editing).
  * @property name The name of the new topic.
  * @property description A brief description of the topic.
  * @property sortOrder The display order ranking.
  */
 @Serializable
 data class CreateTopicRequest(
+    val id: String? = null,
     val name: String,
     val description: String = "",
     val sortOrder: Int = 99
@@ -48,7 +51,7 @@ data class CreateTopicRequest(
 /**
  * DTO for creating a new AI Model for the Playground.
  * 
- * @property id The unique ID for the model.
+ * @property id The unique ID for the model (optional, generated if missing).
  * @property name The display name of the model.
  * @property description A brief description of the model's purpose.
  * @property taskType The task this model performs (e.g., "object-detection").
@@ -60,7 +63,7 @@ data class CreateTopicRequest(
  */
 @Serializable
 data class CreateModelRequest(
-    val id: String,
+    val id: String? = null,
     val name: String,
     val description: String = "",
     val taskType: String = "",
@@ -74,7 +77,7 @@ data class CreateModelRequest(
 /**
  * DTO for creating a new Textbook (Module).
  * 
- * @property id The unique ID for the textbook.
+ * @property id The unique ID for the textbook (optional, generated if missing).
  * @property title The title of the textbook.
  * @property description A brief description of the textbook's content.
  * @property authors A list of authors who wrote or contributed to the textbook.
@@ -84,7 +87,7 @@ data class CreateModelRequest(
  */
 @Serializable
 data class CreateTextbookRequest(
-    val id: String,
+    val id: String? = null,
     val title: String,
     val description: String = "",
     val authors: List<String> = emptyList(),
