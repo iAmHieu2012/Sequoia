@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Bold, Italic, Heading, List, Quote, Link as LinkIcon, Image as ImageIcon, Sigma, SquareSigma, Eye, Edit3, Columns2, Save, X, Sparkles } from 'lucide-react';
+import { Bold, Italic, Heading, List, Quote, Link as LinkIcon, Image as ImageIcon, Sigma, SquareSigma, Eye, Edit3, Columns2, Save, X, Sparkles, Loader2 } from 'lucide-react';
 import MarkdownRenderer from '@/components/ui/MarkdownRenderer';
 import CyberBrackets from '@/components/ui/CyberBrackets';
 
@@ -66,6 +66,10 @@ export default function EntityForge({ activeTab, onClose, onSave, initialData }:
   const [authors, setAuthors] = useState('');
   const [coverImageUrl, setCoverImageUrl] = useState('');
   const [pdfUrl, setPdfUrl] = useState('');
+  
+  // Cloudinary Upload State
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -122,6 +126,47 @@ export default function EntityForge({ activeTab, onClose, onSave, initialData }:
       textarea.focus();
       textarea.setSelectionRange(start + prefix.length, start + prefix.length + selectedText.length);
     }, 0);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+
+    if (!cloudName || !uploadPreset) {
+      alert("Missing Cloudinary configuration in .env.local (NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME and NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET).");
+      return;
+    }
+
+    setIsUploadingImage(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", uploadPreset);
+
+    try {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      
+      if (res.ok) {
+        // Automatically insert the image markdown into the content
+        const imageUrl = data.secure_url;
+        insertMarkdown(`![${file.name}](${imageUrl})`, '');
+      } else {
+        alert(`Upload failed: ${data.error?.message || "Unknown error"}`);
+      }
+    } catch (err) {
+      console.error("Cloudinary upload error:", err);
+      alert("An error occurred while uploading the image.");
+    } finally {
+      setIsUploadingImage(false);
+      // Reset input so the same file can be selected again if needed
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
   const handleSave = () => {
@@ -282,7 +327,17 @@ export default function EntityForge({ activeTab, onClose, onSave, initialData }:
                   <button onClick={() => insertMarkdown('> ','')} className="p-1.5 text-white/50 hover:text-white hover:bg-white/10"><Quote className="w-4 h-4" /></button>
                   <div className="w-px h-6 bg-white/20 mx-2 self-center" />
                   <button onClick={() => insertMarkdown('[','](url)')} className="p-1.5 text-white/50 hover:text-white hover:bg-white/10"><LinkIcon className="w-4 h-4" /></button>
-                  <button onClick={() => insertMarkdown('![','](image_url)')} className="p-1.5 text-white/50 hover:text-white hover:bg-white/10"><ImageIcon className="w-4 h-4" /></button>
+                  
+                  {/* Image Upload Button */}
+                  <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
+                  <button 
+                    onClick={() => fileInputRef.current?.click()} 
+                    disabled={isUploadingImage}
+                    className="p-1.5 text-white/50 hover:text-white hover:bg-white/10 relative"
+                  >
+                    {isUploadingImage ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : <ImageIcon className="w-4 h-4" />}
+                  </button>
+                  
                   <div className="w-px h-6 bg-white/20 mx-2 self-center" />
                   <button onClick={() => insertMarkdown('$','$')} className="p-1.5 text-white/50 hover:text-white hover:bg-white/10"><Sigma className="w-4 h-4" /></button>
                   <button onClick={() => insertMarkdown('\n$$\n','\n$$\n')} className="p-1.5 text-white/50 hover:text-white hover:bg-white/10"><SquareSigma className="w-4 h-4" /></button>

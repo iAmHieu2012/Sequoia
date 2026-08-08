@@ -54,7 +54,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   }, []);
 
   return (
-    <div className="w-full">
+    <div className="w-full normal-case tracking-normal">
       {toc.length > 0 && (
         <div className={`mb-10 border border-system/20 bg-black/40 transition-all duration-300 ${isTocExpanded ? 'w-full' : 'w-fit float-right ml-6 mb-6'}`}>
           <div className="flex items-center justify-between p-3 border-b border-system/20 bg-system/5">
@@ -88,7 +88,17 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           h1: ({ node, children, ...props }) => <h1 id={getHeadingId(children)} className="text-3xl md:text-4xl font-heading font-black uppercase text-white mt-10 mb-6 drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] scroll-mt-24" {...props}>{children}</h1>,
           h2: ({ node, children, ...props }) => <h2 id={getHeadingId(children)} className="text-2xl md:text-3xl font-heading font-bold uppercase text-system mt-10 mb-4 border-b border-panel-border pb-2 shadow-[0_1px_0_color-mix(in_srgb,var(--color-system)_30%,transparent)] scroll-mt-24" {...props}>{children}</h2>,
           h3: ({ node, children, ...props }) => <h3 id={getHeadingId(children)} className="text-xl md:text-2xl font-heading font-bold uppercase text-white mt-8 mb-4 flex items-center gap-2 scroll-mt-24" {...props}><span className="text-system opacity-50">&gt;</span> <span>{children}</span></h3>,
-          p: ({ node, ...props }) => <p className="text-base font-sans text-text-main leading-relaxed mb-6" {...props} />,
+          p: (props: any) => {
+            const { node, children, ...rest } = props;
+            // React-markdown wraps images in <p> tags. 
+            // Rendering <figure> inside <p> causes hydration errors.
+            // We check if the paragraph contains an image, and if so, render a <div> instead.
+            const hasImage = node?.children?.some((child: any) => child.tagName === 'img');
+            if (hasImage) {
+              return <div className="mb-6 w-full" {...rest}>{children}</div>;
+            }
+            return <p className="text-base font-sans text-text-main leading-relaxed mb-6" {...rest}>{children}</p>;
+          },
           ul: ({ node, ...props }) => <ul className="list-disc list-outside space-y-2 mb-6 text-text-main pl-6 marker:text-system" {...props} />,
           ol: ({ node, ...props }) => <ol className="list-decimal list-outside space-y-2 mb-6 text-text-main pl-6 marker:text-system marker:font-mono" {...props} />,
           li: ({ node, ...props }) => <li className="text-base text-text-main" {...props} />,
