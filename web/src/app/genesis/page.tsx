@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, Rocket, ArrowRight, Edit2, Trash2, Plus, Terminal, Cpu, Zap, Activity } from "lucide-react";
+import { ArrowLeft, ChevronLeft, Rocket, ArrowRight, Edit2, Trash2, Plus, Terminal, Cpu, Zap, Activity } from "lucide-react";
 import Link from "next/link";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 import CosmosMapEditor from "@/components/admin/CosmosMapEditor";
@@ -233,31 +233,37 @@ export default function GenesisPage() {
         style={{ backgroundImage: "radial-gradient(circle at center, white 1px, transparent 1px)", backgroundSize: "24px 24px" }}
       />
 
-      {/* Header */}
-      <header className="relative z-40 flex items-center justify-between px-6 py-4 border-b border-white/20 bg-black/80">
+      {/* Universal Header (Monochrome) */}
+      <header className="flex-shrink-0 relative z-50 flex items-center justify-between px-6 py-4 border-b border-white/20 bg-black/80 backdrop-blur-md">
         <div className="flex items-center gap-6">
-          <Link href="/dashboard" className="flex items-center gap-2 text-white/50 hover:text-white transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-[10px] tracking-widest">EXIT_GENESIS</span>
+          <Link href="/dashboard" className="inline-flex items-center text-[10px] font-mono tracking-widest uppercase bg-white/5 text-white px-4 py-2 hover:bg-white/20 hover:text-white transition-all duration-300 relative group overflow-hidden">
+            <CyberBrackets color="border-white/30 group-hover:border-white transition-colors duration-300" />
+            <div className="absolute left-0 top-0 w-1 h-full bg-white scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
+            <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
+            <span className="relative z-10 flex items-center gap-1 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">
+              <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
+              [ ESC ] EXIT_GENESIS
+            </span>
           </Link>
-          <div className="w-px h-4 bg-white/20" />
-          <div className="flex items-center gap-3">
-            <Terminal className="w-5 h-5 text-white animate-pulse" />
-            <h1 className="text-xl font-heading font-black tracking-[0.2em] drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">
+
+          <div className="flex-col hidden sm:flex">
+            <span className="text-[9px] font-mono text-white/50 tracking-widest uppercase">ADMIN_MODULE</span>
+            <span className="text-sm font-heading font-bold text-white tracking-widest uppercase flex items-center gap-2">
+              <Terminal className="w-4 h-4 text-white" />
               GENESIS_CORE
-            </h1>
+            </span>
           </div>
         </div>
         
-        <button 
-          onClick={() => handleCreate(activeTab === 'nebulas' && selectedTopic ? 'stars' : activeTab)}
-          className="group relative px-6 py-2 border border-white/50 hover:border-white transition-colors bg-white/5 flex items-center gap-2 text-xs tracking-widest overflow-hidden"
-        >
-          <div className="absolute inset-0 bg-white translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300 ease-out" />
-          <span className="relative z-10 group-hover:text-black font-bold flex items-center gap-2">
-            <Plus className="w-4 h-4" /> INITIATE_SPAWN
-          </span>
-        </button>
+        <div className="flex items-center gap-6">
+          <div className="flex flex-col items-end hidden md:flex">
+            <span className="text-[9px] font-mono text-white/50 tracking-widest uppercase">SYS_STATUS</span>
+            <span className="text-xs font-mono text-white tracking-widest uppercase flex items-center gap-2">
+              CORE_ONLINE
+              <span className="w-2 h-2 bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)] animate-pulse" />
+            </span>
+          </div>
+        </div>
       </header>
 
       {/* Main layout (Dashboard style) */}
@@ -303,6 +309,19 @@ export default function GenesisPage() {
                 </span>
               </button>
             ))}
+          </div>
+
+          {/* Spawn Button */}
+          <div className="p-3 border-b border-white/20 bg-black/60 sticky top-0 z-20">
+            <button 
+              onClick={() => handleCreate(activeTab === 'nebulas' && selectedTopic ? 'stars' : activeTab)}
+              className="w-full group relative py-2.5 border border-white/50 hover:border-white transition-colors bg-white/5 flex items-center justify-center gap-2 text-xs tracking-widest overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-white translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+              <span className="relative z-10 group-hover:text-black font-bold flex items-center gap-2">
+                <Plus className="w-4 h-4" /> INITIATE_SPAWN
+              </span>
+            </button>
           </div>
 
           {/* Tab content */}

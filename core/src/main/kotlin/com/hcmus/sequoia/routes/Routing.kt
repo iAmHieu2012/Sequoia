@@ -14,6 +14,15 @@ import io.ktor.server.request.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+val AdminAuthorizationPlugin = io.ktor.server.application.createRouteScopedPlugin("AdminAuthorization") {
+    on(io.ktor.server.auth.AuthenticationChecked) { call ->
+        val user = call.principal<MyAuthenticatedUser>()
+        if (user?.isAdmin != true) {
+            call.respond(io.ktor.http.HttpStatusCode.Forbidden, mapOf("error" to "Admin privileges required"))
+        }
+    }
+}
+
 fun Application.configureRouting() {
     val contentService = com.hcmus.sequoia.services.ContentService()
     val cosmosService = com.hcmus.sequoia.services.CosmosService()
@@ -81,13 +90,7 @@ fun Application.configureRouting() {
             // --- Admin endpoints ---
             authenticate {
                 route("/admin") {
-                    intercept(io.ktor.server.application.ApplicationCallPipeline.Call) {
-                        val user = call.principal<MyAuthenticatedUser>()
-                        if (user?.isAdmin != true) {
-                            call.respond(io.ktor.http.HttpStatusCode.Forbidden, mapOf("error" to "Admin privileges required"))
-                            finish()
-                        }
-                    }
+                    install(AdminAuthorizationPlugin)
 
                     post("/articles") {
                         val requestParams = call.receive<CreateArticleRequest>()

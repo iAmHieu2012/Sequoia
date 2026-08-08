@@ -1,6 +1,6 @@
 "use client";
 
-import { ShieldCheck, Cpu, Radar, BookOpen, Activity } from "lucide-react";
+import { ShieldCheck, ClipboardClock, Radar, BookText, Activity } from "lucide-react";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 import { User } from "firebase/auth";
 
@@ -55,9 +55,7 @@ export default function StatsBar({
         {/* Stat 1: SIG_DECODED */}
         <div className="bg-black/60 border border-panel-border hover:border-blue/50 p-3 relative group hover:bg-blue/5 transition-all duration-300 flex items-center gap-4 overflow-hidden cursor-default">
           <CyberBrackets color="border-blue/30 group-hover:border-blue transition-colors duration-300" />
-          {/* Animated Left Bar */}
           <div className="absolute left-0 top-0 w-1 h-full bg-blue scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--color-blue)]" />
-          {/* Sweep Light */}
           <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-blue/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
           
           <div className="w-10 h-10 bg-blue/5 border border-blue/20 group-hover:border-blue/50 group-hover:shadow-[0_0_15px_color-mix(in_srgb,var(--color-blue)_30%,transparent)] flex items-center justify-center text-blue shrink-0 relative transition-all duration-300">
@@ -79,7 +77,7 @@ export default function StatsBar({
           <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-green/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
           
           <div className="w-10 h-10 bg-green/5 border border-green/20 group-hover:border-green/50 group-hover:shadow-[0_0_15px_color-mix(in_srgb,var(--color-green)_30%,transparent)] flex items-center justify-center text-green shrink-0 relative transition-all duration-300">
-            <Cpu className="w-5 h-5 relative z-10 opacity-60 group-hover:opacity-100 group-hover:scale-110 group-hover:animate-pulse transition-all duration-300" />
+            <ClipboardClock className="w-5 h-5 relative z-10 opacity-60 group-hover:opacity-100 group-hover:scale-110 group-hover:animate-pulse transition-all duration-300" />
           </div>
           <div className="flex flex-col relative z-10">
             <span className="block text-[9px] font-mono text-text-dim group-hover:text-green/80 tracking-widest mb-1 uppercase transition-colors duration-300">UNKNOWN</span>
@@ -115,7 +113,7 @@ export default function StatsBar({
           <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-yellow/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
           
           <div className="w-10 h-10 bg-yellow/5 border border-yellow/20 group-hover:border-yellow/50 group-hover:shadow-[0_0_15px_color-mix(in_srgb,var(--color-yellow)_30%,transparent)] flex items-center justify-center text-yellow shrink-0 relative transition-all duration-300">
-            <BookOpen className="w-5 h-5 relative z-10 opacity-60 group-hover:opacity-100 group-hover:scale-110 group-hover:animate-pulse transition-all duration-300" />
+            <BookText className="w-5 h-5 relative z-10 opacity-60 group-hover:opacity-100 group-hover:scale-110 group-hover:animate-pulse transition-all duration-300" />
           </div>
           <div className="flex flex-col relative z-10">
             <span className="block text-[9px] font-mono text-text-dim group-hover:text-yellow/80 tracking-widest mb-1 uppercase transition-colors duration-300">CODEX</span>
