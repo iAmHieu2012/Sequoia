@@ -79,33 +79,15 @@ fun Application.configureRouting() {
             }
             
             // --- Admin endpoints ---
-            // Bypassing Kborowy auth library entirely for admin endpoints
-            route("/admin") {
-                install(createRouteScopedPlugin("AdminAuth") {
-                    onCall { call ->
-                        val authHeader = call.request.headers["Authorization"]
-                        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                            call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Missing or invalid token"))
-                            return@onCall
-                        }
-                        
-                        val tokenString = authHeader.removePrefix("Bearer ").trim()
-                        try {
-                            val decodedToken = com.google.firebase.auth.FirebaseAuth.getInstance().verifyIdToken(tokenString)
-                            // We can check claims here if needed
-                            // val isAdminClaim = decodedToken.claims["isAdmin"]
-                            // if (isAdminClaim != true && isAdminClaim?.toString()?.toBoolean() != true) {
-                            //    call.respond(HttpStatusCode.Forbidden, mapOf("error" to "Admin privileges required"))
-                            //    return@onCall
-                            // }
-                            
-                            // Proceed as admin
-                        } catch (e: Exception) {
-                            call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Invalid token: ${e.message}"))
-                            return@onCall
+            authenticate {
+                route("/admin") {
+                    intercept(io.ktor.server.application.ApplicationCallPipeline.Call) {
+                        val user = call.principal<MyAuthenticatedUser>()
+                        if (user?.isAdmin != true) {
+                            call.respond(io.ktor.http.HttpStatusCode.Forbidden, mapOf("error" to "Admin privileges required"))
+                            finish()
                         }
                     }
-                })
 
                     post("/articles") {
                         val requestParams = call.receive<CreateArticleRequest>()
@@ -186,6 +168,7 @@ fun Application.configureRouting() {
                         }
                     }
                 }
+            }
             
             get("/models") {
                 val models = contentService.getModels()
