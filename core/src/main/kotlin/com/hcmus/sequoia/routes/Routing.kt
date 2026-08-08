@@ -28,7 +28,7 @@ fun Application.configureRouting() {
                 call.respond(mapOf("status" to "ok", "service" to "sequoia-core"))
             }
 
-            configureSeeder() // Uncomment this line to re-seed the database if needed
+            // configureSeeder() // Uncomment this line to re-seed the database if needed
 
             // --- Textbooks ---
             get("/textbooks") {

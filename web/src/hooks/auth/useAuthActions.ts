@@ -5,7 +5,8 @@ import {
   createUserWithEmailAndPassword, 
   GoogleAuthProvider, 
   signInWithPopup, 
-  sendPasswordResetEmail 
+  sendPasswordResetEmail,
+  updateProfile
 } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { initializeUserRecord } from '@/lib/services/auth';
@@ -41,6 +42,7 @@ export function useAuthActions() {
       } else {
         if (!name?.trim()) throw new Error("DISPLAY_NAME is required for registration.");
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(userCredential.user, { displayName: name.trim() });
         await initializeUserRecord(userCredential.user, name);
       }
       router.push('/dashboard');

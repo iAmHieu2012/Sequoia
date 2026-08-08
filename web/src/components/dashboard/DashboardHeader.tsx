@@ -8,8 +8,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
+import CommandCenterPanel from "./CommandCenterPanel";
+
 export default function DashboardHeader() {
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
+  const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -19,9 +22,7 @@ export default function DashboardHeader() {
     return () => clearInterval(timer);
   }, []);
 
-  const handleLogout = async () => {
-    await signOut(auth);
-  };
+  // Logout is now handled inside CommandCenterPanel
 
   return (
     <header className="relative z-50 flex items-center justify-between px-6 py-3 border-b border-panel-border uppercase tracking-wider">
@@ -47,32 +48,44 @@ export default function DashboardHeader() {
         </div>
 
         <div className="bg-black/80 border border-panel-border px-4 py-2 flex items-center gap-4">
-          <div className="flex flex-col">
-            <span className="text-[9px] font-mono text-text-dim tracking-widest mb-1 uppercase">ID_ENTITY</span>
-            <span className="text-xs font-heading text-white flex items-center gap-2 font-bold tracking-widest">
-              <UserIcon className="w-3.5 h-3.5 text-system" />
-              {user ? user.displayName?.toUpperCase() || 'USER_NODE' : 'GUEST_ACCESS'}
-            </span>
-          </div>
           
           {user ? (
             <button 
-              onClick={handleLogout}
-              className="px-3 py-1.5 border border-coral/30 hover:border-coral bg-coral/5 hover:bg-coral/20 text-coral text-[10px] font-mono tracking-widest uppercase transition-colors flex items-center gap-2"
+              onClick={() => setIsCommandCenterOpen(true)}
+              className="flex items-center gap-4 hover:bg-white/5 transition-colors p-1 -m-1 rounded group cursor-pointer text-left"
             >
-              <LogOut className="w-3 h-3" />
-              TERMINATE
+              <div className="flex flex-col">
+                <span className="text-[9px] font-mono text-text-dim group-hover:text-system transition-colors tracking-widest mb-1 uppercase">ID_ENTITY</span>
+                <span className="text-xs font-heading text-white flex items-center gap-2 font-bold tracking-widest">
+                  <UserIcon className="w-3.5 h-3.5 text-system" />
+                  {user.displayName?.toUpperCase() || 'USER_NODE'}
+                </span>
+              </div>
             </button>
           ) : (
-            <Link href="/auth">
-              <button className="px-3 py-1.5 border border-system/30 hover:border-system bg-system/5 hover:bg-system/20 text-system text-[10px] font-mono tracking-widest uppercase transition-colors flex items-center gap-2">
-                <Cpu className="w-3 h-3" />
-                ESTABLISH
-              </button>
-            </Link>
+            <div className="flex items-center gap-4">
+              <div className="flex flex-col">
+                <span className="text-[9px] font-mono text-text-dim tracking-widest mb-1 uppercase">ID_ENTITY</span>
+                <span className="text-xs font-heading text-white flex items-center gap-2 font-bold tracking-widest">
+                  <UserIcon className="w-3.5 h-3.5 text-system" />
+                  GUEST_ACCESS
+                </span>
+              </div>
+              <Link href="/auth">
+                <button className="px-3 py-1.5 border border-system/30 hover:border-system bg-system/5 hover:bg-system/20 text-system text-[10px] font-mono tracking-widest uppercase transition-colors flex items-center gap-2">
+                  <Cpu className="w-3 h-3" />
+                  ESTABLISH
+                </button>
+              </Link>
+            </div>
           )}
         </div>
       </div>
+
+      <CommandCenterPanel 
+        isOpen={isCommandCenterOpen} 
+        onClose={() => setIsCommandCenterOpen(false)} 
+      />
     </header>
   );
 }

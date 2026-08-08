@@ -127,10 +127,10 @@ export default function StatsBar({
         </div>
 
         {/* Stat 5: SYS_STATUS (Combined Streak & Progress) */}
-        <div className="bg-black/60 border border-panel-border hover:border-white/50 p-3 relative group hover:bg-white/5 transition-all duration-300 flex items-center gap-3 overflow-hidden cursor-default">
-          <CyberBrackets color="border-white/20 group-hover:border-white transition-colors duration-300" />
-          <div className="absolute left-0 top-0 w-1 h-full bg-white scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--color-white)]" />
-          <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
+        <div className="bg-black/60 border border-panel-border hover:border-grey/50 p-3 relative group hover:bg-grey/5 transition-all duration-300 flex items-center gap-3 overflow-hidden cursor-default">
+          <CyberBrackets color="border-grey/20 group-hover:border-grey transition-colors duration-300" />
+          <div className="absolute left-0 top-0 w-1 h-full bg-grey scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--color-grey)]" />
+          <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-grey/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
           
           {/* Left Icon: Circular Progress (No Text) */}
           <div className="w-10 h-10 relative flex items-center justify-center shrink-0">
@@ -139,32 +139,32 @@ export default function StatsBar({
               <circle cx="20" cy="20" r="16" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" 
                 strokeDasharray="100.5" strokeDashoffset={user ? (100.5 - (sysProgressPercent / 100) * 100.5) : 100.5}
                 strokeLinecap="round"
-                className="group-hover:stroke-white group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all duration-1000 ease-out" 
+                className="group-hover:stroke-grey group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all duration-1000 ease-out" 
               />
             </svg>
-            <Activity className="absolute w-4 h-4 text-white/50 group-hover:text-white group-hover:scale-110 group-hover:animate-pulse transition-all duration-300" />
+            <Activity className="absolute w-4 h-4 text-grey/50 group-hover:text-grey group-hover:scale-110 group-hover:animate-pulse transition-all duration-300" />
           </div>
 
           {/* Right Content: Dual Rows */}
           <div className="flex flex-col relative z-10 w-full pr-1">
             {/* Row 1: STREAK */}
             <div className="flex items-center justify-between w-full mb-1">
-              <span className="text-[9px] font-mono text-white/50 group-hover:text-white/80 transition-colors uppercase tracking-widest">STREAK</span>
+              <span className="text-[9px] font-mono text-grey/50 group-hover:text-grey/80 transition-colors uppercase tracking-widest">STREAK</span>
               <div className="flex items-baseline gap-1">
-                <span className="text-sm font-heading font-bold text-white/70 group-hover:drop-shadow-[0_0_5px_var(--color-white)] group-hover:text-white transition-all">{user ? (userProgress?.currentStreak || 0) : '---'}</span>
-                <span className="text-[8px] font-mono text-white/30 group-hover:text-white/70 transition-colors">CYC</span>
+                <span className="text-sm font-heading font-bold text-white group-hover:drop-shadow-[0_0_5px_var(--color-grey)] group-hover:text-grey transition-all">{user ? (userProgress?.currentStreak || 0) : '---'}</span>
+                <span className="text-[8px] font-mono text-grey/60 group-hover:text-grey transition-colors">CYC</span>
               </div>
             </div>
 
             {/* Divider */}
-            <div className="w-full h-[1px] bg-white/10 group-hover:bg-white/30 mb-1 transition-colors"></div>
+            <div className="w-full h-[1px] bg-white/10 group-hover:bg-grey/30 mb-1 transition-colors"></div>
 
             {/* Row 2: PROGRESS */}
             <div className="flex items-center justify-between w-full">
-              <span className="text-[9px] font-mono text-white/50 group-hover:text-white/80 transition-colors uppercase tracking-widest">PROGRESS</span>
+              <span className="text-[9px] font-mono text-grey/50 group-hover:text-grey/80 transition-colors uppercase tracking-widest">PROGRESS</span>
               <div className="flex items-baseline gap-1">
-                <span className="text-sm font-heading font-bold text-white/70 group-hover:drop-shadow-[0_0_5px_var(--color-white)] group-hover:text-white transition-all">{user ? sysProgressPercent : '--'}</span>
-                <span className="text-[8px] font-mono text-white/30 group-hover:text-white/70 transition-colors">%</span>
+                <span className="text-sm font-heading font-bold text-white group-hover:drop-shadow-[0_0_5px_var(--color-grey)] group-hover:text-grey transition-all">{user ? sysProgressPercent : '--'}</span>
+                <span className="text-[8px] font-mono text-grey/60 group-hover:text-grey transition-colors">%</span>
               </div>
             </div>
           </div>
