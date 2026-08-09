@@ -146,7 +146,13 @@ Sequoia was built with a profound passion for Sci-Fi/Cyberpunk aesthetics, aimin
 
 export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPanelProps) {
   const { user } = useAuth();
-  const [activeTheme, setActiveTheme] = useState("system");
+  const [activeTheme, setActiveTheme] = useState(() => {
+    if (typeof document !== 'undefined') {
+      const match = document.cookie.match(/(?:^|; )sequoia_theme=([^;]*)/);
+      if (match) return decodeURIComponent(match[1]);
+    }
+    return "system";
+  });
   const [wheelRotation, setWheelRotation] = useState(0);
   const [activeView, setActiveView] = useState<'main' | 'privacy' | 'terms' | 'about'>('main');
   const [isDecrypted, setIsDecrypted] = useState(false);
@@ -173,10 +179,12 @@ export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPan
 
     if (activeTheme === "system") {
       colorVars.forEach(v => root.style.removeProperty(v));
+      document.cookie = "sequoia_theme=system; path=/; max-age=31536000";
     } else {
       const selectedHex = THEMES.find(t => t.id === activeTheme)?.hex;
       if (selectedHex) {
         colorVars.forEach(v => root.style.setProperty(v, selectedHex));
+        document.cookie = `sequoia_theme=${activeTheme}; path=/; max-age=31536000`;
       }
     }
   }, [activeTheme]);
