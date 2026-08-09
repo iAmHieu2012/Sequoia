@@ -610,7 +610,7 @@ export default function GenesisPage() {
 
             <div className="w-full h-full relative">
               <div className={`absolute inset-0 transition-opacity duration-300 ${rightPanelMode === 'map' ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'}`}>
-                <div className="w-full h-full grayscale opacity-70">
+                <div className="w-full h-full">
                   <CosmosMapEditor 
                     className="w-full h-full"
                     targetX={hoverTarget.x} 
