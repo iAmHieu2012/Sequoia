@@ -49,7 +49,7 @@ export function useModelLoader(
       
       setLogs(prev => [...prev, "> DOWNLOADING MODEL DATA..."]);
       
-      const loadedModel = await loadAndCompile(modelData.fileUrl);
+      const loadedModel = await loadAndCompile(modelData.file_url);
       compiledModelRef.current = loadedModel;
       setCompiledModelReady(true);
       
@@ -68,9 +68,9 @@ export function useModelLoader(
       .then(res => res.json())
       .then(async data => {
         const modelData = data.data;
-        if (modelData.metadataUrl) {
+        if (modelData.metadata_url) {
           try {
-            const metaRes = await fetch(modelData.metadataUrl);
+            const metaRes = await fetch(modelData.metadata_url);
             const metaJson = await metaRes.json();
             modelData.labels = metaJson.labels;
             modelData.inputSize = metaJson.input_size;

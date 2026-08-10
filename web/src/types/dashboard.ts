@@ -2,6 +2,8 @@ export interface Textbook {
   id: string;
   title: string;
   description: string;
+  pdf_url?: string;
+  cover_image_url?: string;
   authors: string[];
 }
 
@@ -9,14 +11,14 @@ export interface Chapter {
   id: string;
   title: string;
   description: string;
-  articleCount: number;
+  article_count: number;
 }
 
 export interface Topic {
   id: string;
   name: string;
   description: string;
-  articleCount: number;
+  article_count: number;
 }
 
 export interface Article {
@@ -40,8 +42,8 @@ export interface AiModel {
   id: string;
   name: string;
   description: string;
-  taskType: string;
-  fileUrl: string;
+  task_type: string;
+  file_url: string;
   version: string;
   format: string;
 }

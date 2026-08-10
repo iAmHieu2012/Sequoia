@@ -79,7 +79,7 @@ export default function Playground() {
           <div className="flex flex-col items-end">
             <span className="text-[9px] font-mono text-text-dim tracking-widest uppercase">TASK_TYPE</span>
             <span className="text-xs font-mono text-system tracking-widest uppercase bg-system/10 px-2 py-0.5 border border-system/20">
-              {model.taskType.replace(/_/g, ' ')}
+              {model.task_type.replace(/_/g, ' ')}
             </span>
           </div>
           <div className="w-[1px] h-8 bg-panel-border" />

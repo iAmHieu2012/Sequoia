@@ -24,10 +24,10 @@ export default function TextbookForge({ onClose, onSave, initialData }: Textbook
       setEntityId(initialData.id || '');
       setTitle(initialData.title || '');
       setAuthors(initialData.authors?.join(', ') || '');
-      setCoverImageUrl(initialData.coverImageUrl || '');
-      setPdfUrl(initialData.pdfUrl || '');
+      setCoverImageUrl(initialData.cover_image_url || '');
+      setPdfUrl(initialData.pdf_url || '');
       setDescription(initialData.description || '');
-      setSortOrder(initialData.sortOrder?.toString() || '99');
+      setSortOrder(initialData.sort_order?.toString() || '99');
     }
   }, [initialData]);
 
@@ -37,9 +37,9 @@ export default function TextbookForge({ onClose, onSave, initialData }: Textbook
       title, 
       description, 
       authors: authors.split(',').map(a => a.trim()).filter(Boolean), 
-      coverImageUrl, 
-      pdfUrl,
-      sortOrder: parseInt(sortOrder) || 99
+      cover_image_url: coverImageUrl, 
+      pdf_url: pdfUrl,
+      sort_order: parseInt(sortOrder) || 99
     });
   };
 

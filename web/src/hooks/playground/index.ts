@@ -10,9 +10,9 @@ export interface AiModel {
   id: string;
   name: string;
   description: string;
-  taskType: string;
-  fileUrl: string;
-  metadataUrl: string;
+  task_type: string;
+  file_url: string;
+  metadata_url: string;
   version: string;
   format: string;
   labels?: string[];

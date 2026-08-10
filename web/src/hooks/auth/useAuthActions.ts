@@ -1,28 +1,11 @@
 import { useState } from 'react';
-import { auth } from '@/lib/firebase';
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  GoogleAuthProvider, 
-  signInWithPopup, 
-  sendPasswordResetEmail,
-  updateProfile
-} from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { initializeUserRecord } from '@/lib/services/auth';
+import { createClient } from '@/utils/supabase/client';
 
-export const mapFirebaseError = (errorCode: string): string => {
-  switch (errorCode) {
-    case 'auth/email-already-in-use': return 'EMAIL_ALREADY_REGISTERED';
-    case 'auth/invalid-credential': return 'INVALID_CREDENTIALS';
-    case 'auth/user-not-found': return 'USER_NOT_FOUND';
-    case 'auth/wrong-password': return 'INVALID_PASSWORD';
-    case 'auth/network-request-failed': return 'NETWORK_CONNECTION_FAILED';
-    case 'auth/too-many-requests': return 'TOO_MANY_ATTEMPTS._TRY_LATER';
-    case 'auth/invalid-email': return 'INVALID_EMAIL_FORMAT';
-    case 'auth/weak-password': return 'PASSWORD_TOO_WEAK';
-    default: return 'AUTHENTICATION_FAILED';
-  }
+export const mapSupabaseError = (errorMessage: string): string => {
+  if (errorMessage.includes('Invalid login credentials')) return 'INVALID_CREDENTIALS';
+  if (errorMessage.includes('User already registered')) return 'EMAIL_ALREADY_REGISTERED';
+  return errorMessage || 'AUTHENTICATION_FAILED';
 };
 
 export function useAuthActions() {
@@ -30,6 +13,7 @@ export function useAuthActions() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const supabase = createClient();
 
   const handleEmailAuth = async (isLogin: boolean, email: string, password: string, name?: string) => {
     setError('');
@@ -38,16 +22,25 @@ export function useAuthActions() {
     
     try {
       if (isLogin) {
-        await signInWithEmailAndPassword(auth, email, password);
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
       } else {
         if (!name?.trim()) throw new Error("DISPLAY_NAME is required for registration.");
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        await updateProfile(userCredential.user, { displayName: name.trim() });
-        await initializeUserRecord(userCredential.user, name);
+        const { error } = await supabase.auth.signUp({ 
+          email, 
+          password,
+          options: {
+            data: {
+              name: name.trim(),
+              full_name: name.trim()
+            }
+          }
+        });
+        if (error) throw error;
       }
       router.push('/dashboard');
     } catch (err: any) {
-      setError(mapFirebaseError(err.code) || err.message);
+      setError(mapSupabaseError(err.message));
     } finally {
       setLoading(false);
     }
@@ -58,15 +51,15 @@ export function useAuthActions() {
     setMessage('');
     setLoading(true);
     try {
-      const provider = new GoogleAuthProvider();
-      const userCredential = await signInWithPopup(auth, provider);
-      await initializeUserRecord(userCredential.user, userCredential.user.displayName || '');
-      router.push('/dashboard');
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        }
+      });
+      if (error) throw error;
     } catch (err: any) {
-      if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
-        setError(mapFirebaseError(err.code) || err.message);
-      }
-    } finally {
+      setError(mapSupabaseError(err.message));
       setLoading(false);
     }
   };
@@ -81,7 +74,10 @@ export function useAuthActions() {
     setMessage('');
     setLoading(true);
     try {
-      await sendPasswordResetEmail(auth, email);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/update-password`,
+      });
+      if (error) throw error;
       setMessage("RESET_LINK_DISPATCHED_TO_EMAIL");
     } catch (err: any) {
       setError(err.message || 'FAILED_TO_DISPATCH_RESET_LINK');

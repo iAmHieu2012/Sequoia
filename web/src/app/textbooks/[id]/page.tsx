@@ -10,19 +10,30 @@ interface Textbook {
   id: string;
   title: string;
   description: string;
-  pdfUrl: string;
-  coverImageUrl: string;
+  pdf_url: string;
+  cover_image_url: string;
   authors: string[];
 }
 
+import { supabaseAdmin } from "@/utils/supabase/admin";
+
 const getTextbook = cache(async (id: string): Promise<Textbook | null> => {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080'}/api/v1/textbooks/${id}`, { 
-      next: { revalidate: 3600 } 
-    });
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.data;
+    const { data, error } = await supabaseAdmin
+      .from('textbooks')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error || !data) return null;
+    return {
+      id: data.id,
+      title: data.title,
+      description: data.description,
+      pdf_url: data.pdf_url,
+      cover_image_url: data.cover_image_url,
+      authors: data.authors
+    } as Textbook;
   } catch (error) {
     console.error("Error fetching textbook:", error);
     return null;
@@ -30,13 +41,10 @@ const getTextbook = cache(async (id: string): Promise<Textbook | null> => {
 });
 
 export async function generateStaticParams() {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080';
   try {
-    const res = await fetch(`${baseUrl}/api/v1/textbooks`);
-    if (res.ok) {
-      const json = await res.json();
-      const textbooks: Textbook[] = json.data || [];
-      return textbooks.map(t => ({ id: t.id }));
+    const { data } = await supabaseAdmin.from('textbooks').select('id');
+    if (data) {
+      return data.map(t => ({ id: t.id }));
     }
   } catch (e) {
     console.error("Failed to generate static params for textbooks", e);
@@ -113,7 +121,7 @@ export default async function TextbookPage({ params }: { params: Promise<{ id: s
           
           <div className="flex-1 w-full h-full p-1 relative z-10 bg-black/80">
             <iframe 
-                src={textbook.pdfUrl} 
+                src={textbook.pdf_url} 
                 className="w-full h-full border-0 rounded-sm"
                 title={textbook.title}
                 allowFullScreen

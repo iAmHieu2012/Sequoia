@@ -6,8 +6,8 @@ interface AiModel {
   id: string;
   name: string;
   description: string;
-  taskType: string;
-  fileUrl: string;
+  task_type: string;
+  file_url: string;
   version: string;
   format: string;
 }
@@ -50,7 +50,7 @@ export default function InferenceLabs({
                 <div className="relative z-10">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="font-heading text-sm font-bold text-red group-hover:text-red group-hover:drop-shadow-[0_0_8px_var(--color-red)] transition-all duration-300 tracking-wide uppercase">{model.name}</h3>
-                    <div className="text-[9px] font-mono bg-red/10 text-red px-1.5 py-0.5 border border-red/20">{model.taskType.replace(/_/g, ' ')}</div>
+                    <div className="text-[9px] font-mono bg-red/10 text-red px-1.5 py-0.5 border border-red/20">{model.task_type.replace(/_/g, ' ')}</div>
                   </div>
                   <p className="text-text-dim text-xs font-mono leading-relaxed normal-case line-clamp-2 mb-4">
                     &gt; {model.description}

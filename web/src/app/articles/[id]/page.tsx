@@ -16,12 +16,24 @@ interface Article {
   tags: string[];
 }
 
+import { supabaseAdmin } from "@/utils/supabase/admin";
+
 const getArticle = cache(async (id: string): Promise<Article | null> => {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080'}/api/v1/articles/${id}`);
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.data;
+    const { data, error } = await supabaseAdmin
+      .from('articles')
+      .select('*, article_contents(content)')
+      .eq('id', id)
+      .single();
+
+    if (error || !data) return null;
+    
+    return {
+      ...data,
+      content: Array.isArray(data.article_contents) 
+        ? data.article_contents[0]?.content || ''
+        : data.article_contents?.content || ''
+    } as Article;
   } catch (error) {
     console.error("Error fetching article:", error);
     return null;
@@ -29,31 +41,12 @@ const getArticle = cache(async (id: string): Promise<Article | null> => {
 });
 
 export async function generateStaticParams() {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080';
   const ids: { id: string }[] = [];
 
   try {
-    // 1. Fetch standalone articles
-    const rogueRes = await fetch(`${baseUrl}/api/v1/articles/standalone`);
-    if (rogueRes.ok) {
-      const rogueJson = await rogueRes.json();
-      const articles = rogueJson.data || [];
-      articles.forEach((a: any) => ids.push({ id: a.id }));
-    }
-
-    // 2. Fetch all topics and their articles
-    const tpRes = await fetch(`${baseUrl}/api/v1/topics`);
-    if (tpRes.ok) {
-      const tpJson = await tpRes.json();
-      const topics = tpJson.data || [];
-      for (const topic of topics) {
-        const tArtRes = await fetch(`${baseUrl}/api/v1/topics/${topic.id}/articles`);
-        if (tArtRes.ok) {
-          const tArtJson = await tArtRes.json();
-          const articles = tArtJson.data || [];
-          articles.forEach((a: any) => ids.push({ id: a.id }));
-        }
-      }
+    const { data } = await supabaseAdmin.from('articles').select('id');
+    if (data) {
+      data.forEach(a => ids.push({ id: a.id }));
     }
   } catch (e) {
     console.error("Failed to generate static params", e);
@@ -165,7 +158,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
             <MarkdownRenderer content={article.content} />
           </div>
 
-          <ArticleProgressToggle articleId={article.id} />
+          <ArticleProgressToggle article_id={article.id} />
         </article>
       </main>
     </div>

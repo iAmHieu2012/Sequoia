@@ -19,12 +19,12 @@ export default function TopicForge({ onClose, onSave, initialData }: TopicForgeP
     if (initialData) {
       setName(initialData.name || '');
       setDescription(initialData.description || '');
-      setSortOrder(initialData.sortOrder?.toString() || '99');
+      setSortOrder(initialData.sort_order?.toString() || '99');
     }
   }, [initialData]);
 
   const handleSave = () => {
-    onSave({ name, description, sortOrder: parseInt(sortOrder) || 99 });
+    onSave({ name, description, sort_order: parseInt(sortOrder) || 99 });
   };
 
   return (

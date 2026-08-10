@@ -177,21 +177,21 @@ export function useInference({
           const currentThreshold = thresholdRef.current / 100.0;
           const currentIou = iouThresholdRef.current / 100.0;
 
-          if (currentModel.taskType === 'image-classification' && outShape.length >= 2) {
+          if (currentModel.task_type === 'image-classification' && outShape.length >= 2) {
             renderClassification(dCtx, outData, outShape, currentModel.labels || [], displayCanvas.width);
           } 
           else if (outShape.length === 3) {
             const { boxes, numClasses } = parseYoloBoxes(
-              outData, outShape, currentModel.taskType, currentThreshold, currentIou,
+              outData, outShape, currentModel.task_type, currentThreshold, currentIou,
               width, height, scaleX, scaleY
             );
 
             for (const b of boxes) {
-              if (currentModel.taskType === 'instance-segmentation' && b.maskCoeffs && protoData) {
+              if (currentModel.task_type === 'instance-segmentation' && b.maskCoeffs && protoData) {
                 renderSegmentation(dCtx, b, protoData, protoShape, displayCanvas.width, displayCanvas.height);
               }
               
-              if (currentModel.taskType === 'pose-estimation') {
+              if (currentModel.task_type === 'pose-estimation') {
                 renderPose(dCtx, b);
               } else {
                 renderDetection(dCtx, b, numClasses, currentModel.labels);

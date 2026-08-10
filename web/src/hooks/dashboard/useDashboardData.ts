@@ -67,10 +67,7 @@ export function useDashboardData(activeTab: string) {
 
     const fetchProgress = async () => {
       try {
-        const token = await user.getIdToken();
-        const progressRes = await fetch('/api/v1/users/progress/summary', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const progressRes = await fetch('/api/v1/users/progress/summary');
         const progressJson = await progressRes.json();
         if (progressJson.data) {
           setProgressSummary(progressJson.data);

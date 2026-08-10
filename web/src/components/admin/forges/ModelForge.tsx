@@ -25,20 +25,20 @@ export default function ModelForge({ onClose, onSave, initialData }: ModelForgeP
     if (initialData) {
       setEntityId(initialData.id || '');
       setName(initialData.name || '');
-      setTaskType(initialData.taskType || '');
-      setFileUrl(initialData.fileUrl || '');
-      setMetadataUrl(initialData.metadataUrl || '');
+      setTaskType(initialData.task_type || '');
+      setFileUrl(initialData.file_url || '');
+      setMetadataUrl(initialData.metadata_url || '');
       setVersion(initialData.version || '1.0');
       setDescription(initialData.description || '');
       setFormat(initialData.format || 'litert');
-      setFileSizeBytes(initialData.fileSizeBytes?.toString() || '0');
+      setFileSizeBytes(initialData.file_size_bytes?.toString() || '0');
     }
   }, [initialData]);
 
   const handleSave = () => {
     onSave({ 
-      id: entityId, name, description, taskType, fileUrl, metadataUrl, version, format, 
-      fileSizeBytes: parseInt(fileSizeBytes) || 0 
+      id: entityId, name, description, task_type: taskType, file_url: fileUrl, metadata_url: metadataUrl, version, format, 
+      file_size_bytes: parseInt(fileSizeBytes) || 0 
     });
   };
 

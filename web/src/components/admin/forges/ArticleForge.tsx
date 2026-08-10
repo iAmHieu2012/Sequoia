@@ -40,14 +40,14 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
     if (initialData) {
       setEntityId(initialData.id || '');
       setTitle(initialData.title || '');
-      setCategory(initialData.topicId || '');
+      setCategory(initialData.topic_id || '');
       setSummary(initialData.summary || '');
       setContent(initialData.content || '');
       setTags(initialData.tags?.join(', ') || '');
       setX(initialData.x?.toString() || '');
       setY(initialData.y?.toString() || '');
       setConnections(initialData.connections?.join(', ') || '');
-      setIsPublished(initialData.isPublished !== false);
+      setIsPublished(initialData.is_published !== false);
     }
   }, [initialData]);
 
@@ -107,13 +107,13 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
   const handleSave = () => {
     onSave({ 
       id: entityId || undefined,
-      title, topicId: category, summary, content,
+      title, topic_id: category, summary, content,
       tags: tags.split(',').map(t => t.trim()).filter(Boolean),
       x: parseFloat(x) || 0,
       y: parseFloat(y) || 0,
       connections: connections.split(',').map(c => c.trim()).filter(Boolean),
-      celestialType: isAnomaly ? 'anomaly' : 'star',
-      isPublished
+      celestial_type: isAnomaly ? 'anomaly' : 'star',
+      is_published: isPublished
     });
   };
 
@@ -206,11 +206,11 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
                 className="w-full h-full"
                 hideSaveButton={true}
                 draftNode={{
-                  articleId: entityId || 'draft-node',
+                  article_id: entityId || 'draft-node',
                   title: title || 'UNTITLED DRAFT',
                   x: !isNaN(parseFloat(x)) ? parseFloat(x) : 5000,
                   y: !isNaN(parseFloat(y)) ? parseFloat(y) : 5000,
-                  celestialType: isAnomaly ? 'anomaly' : 'article',
+                  celestial_type: isAnomaly ? 'anomaly' : 'article',
                   connections: connections.split(',').map(c => c.trim()).filter(Boolean)
                 } as any}
                 onDraftNodeDrag={(newX: number, newY: number) => {

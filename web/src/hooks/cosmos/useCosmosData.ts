@@ -1,11 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { auth } from '@/lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface CosmosNode {
-  articleId: string;
+  article_id: string;
   title: string;
-  celestialType: string;
+  celestial_type: string;
   x: number;
   y: number;
   connections: string[];
@@ -13,51 +12,53 @@ export interface CosmosNode {
 
 export interface CosmosMap {
   id: string;
-  mapType: string;
+  map_type: string;
   theme: string;
   nodes: CosmosNode[];
 }
 
 export interface UserProgress {
-  userId: string;
-  completedArticleIds: string[];
-  currentStreak?: number;
-  longestStreak?: number;
-  activeDates?: string[];
+  id: string;
+  completed_article_ids: string[];
+  current_streak?: number;
+  longest_streak?: number;
+  active_dates?: string[];
 }
 
 export default function useCosmosData(mapId?: string, refreshKey?: number) {
+  const { user } = useAuth();
   const [mapData, setMapData] = useState<CosmosMap | null>(null);
   const [userProgress, setUserProgress] = useState<UserProgress | null>(null);
 
   useEffect(() => {
     if (mapId) {
+      setMapData(null); // Clear previous map while fetching
       const fetchMap = async () => {
         try {
           const res = await fetch(`/api/v1/cosmos/maps/${mapId}`);
           const data = await res.json();
           if (data.data) {
             setMapData(data.data);
+          } else {
+            setMapData(null);
           }
         } catch (err) {
           console.error(err);
+          setMapData(null);
         }
       };
       fetchMap();
+    } else {
+      setMapData(null);
     }
   }, [mapId, refreshKey]);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
+    if (user) {
+      const fetchProgress = async () => {
         try {
-          const token = await user.getIdToken();
-          // Extract the local date string (YYYY-MM-DD) natively
           const localDate = new Date().toLocaleDateString('en-CA');
-          
-          const res = await fetch(`/api/v1/users/progress?localDate=${localDate}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
+          const res = await fetch(`/api/v1/users/progress?localDate=${localDate}`);
           const data = await res.json();
           if (data.data) {
             setUserProgress(data.data);
@@ -65,17 +66,17 @@ export default function useCosmosData(mapId?: string, refreshKey?: number) {
         } catch (err) {
           console.error('User not authenticated or no progress yet');
         }
-      } else {
-        setUserProgress(null);
-      }
-    });
+      };
+      fetchProgress();
+    } else {
+      setUserProgress(null);
+    }
+  }, [user]);
 
-    return () => unsubscribe();
-  }, []);
-
-  const getNodeStatus = useCallback((articleId: string) => {
+  const getNodeStatus = useCallback((article_id: string) => {
     if (!userProgress) return false;
-    return userProgress.completedArticleIds?.includes(articleId);
+    const arr = userProgress.completed_article_ids;
+    return arr?.includes(article_id) || false;
   }, [userProgress]);
 
   return { mapData, userProgress, getNodeStatus };

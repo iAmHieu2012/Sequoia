@@ -1,8 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { User } from "@supabase/supabase-js";
+import { createClient } from "@/utils/supabase/client";
 
 interface AuthContextType {
   user: User | null;
@@ -22,27 +22,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const supabase = createClient();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        try {
-          const token = await currentUser.getIdTokenResult();
-          setIsAdmin(token.claims.isAdmin === true);
-        } catch (error) {
-          console.error("Error fetching token claims:", error);
-          setIsAdmin(false);
-        }
-      } else {
-        setUser(null);
-        setIsAdmin(false);
-      }
+    const fetchSession = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user ?? null);
+      setIsAdmin(user?.app_metadata?.is_admin === true);
+      setLoading(false);
+    };
+
+    fetchSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setIsAdmin(session?.user?.app_metadata?.is_admin === true);
       setLoading(false);
     });
 
-    return () => unsubscribe();
-  }, []);
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [supabase]);
 
   return (
     <AuthContext.Provider value={{ user, isAdmin, loading }}>

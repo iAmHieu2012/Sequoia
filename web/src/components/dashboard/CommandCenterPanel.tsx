@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { User, LogOut, Settings, Palette, GitBranch, Shield, FileText, ChevronRight, ChevronLeft, X, Cpu, Activity, Terminal } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { createClient } from "@/utils/supabase/client";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 
 interface CommandCenterPanelProps {
@@ -145,6 +145,7 @@ TECHNICAL ARCHITECTURE (TECH STACK):
 Sequoia was built with a profound passion for Sci-Fi/Cyberpunk aesthetics, aiming to deliver a premium, game-like user experience within a functional, modern web application.`;
 
 export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPanelProps) {
+  const router = useRouter();
   const { user } = useAuth();
   const [activeTheme, setActiveTheme] = useState(() => {
     if (typeof document !== 'undefined') {
@@ -187,7 +188,8 @@ export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPan
         document.cookie = `sequoia_theme=${activeTheme}; path=/; max-age=31536000`;
       }
     }
-  }, [activeTheme]);
+    router.refresh();
+  }, [activeTheme, router]);
 
   // Calculate shortest path for wheel rotation
   useEffect(() => {
@@ -211,7 +213,8 @@ export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPan
   if (!isOpen) return null;
 
   const handleLogout = async () => {
-    await signOut(auth);
+    const supabase = createClient();
+    await supabase.auth.signOut();
     onClose();
   };
 
@@ -278,15 +281,15 @@ export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPan
                   <CyberBrackets color="border-system/40" />
                   <div className="flex items-start gap-4">
                     <div className="w-16 h-16 bg-system/10 border border-system flex items-center justify-center shrink-0 shadow-[0_0_10px_var(--color-system)]">
-                      {user?.photoURL ? (
-                        <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" />
+                      {user?.user_metadata?.avatar_url ? (
+                        <img src={user.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
                       ) : (
                         <User className="w-8 h-8 text-system" />
                       )}
                     </div>
                     <div className="flex flex-col gap-1 overflow-hidden py-1">
                       <span className="text-white font-bold truncate text-lg">
-                        {user?.displayName || "GUEST_USER"}
+                        {user?.user_metadata?.name || user?.email?.split('@')[0] || "GUEST_USER"}
                       </span>
                       <span className="text-system/70 text-xs truncate">
                         {user?.email || "NO_AUTH_EMAIL"}

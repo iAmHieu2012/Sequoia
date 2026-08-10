@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { createClient } from "@/utils/supabase/client";
 
 import CyberGrid from '@/components/ui/CyberGrid';
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
@@ -50,7 +49,8 @@ export default function Dashboard() {
   }, [topics, mapTarget.mapId]);
 
   const handleLogout = async () => {
-    await signOut(auth);
+    const supabase = createClient();
+    await supabase.auth.signOut();
     setShowProfileMenu(false);
   };
 

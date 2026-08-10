@@ -85,7 +85,7 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
     
     const onMouseMove = (e: MouseEvent) => {
       if (draggingNodeId) {
-        if (draftNodeRef.current && draggingNodeId === draftNodeRef.current.articleId && onDraftNodeDragRef.current) {
+        if (draftNodeRef.current && draggingNodeId === draftNodeRef.current.article_id && onDraftNodeDragRef.current) {
           const dn = draftNodeRef.current;
           let newX = (dn.x || 0) + e.movementX / currentScaleRef.current;
           let newY = (dn.y || 0) + e.movementY / currentScaleRef.current;
@@ -94,7 +94,7 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
           onDraftNodeDragRef.current(newX, newY);
         } else {
           setLocalNodes(nodes => nodes.map(n => {
-            if (n.articleId === draggingNodeId) {
+            if (n.article_id === draggingNodeId) {
               let newX = n.x + e.movementX / currentScaleRef.current;
               let newY = n.y + e.movementY / currentScaleRef.current;
               newX = Math.max(0, Math.min(CANVAS_SIZE, newX));
@@ -126,8 +126,8 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
     if (draggingNodeId) return;
 
     if (activeNodeId) {
-      let activeNode = localNodes.find(n => n.articleId === activeNodeId);
-      if (!activeNode && draftNode && draftNode.articleId === activeNodeId) {
+      let activeNode = localNodes.find(n => n.article_id === activeNodeId);
+      if (!activeNode && draftNode && draftNode.article_id === activeNodeId) {
         activeNode = draftNode as CosmosNode;
       }
       
@@ -144,10 +144,9 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
     if (!mapId || localNodes.length === 0 || !user) return;
     setIsSaving(true);
     try {
-      const token = await user.getIdToken(true);
       const res = await fetch(`/api/v1/admin/cosmos/maps/${mapId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nodes: localNodes })
       });
       if (res.ok) alert("Map saved successfully!");
@@ -166,14 +165,14 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
       if (!linkingNodeId) {
         setLinkingNodeId(nodeId);
       } else if (linkingNodeId !== nodeId) {
-        if (draftNodeRef.current && linkingNodeId === draftNodeRef.current.articleId && onDraftNodeConnectionsChangeRef.current) {
+        if (draftNodeRef.current && linkingNodeId === draftNodeRef.current.article_id && onDraftNodeConnectionsChangeRef.current) {
           const dn = draftNodeRef.current;
           const hasConn = (dn.connections || []).includes(nodeId);
           const newConns = hasConn ? (dn.connections || []).filter((c: string) => c !== nodeId) : [...(dn.connections || []), nodeId];
           onDraftNodeConnectionsChangeRef.current(newConns);
         } else {
           setLocalNodes(nodes => nodes.map(n => {
-            if (n.articleId === linkingNodeId) {
+            if (n.article_id === linkingNodeId) {
               const hasConn = n.connections.includes(nodeId);
               return {
                 ...n,
@@ -193,8 +192,8 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
   };
 
   const renderNodes = [...localNodes];
-  if (draftNode && draftNode.articleId) {
-    const existingIndex = renderNodes.findIndex(n => n.articleId === draftNode.articleId);
+  if (draftNode && draftNode.article_id) {
+    const existingIndex = renderNodes.findIndex(n => n.article_id === draftNode.article_id);
     if (existingIndex !== -1) {
       renderNodes[existingIndex] = { ...renderNodes[existingIndex], ...draftNode };
     } else {
@@ -238,17 +237,17 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
           <svg className={`${styles.lightBeams} absolute inset-0 w-full h-full overflow-visible z-[2]`}>
             {renderNodes.flatMap(node =>
               (node.connections || []).map((connId: string) => {
-                const target = renderNodes.find(n => n.articleId === connId);
+                const target = renderNodes.find(n => n.article_id === connId);
                 if (!target) return null;
-                const beamType = node.celestialType === 'anomaly' ? styles.anomaly : styles.beamIlluminated;
-                return <line key={`${node.articleId}-${connId}`} x1={node.x} y1={node.y} x2={target.x} y2={target.y} className={`${styles.beam} ${beamType}`} />;
+                const beamType = node.celestial_type === 'anomaly' ? styles.anomaly : styles.beamIlluminated;
+                return <line key={`${node.article_id}-${connId}`} x1={node.x} y1={node.y} x2={target.x} y2={target.y} className={`${styles.beam} ${beamType}`} />;
               })
             )}
             {/* Draw temporary line when linking */}
             {linkingNodeId && (
               <line 
-                x1={renderNodes.find(n => n.articleId === linkingNodeId)?.x || 0} 
-                y1={renderNodes.find(n => n.articleId === linkingNodeId)?.y || 0} 
+                x1={renderNodes.find(n => n.article_id === linkingNodeId)?.x || 0} 
+                y1={renderNodes.find(n => n.article_id === linkingNodeId)?.y || 0} 
                 x2={1000} // temporary fallback, actual tracking requires window pointermove logic, which is complex, we just skip dynamic line for simplicity
                 y2={1000} 
                 className={`${styles.beam} ${styles.anomaly} opacity-50`} 
@@ -258,18 +257,18 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
 
           {/* Dynamic Nodes from API */}
           {renderNodes.map((node) => {
-              const isCompleted = getNodeStatus(node.articleId);
-              const isAnomaly = node.celestialType === 'anomaly';
+              const isCompleted = getNodeStatus(node.article_id);
+              const isAnomaly = node.celestial_type === 'anomaly';
               const statusClass = isAnomaly ? styles.anomaly : (isCompleted ? styles.decoded : styles.unknown);
 
               return (
                 <div
-                  key={node.articleId}
-                  className={`group ${styles.celestialObject} ${statusClass} ${draggingNodeId === node.articleId ? 'opacity-80' : ''}`}
+                  key={node.article_id}
+                  className={`group ${styles.celestialObject} ${statusClass} ${draggingNodeId === node.article_id ? 'opacity-80' : ''}`}
                   style={{ left: node.x, top: node.y }}
-                  onMouseDown={(e) => handleNodeMouseDown(e, node.articleId)}
+                  onMouseDown={(e) => handleNodeMouseDown(e, node.article_id)}
                 >
-                  {draggingNodeId === node.articleId && (
+                  {draggingNodeId === node.article_id && (
                     <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black/80 border border-white/50 text-white px-2 py-0.5 text-[8px] font-mono whitespace-nowrap z-50 pointer-events-none">
                       X: {Math.round(node.x)} Y: {Math.round(node.y)}
                     </div>

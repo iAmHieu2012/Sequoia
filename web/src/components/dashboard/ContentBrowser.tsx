@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import CyberBrackets from "@/components/ui/CyberBrackets";
-import { User } from "firebase/auth";
+import { type User } from "@supabase/supabase-js";
 import NebulasTab from "./tabs/NebulasTab";
 import RogueTab from "./tabs/RogueTab";
 import ModulesTab from "./tabs/ModulesTab";
@@ -46,12 +46,17 @@ export default function ContentBrowser({
 
   useEffect(() => {
     if (currentMapId) {
+      setMapData(null);
       fetch(`/api/v1/cosmos/maps/${currentMapId}`)
         .then(res => res.json())
         .then(data => {
           if (data.data) setMapData(data.data);
+          else setMapData(null);
         })
-        .catch(err => console.error(err));
+        .catch(err => {
+          console.error(err);
+          setMapData(null);
+        });
     } else {
       setMapData(null);
     }

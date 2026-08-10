@@ -19,11 +19,7 @@ export default function GenesisPage() {
 
   const authFetch = async (url: string, options: RequestInit = {}) => {
     if (!user) throw new Error("Unauthenticated");
-    const token = await user.getIdToken(true);
-    return fetch(url, {
-      ...options,
-      headers: { ...options.headers, Authorization: `Bearer ${token}` }
-    });
+    return fetch(url, options);
   };
   const [activeTab, setActiveTab] = useState<AdminTab>("nebulas");
   const [selectedTopic, setSelectedTopic] = useState<any | null>(null);
@@ -84,8 +80,10 @@ export default function GenesisPage() {
       if (mRes && mRes.ok) setModels((await mRes.json()).data || []);
       if (txRes && txRes.ok) setTextbooks((await txRes.json()).data || []);
       if (mapRes && mapRes.ok) setMapNodes((await mapRes.json()).data?.nodes || []);
+      else setMapNodes([]);
     } catch (e) {
       console.error(e);
+      setMapNodes([]);
     } finally {
       setLoading(false);
     }
@@ -101,8 +99,10 @@ export default function GenesisPage() {
       ]);
       if (artRes.ok) setArticles((await artRes.json()).data || []);
       if (mapRes && mapRes.ok) setMapNodes((await mapRes.json()).data?.nodes || []);
+      else setMapNodes([]);
     } catch (e) {
       console.error(e);
+      setMapNodes([]);
     } finally {
       setDrilldownLoading(false);
     }
@@ -145,7 +145,7 @@ export default function GenesisPage() {
         }
         
         // Also find node coordinates
-        const node = mapNodes.find((n: any) => n.articleId === articleId);
+        const node = mapNodes.find((n: any) => n.article_id === articleId);
         if (node) {
           fullItem.x = node.x;
           fullItem.y = node.y;
@@ -163,7 +163,7 @@ export default function GenesisPage() {
 
   const handleCreate = (tab: any) => {
     setForgeTab(tab);
-    setForgeInitialData(tab === 'stars' && selectedTopic ? { topicId: selectedTopic.id } : null);
+    setForgeInitialData(tab === 'stars' && selectedTopic ? { topic_id: selectedTopic.id } : null);
     setIsForgeOpen(true);
   };
 
@@ -338,7 +338,7 @@ export default function GenesisPage() {
                   </button>
                   {drilldownLoading ? <div className="p-4 text-white/50 animate-pulse text-xs font-mono">LOADING_STARS...</div> :
                     articles.map((article) => {
-                      const node = mapNodes.find(n => n.articleId === article.id);
+                      const node = mapNodes.find(n => n.article_id === article.id);
                       const targetX = node ? node.x : 7500;
                       const targetY = node ? node.y : 2500;
                       
@@ -357,7 +357,7 @@ export default function GenesisPage() {
                             <div className="flex justify-between items-center mb-1">
                               <span className="text-[9px] font-mono text-white/50">[ STAR_NODE ]</span>
                               <div className="flex gap-2">
-                                {article.isPublished === false && (
+                                {article.is_published === false && (
                                   <span className="text-[8px] font-mono bg-red-500/20 text-red-400 px-1 border border-red-500/30">DRAFT</span>
                                 )}
                                 {article.tags && article.tags.length > 0 && (
@@ -412,7 +412,7 @@ export default function GenesisPage() {
                       </p>
 
                       <div className="flex items-center justify-between border-t border-white/10 pt-3 mt-3">
-                        <span className="text-[10px] font-mono text-white/50">{topic.articleCount} STARS</span>
+                        <span className="text-[10px] font-mono text-white/50">{topic.article_count} STARS</span>
                         <button onClick={(e) => { e.stopPropagation(); fetchTopicArticles(topic); }} className="text-[10px] font-mono font-bold text-white tracking-wider flex items-center gap-1 group-hover:translate-x-1 transition-transform duration-300 bg-white/10 px-2 py-1 border border-white/20 hover:bg-white hover:text-black">
                           INSPECT <ArrowRight className="w-3 h-3" />
                         </button>
@@ -424,7 +424,7 @@ export default function GenesisPage() {
             )}
 
             {!loading && activeTab === "anomalies" && rogueArticles.map(article => {
-              const node = mapNodes.find(n => n.articleId === article.id);
+              const node = mapNodes.find(n => n.article_id === article.id);
               const targetX = node ? node.x : 7500;
               const targetY = node ? node.y : 2500;
               
@@ -441,7 +441,7 @@ export default function GenesisPage() {
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-[9px] font-mono text-white/50">[ ROGUE_ANOMALY ]</span>
                       <div className="flex gap-2">
-                        {article.isPublished === false && (
+                        {article.is_published === false && (
                           <span className="text-[8px] font-mono bg-red-500/20 text-red-400 px-1 border border-red-500/30">DRAFT</span>
                         )}
                         {article.tags && article.tags.length > 0 && (
@@ -504,15 +504,15 @@ export default function GenesisPage() {
                     <div className="flex flex-col gap-2 p-4 border border-white/20 bg-white/5">
                       <div className="flex justify-between items-center text-[10px] font-mono tracking-widest uppercase">
                         <span className="text-white/50">TASK_TYPE:</span>
-                        <span className="text-white font-bold bg-white/10 px-2 py-0.5 border border-white/20">{model.taskType.replace(/_/g, ' ')}</span>
+                        <span className="text-white font-bold bg-white/10 px-2 py-0.5 border border-white/20">{model.task_type.replace(/_/g, ' ')}</span>
                       </div>
                       <div className="flex justify-between items-center text-[10px] font-mono tracking-widest uppercase mt-1">
                         <span className="text-white/50">SIZE:</span>
-                        <span className="text-white">{Math.round((model.fileSizeBytes || 0) / 1024 / 1024)} MB</span>
+                        <span className="text-white">{Math.round((model.file_size_bytes || 0) / 1024 / 1024)} MB</span>
                       </div>
                       <div className="flex justify-between items-center text-[10px] font-mono tracking-widest uppercase mt-1">
                         <span className="text-white/50">FILE_URL:</span>
-                        <span className="text-white/50 truncate max-w-[200px]" title={model.fileUrl}>{model.fileUrl || 'N/A'}</span>
+                        <span className="text-white/50 truncate max-w-[200px]" title={model.file_url}>{model.file_url || 'N/A'}</span>
                       </div>
                     </div>
                     <p className="text-sm font-mono text-white/70 leading-relaxed">{model.description}</p>
@@ -561,8 +561,8 @@ export default function GenesisPage() {
                 {isSelected && (
                   <div className="px-5 pb-6 flex flex-col gap-4 animate-in slide-in-from-top-2 duration-300 relative z-10">
                     <div className="flex gap-4">
-                      {book.coverImageUrl && (
-                        <img src={book.coverImageUrl} alt="Cover" className="w-24 h-32 object-cover border border-white/20 shadow-[0_0_10px_rgba(255,255,255,0.1)]" />
+                      {book.cover_image_url && (
+                        <img src={book.cover_image_url} alt="Cover" className="w-24 h-32 object-cover border border-white/20 shadow-[0_0_10px_rgba(255,255,255,0.1)]" />
                       )}
                       <div className="flex-1 flex flex-col">
                         <div className="text-xs font-mono text-white/50 mb-2 tracking-widest uppercase">
@@ -657,8 +657,8 @@ export default function GenesisPage() {
             
             {selectedTextbook ? (
               <div className="flex-1 w-full relative bg-black mt-16">
-                {selectedTextbook.pdfUrl ? (
-                  <iframe src={`${selectedTextbook.pdfUrl}#toolbar=0`} className="w-full h-full bg-white" title="PDF Preview" />
+                {selectedTextbook.pdf_url ? (
+                  <iframe src={`${selectedTextbook.pdf_url}#toolbar=0`} className="w-full h-full bg-white" title="PDF Preview" />
                 ) : (
                   <div className="flex items-center justify-center h-full text-white/30 font-mono text-sm tracking-widest uppercase">NO_PDF_URL_PROVIDED</div>
                 )}
@@ -696,7 +696,7 @@ export default function GenesisPage() {
                 <h2 className="text-3xl font-heading font-black text-white mb-3 uppercase drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] tracking-[0.1em]">{selectedModel.name}</h2>
                 <div className="text-[10px] font-mono text-white font-bold mb-8 tracking-[0.2em] uppercase bg-white/10 px-4 py-1.5 border border-white/30 shadow-[0_0_10px_rgba(255,255,255,0.1)] flex items-center gap-2">
                   <Activity className="w-3 h-3" />
-                  {selectedModel.taskType.replace(/_/g, ' ')}
+                  {selectedModel.task_type.replace(/_/g, ' ')}
                 </div>
                 
                 <p className="text-sm font-mono text-white/50 mb-12 leading-relaxed">

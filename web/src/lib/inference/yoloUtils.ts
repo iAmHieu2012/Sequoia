@@ -13,7 +13,7 @@ import { BoundingBox } from './types';
 export function parseYoloBoxes(
   outData: Float32Array,
   outShape: number[],
-  taskType: string,
+  task_type: string,
   threshold: number,
   iouThreshold: number,
   width: number,
@@ -38,10 +38,10 @@ export function parseYoloBoxes(
   let hasMasks = false;
   const MASK_COEFFICIENTS = 32;
   
-  if (taskType === 'pose-estimation') {
+  if (task_type === 'pose-estimation') {
     numClasses = 1;
     hasKeypoints = true;
-  } else if (taskType === 'instance-segmentation') {
+  } else if (task_type === 'instance-segmentation') {
     // numFeatures = 4 (bbox) + numClasses + 32 (mask coefficients)
     numClasses = numFeatures - 4 - MASK_COEFFICIENTS;
     hasMasks = true;

@@ -2,7 +2,7 @@
 
 import { ShieldCheck, ClipboardClock, Radar, BookText, Activity } from "lucide-react";
 import CyberBrackets from "@/components/ui/CyberBrackets";
-import { User } from "firebase/auth";
+import { type User } from "@supabase/supabase-js";
 
 interface CategoryProgress {
   total: number;
@@ -149,7 +149,7 @@ export default function StatsBar({
             <div className="flex items-center justify-between w-full mb-1">
               <span className="text-[9px] font-mono text-grey/50 group-hover:text-grey/80 transition-colors uppercase tracking-widest">STREAK</span>
               <div className="flex items-baseline gap-1">
-                <span className="text-sm font-heading font-bold text-white group-hover:drop-shadow-[0_0_5px_var(--color-grey)] group-hover:text-grey transition-all">{user ? (userProgress?.currentStreak || 0) : '---'}</span>
+                <span className="text-sm font-heading font-bold text-white group-hover:drop-shadow-[0_0_5px_var(--color-grey)] group-hover:text-grey transition-all">{user ? (userProgress?.current_streak || 0) : '---'}</span>
                 <span className="text-[8px] font-mono text-grey/60 group-hover:text-grey transition-colors">CYC</span>
               </div>
             </div>

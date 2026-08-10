@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Rocket, ArrowRight } from "lucide-react";
 import { Topic, Article, ProgressSummary } from "@/types/dashboard";
-import { User } from "firebase/auth";
+import { type User } from "@supabase/supabase-js";
 import React from "react";
 
 interface NebulasTabProps {
@@ -32,7 +32,7 @@ export default function NebulasTab({
             <div key={article.id} 
                  className="group cursor-pointer border-b border-panel-border px-5 py-4 hover:bg-turquoise/5 transition-all duration-300 relative overflow-hidden"
                  onMouseEnter={() => setMapTarget((prev: any) => {
-                   const node = mapData?.nodes?.find((n: any) => n.articleId === article.id);
+                   const node = mapData?.nodes?.find((n: any) => n.article_id === article.id);
                    return { ...prev, x: node ? node.x : prev.x, y: node ? node.y : prev.y, scale: 0.6, activeNodeId: article.id };
                  })}
                  onMouseLeave={() => setMapTarget((prev: any) => ({ ...prev, activeNodeId: undefined }))}
@@ -73,7 +73,7 @@ export default function NebulasTab({
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-1">
               <span className="text-[10px] font-mono text-turquoise tracking-widest">[ NEBULA ]</span>
-              <span className="text-[10px] font-mono text-text-dim">{topic.articleCount} ARTICLES</span>
+              <span className="text-[10px] font-mono text-text-dim">{topic.article_count} ARTICLES</span>
             </div>
             <h3 className="text-sm font-heading font-bold text-white group-hover:text-turquoise group-hover:drop-shadow-[0_0_8px_var(--color-turquoise)] transition-all duration-300 tracking-wide mb-1 uppercase">
               {topic.name}
@@ -83,7 +83,7 @@ export default function NebulasTab({
             </p>
             <div className="flex items-center justify-between border-t border-panel-border pt-3">
               <div className="flex gap-4 text-xs font-mono">
-                <span className="text-text-dim">NODES: <span className="text-white font-bold">{topic.articleCount}</span></span>
+                <span className="text-text-dim">NODES: <span className="text-white font-bold">{topic.article_count}</span></span>
                 <span className="text-text-dim">STATUS: <span className={`font-bold ${(progressSummary?.topics[topic.id]?.completed ?? 0) === (progressSummary?.topics[topic.id]?.total ?? -1) && (progressSummary?.topics[topic.id]?.total ?? 0) > 0 ? 'text-white' : 'text-text-dim'}`}>{(progressSummary?.topics[topic.id]?.completed ?? 0) === (progressSummary?.topics[topic.id]?.total ?? -1) && (progressSummary?.topics[topic.id]?.total ?? 0) > 0 ? 'EXPLORED' : 'UNEXPLORED'}</span></span>
               </div>
               <button onClick={(e) => { e.stopPropagation(); fetchTopicArticles(topic); }} className="text-[10px] font-mono font-bold text-turquoise tracking-wider flex items-center gap-1 group-hover:translate-x-1 transition-transform duration-300">

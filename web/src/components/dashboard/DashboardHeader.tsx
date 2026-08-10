@@ -5,9 +5,6 @@ import { Orbit, User as UserIcon, LogOut, Cpu } from "lucide-react";
 import Link from "next/link";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 import { useAuth } from "@/contexts/AuthContext";
-import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
-
 import CommandCenterPanel from "./CommandCenterPanel";
 
 export default function DashboardHeader() {
@@ -58,7 +55,7 @@ export default function DashboardHeader() {
                 <span className="text-[9px] font-mono text-text-dim group-hover:text-system transition-colors tracking-widest mb-1 uppercase">ID_ENTITY</span>
                 <span className="text-xs font-heading text-white flex items-center gap-2 font-bold tracking-widest">
                   <UserIcon className="w-3.5 h-3.5 text-system" />
-                  {user.displayName?.toUpperCase() || 'USER_NODE'}
+                  {user.user_metadata?.name?.toUpperCase() || user.email?.split('@')[0].toUpperCase() || 'USER_NODE'}
                 </span>
               </div>
             </button>

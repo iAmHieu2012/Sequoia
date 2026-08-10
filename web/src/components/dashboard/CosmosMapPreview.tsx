@@ -49,7 +49,7 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
 
   useEffect(() => {
     if (activeNodeId && mapData) {
-      const activeNode = mapData.nodes.find(n => n.articleId === activeNodeId);
+      const activeNode = mapData.nodes.find(n => n.article_id === activeNodeId);
       if (activeNode) {
         flyTo(activeNode.x, activeNode.y, targetScale);
         return;
@@ -90,10 +90,10 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
             {mapData &&
               mapData.nodes.flatMap(node =>
                 node.connections.map(connId => {
-                  const target = mapData.nodes.find(n => n.articleId === connId);
+                  const target = mapData.nodes.find(n => n.article_id === connId);
                   if (!target) return null;
-                  const beamType = node.celestialType === 'anomaly' ? styles.anomaly : styles.beamIlluminated;
-                  return <line key={`${node.articleId}-${connId}`} x1={node.x} y1={node.y} x2={target.x} y2={target.y} className={`${styles.beam} ${beamType}`} />;
+                  const beamType = node.celestial_type === 'anomaly' ? styles.anomaly : styles.beamIlluminated;
+                  return <line key={`${node.article_id}-${connId}`} x1={node.x} y1={node.y} x2={target.x} y2={target.y} className={`${styles.beam} ${beamType}`} />;
                 })
               )
             }
@@ -102,16 +102,16 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
           {/* Dynamic Nodes from API */}
           {mapData &&
             mapData.nodes.map((node) => {
-              const isCompleted = getNodeStatus(node.articleId);
-              const isAnomaly = node.celestialType === 'anomaly';
+              const isCompleted = getNodeStatus(node.article_id);
+              const isAnomaly = node.celestial_type === 'anomaly';
               const statusClass = isAnomaly ? styles.anomaly : (isCompleted ? styles.decoded : styles.unknown);
 
               return (
                 <div
-                  key={node.articleId}
+                  key={node.article_id}
                   className={`${styles.celestialObject} ${statusClass}`}
                   style={{ left: node.x, top: node.y }}
-                  onClick={() => router.push(`/articles/${node.articleId}`)}
+                  onClick={() => router.push(`/articles/${node.article_id}`)}
                 >
                   {isAnomaly ? (
                     <>
@@ -134,8 +134,8 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
 
                   <div className={`${styles.observationLog} scale-150 transform-origin-top-left`}>
                     <div className={styles.logHeader}>
-                      <span>{node.celestialType} //</span>
-                      <span className="opacity-40">ID: {node.articleId.length > 10 ? node.articleId.substring(0, 10) + '...' : node.articleId}</span>
+                      <span>{node.celestial_type} //</span>
+                      <span className="opacity-40">ID: {node.article_id.length > 10 ? node.article_id.substring(0, 10) + '...' : node.article_id}</span>
                     </div>
                     <div className={styles.logTitle}>{node.title}</div>
                     <div className={styles.signalStatus}>

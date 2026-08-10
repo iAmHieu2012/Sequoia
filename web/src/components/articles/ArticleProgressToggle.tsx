@@ -7,10 +7,10 @@ import CyberBrackets from "@/components/ui/CyberBrackets";
 import Link from "next/link";
 
 interface ArticleProgressToggleProps {
-  articleId: string;
+  article_id: string;
 }
 
-export default function ArticleProgressToggle({ articleId }: ArticleProgressToggleProps) {
+export default function ArticleProgressToggle({ article_id }: ArticleProgressToggleProps) {
   const { user, loading: authLoading } = useAuth();
   const [isCompleted, setIsCompleted] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,14 +23,12 @@ export default function ArticleProgressToggle({ articleId }: ArticleProgressTogg
     if (user) {
       const fetchProgress = async () => {
         try {
-          const token = await user.getIdToken();
           const localDate = new Date().toLocaleDateString('en-CA');
-          const res = await fetch(`/api/v1/users/progress?localDate=${localDate}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
+          const res = await fetch(`/api/v1/users/progress?localDate=${localDate}`);
           const json = await res.json();
-          if (json.data && json.data.completedArticleIds) {
-            setIsCompleted(json.data.completedArticleIds.includes(articleId));
+          if (json.data && json.data.completed_article_ids) {
+            const arr = json.data.completed_article_ids;
+            setIsCompleted(arr.includes(article_id));
           } else {
             setIsCompleted(false);
           }
@@ -46,19 +44,17 @@ export default function ArticleProgressToggle({ articleId }: ArticleProgressTogg
       setIsCompleted(null);
       setIsLoading(false);
     }
-  }, [articleId, user, authLoading]);
+  }, [article_id, user, authLoading]);
 
   const toggleStatus = async () => {
     if (!user || isCompleted === null) return;
     setIsUpdating(true);
     setErrorMsg(null);
     try {
-      const token = await user.getIdToken();
       const targetStatus = !isCompleted;
-      const res = await fetch(`/api/v1/articles/${articleId}/progress`, {
+      const res = await fetch(`/api/v1/articles/${article_id}/progress`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ completed: targetStatus })

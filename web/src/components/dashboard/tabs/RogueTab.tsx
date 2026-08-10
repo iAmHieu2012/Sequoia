@@ -23,7 +23,7 @@ export default function RogueTab({
           key={article.id}
           className="group cursor-pointer border-b border-panel-border px-5 py-4 hover:bg-purple/5 transition-all duration-300 relative overflow-hidden"
           onMouseEnter={() => setMapTarget((prev: any) => {
-            const node = mapData?.nodes?.find((n: any) => n.articleId === article.id);
+            const node = mapData?.nodes?.find((n: any) => n.article_id === article.id);
             return { ...prev, x: node ? node.x : prev.x, y: node ? node.y : prev.y, scale: 0.6, mapId: "standalone-articles", activeNodeId: article.id };
           })}
           onMouseLeave={() => setMapTarget((prev: any) => ({ ...prev, activeNodeId: undefined }))}
