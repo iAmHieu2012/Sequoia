@@ -59,7 +59,7 @@ export default function AuthClient() {
 
       {/* Header Logo */}
       <div className="relative z-10 flex items-center gap-2 sm:gap-3 mb-4 sm:mb-8 [@media(max-height:750px)]:mb-4">
-        <Orbit className="w-8 h-8 text-system animate-[spin_20s_linear_infinite]" />
+        <img src="/bot-idle.gif" alt="Sequoia Bot" className="w-10 h-10 object-contain" />
         <div>
           <div className="flex items-center gap-2 mb-1 text-system">
             <span className="font-mono text-[10px] tracking-[0.3em]">SYS.AUTH.PROTOCOL</span>

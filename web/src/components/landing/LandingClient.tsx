@@ -33,7 +33,7 @@ export default function LandingClient() {
       <div className="relative z-10 w-full max-w-4xl flex flex-col items-center text-center">
         
         <div className="flex items-center gap-3 mb-6">
-          <Orbit className="w-10 h-10 text-system animate-[spin_20s_linear_infinite]" />
+          <img src="/bot-idle.gif" alt="Sequoia Bot" className="w-12 h-12 object-contain" />
           <span className="font-mono text-xs md:text-sm tracking-[0.4em] text-system">
             SYS.CORE.INITIALIZED
           </span>

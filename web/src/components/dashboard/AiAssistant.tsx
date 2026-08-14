@@ -45,6 +45,24 @@ export default function AiAssistant({ isOpen, setIsOpen }: AiAssistantProps) {
 
   const isLoading = status === 'streaming';
   
+  const [botState, setBotState] = useState<'/bot-idle.gif' | '/bot-loading.gif' | '/bot-negative.gif' | '/bot-positive.gif'>('/bot-idle.gif');
+
+  React.useEffect(() => {
+    if (isLoading) {
+      setBotState('/bot-loading.gif');
+    } else if (error) {
+      setBotState('/bot-negative.gif');
+    } else {
+      if (messages.length > 0 && messages[messages.length - 1].role === 'assistant') {
+        setBotState('/bot-positive.gif');
+        const timer = setTimeout(() => setBotState('/bot-idle.gif'), 3000);
+        return () => clearTimeout(timer);
+      } else {
+        setBotState('/bot-idle.gif');
+      }
+    }
+  }, [isLoading, error, messages]);
+  
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -76,8 +94,8 @@ export default function AiAssistant({ isOpen, setIsOpen }: AiAssistantProps) {
           }
         }}
       >
-        <div className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 text-left font-heading text-[11px] font-bold tracking-[0.12em] uppercase border-b-2 transition-all duration-300 ${isOpen ? 'text-system border-system bg-system/5 drop-shadow-[0_0_8px_var(--color-system)]' : 'text-text-dim border-transparent group-hover/panel:text-system group-hover/panel:drop-shadow-[0_0_8px_var(--color-system)]'}`}>
-          <Bot className={`w-4 h-4 transition-all duration-500 ${isOpen ? 'animate-pulse text-system' : 'group-hover/panel:scale-110 group-hover/panel:text-system'}`} />
+        <div className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 text-left font-heading text-[11px] font-bold tracking-[0.12em] uppercase border-b-2 transition-all duration-300 ${isOpen ? 'text-system border-system bg-system/5 drop-shadow-[0_0_8px_var(--color-system)]' : 'text-text-dim border-transparent group-hover/panel:text-system group-hover/panel:drop-shadow-[0_0_8px_var(--color-system)]'}`}>
+          <img src={botState} alt="AI Bot" className={`w-8 h-8 object-contain transition-all duration-500 ${!isOpen && 'group-hover/panel:scale-110 opacity-70 group-hover/panel:opacity-100'}`} />
           <div className="text-left">
             ASSISTANT
             {isOpen && <span className="block text-[8px] font-mono font-normal mt-0.5 opacity-50 normal-case tracking-wider">AI Uplink</span>}
