@@ -1,25 +1,23 @@
 import { useEffect, useRef, MutableRefObject, Dispatch, SetStateAction, useCallback } from 'react';
 import { CompiledModel, Tensor } from '@litertjs/core';
-import { renderClassification } from "@/lib/inference/classification";
-import { parseYoloBoxes } from "@/lib/inference/yoloUtils";
-import { renderDetection } from "@/lib/inference/detection";
-import { renderPose } from "@/lib/inference/pose";
-import { renderSegmentation } from "@/lib/inference/segmentation";
-import { AiModel } from './index';
+import { getParser, getRenderer } from "@/lib/inference/registry";
+import { AiModel, ModelMetadata, PlaygroundParams } from '@/types/playground';
 
 interface UseInferenceProps {
-  videoRef: MutableRefObject<HTMLVideoElement | null>;
+  videoRef: MutableRefObject<HTMLVideoElement | HTMLImageElement | null>;
   canvasRef: MutableRefObject<HTMLCanvasElement | null>;
   compiledModelRef: MutableRefObject<CompiledModel | null>;
   model: AiModel | null;
+  metadata: ModelMetadata | null;
   cameraActive: boolean;
   booting: boolean;
   compiledModelReady: boolean;
-  thresholdRef: MutableRefObject<number>;
-  iouThresholdRef: MutableRefObject<number>;
-  setInferenceTime: Dispatch<SetStateAction<number>>;
-  setFps: Dispatch<SetStateAction<number>>;
+  paramsRef: MutableRefObject<PlaygroundParams>;
+  onFrame: (inferenceTimeMs: number) => void;
+  onDetectionCount: (count: number) => void;
   setLogs: Dispatch<SetStateAction<string[]>>;
+  fileUrl?: string | null;
+  fileType?: 'image' | 'video' | null;
 }
 
 export function useInference({
@@ -27,40 +25,47 @@ export function useInference({
   canvasRef,
   compiledModelRef,
   model,
+  metadata,
   cameraActive,
   booting,
   compiledModelReady,
-  thresholdRef,
-  iouThresholdRef,
-  setInferenceTime,
-  setFps,
-  setLogs
+  paramsRef,
+  onFrame,
+  onDetectionCount,
+  setLogs,
+  fileUrl,
+  fileType
 }: UseInferenceProps) {
   const requestRef = useRef<number | undefined>(undefined);
-  const lastFrameTimeRef = useRef<number>(performance.now());
-  const framesCountRef = useRef<number>(0);
   
   const workerCtxRef = useRef<CanvasRenderingContext2D | null>(null);
   const floatBufferRef = useRef<Float32Array | null>(null);
-  const tensorShapeLoggedRef = useRef(false);
 
   // Use refs for values accessed inside the render loop to avoid stale closures
   const modelRef = useRef<AiModel | null>(null);
+  const metadataRef = useRef<ModelMetadata | null>(null);
   const cameraActiveRef = useRef(false);
+  const fileUrlRef = useRef<string | null>(null);
+  const fileTypeRef = useRef<'image' | 'video' | null>(null);
 
   // Keep refs in sync with state
   useEffect(() => { modelRef.current = model; }, [model]);
+  useEffect(() => { metadataRef.current = metadata; }, [metadata]);
   useEffect(() => { cameraActiveRef.current = cameraActive; }, [cameraActive]);
+  useEffect(() => { fileUrlRef.current = fileUrl || null; }, [fileUrl]);
+  useEffect(() => { fileTypeRef.current = fileType || null; }, [fileType]);
 
   const processFrame = useCallback(async () => {
-    const video = videoRef.current;
+    const mediaSource = videoRef.current;
     const displayCanvas = canvasRef.current;
     const compiledModel = compiledModelRef.current;
     const currentModel = modelRef.current;
     
-    if (!video || !displayCanvas || !compiledModel || !cameraActiveRef.current || !currentModel) return;
+    // Only run if we have a media source AND we are either in camera mode or have an uploaded file
+    const isActive = cameraActiveRef.current || fileUrlRef.current;
+    if (!mediaSource || !displayCanvas || !compiledModel || !isActive || !currentModel) return;
     
-    if (video.readyState < 2) {
+    if (mediaSource instanceof HTMLVideoElement && mediaSource.readyState < 2) {
       requestRef.current = requestAnimationFrame(processFrame);
       return;
     }
@@ -90,7 +95,7 @@ export function useInference({
     const ctx = workerCtxRef.current;
     if (!ctx) return;
     
-    ctx.drawImage(video, 0, 0, width, height);
+    ctx.drawImage(mediaSource, 0, 0, width, height);
     const imageData = ctx.getImageData(0, 0, width, height);
     
     if (!floatBufferRef.current || floatBufferRef.current.length !== width * height * 3) {
@@ -119,34 +124,23 @@ export function useInference({
       const outputs = await compiledModel.run([inputTensor]);
       
       try {
-        // Guard: component may have unmounted during await
-        if (!canvasRef.current) {
-          return;
-        }
+        if (!canvasRef.current) return;
         
         const inferenceTimeMs = performance.now() - start;
-        setInferenceTime(Math.round(inferenceTimeMs));
-        
-        framesCountRef.current++;
-        const now = performance.now();
-        if (now - lastFrameTimeRef.current >= 1000) {
-          setFps(framesCountRef.current);
-          framesCountRef.current = 0;
-          lastFrameTimeRef.current = now;
-        }
+        onFrame(inferenceTimeMs);
         
         let outTensor = outputs[0];
-        let protoTensor = outputs.length > 1 ? outputs[1] : null;
+        let pTensor = outputs.length > 1 ? outputs[1] : null;
         
         if (outputs.length > 1) {
           const dim0 = outputs[0].type.layout.dimensions;
           const dim1 = outputs[1].type.layout.dimensions;
           if (dim0.length === 4 && dim1.length === 3) {
-            protoTensor = outputs[0];
+            pTensor = outputs[0];
             outTensor = outputs[1];
           } else if (dim1.length === 4 && dim0.length === 3) {
             outTensor = outputs[0];
-            protoTensor = outputs[1];
+            pTensor = outputs[1];
           }
         }
 
@@ -155,48 +149,39 @@ export function useInference({
         
         let protoData: Float32Array | null = null;
         let protoShape: number[] = [];
-        if (protoTensor) {
-          protoData = (await protoTensor.data()) as Float32Array;
-          protoShape = Array.from(protoTensor.type.layout.dimensions);
+        if (pTensor) {
+          protoData = (await pTensor.data()) as Float32Array;
+          protoShape = Array.from(pTensor.type.layout.dimensions);
         }
         
-        displayCanvas.width = video.videoWidth || 640;
-        displayCanvas.height = video.videoHeight || 640;
+        const mw = mediaSource instanceof HTMLVideoElement ? mediaSource.videoWidth : (mediaSource as HTMLImageElement).naturalWidth;
+        const mh = mediaSource instanceof HTMLVideoElement ? mediaSource.videoHeight : (mediaSource as HTMLImageElement).naturalHeight;
+        
+        displayCanvas.width = mw || 640;
+        displayCanvas.height = mh || 640;
         const dCtx = displayCanvas.getContext('2d');
         
-        if (dCtx) {
+        if (dCtx && metadataRef.current && currentModel) {
           dCtx.clearRect(0, 0, displayCanvas.width, displayCanvas.height);
-
-          if (!tensorShapeLoggedRef.current) {
-            tensorShapeLoggedRef.current = true;
-            setLogs(prev => [...prev, `> OUTPUT TENSOR: ${outShape.join('x')}`]);
-          }
 
           const scaleX = displayCanvas.width / width;
           const scaleY = displayCanvas.height / height;
-          const currentThreshold = thresholdRef.current / 100.0;
-          const currentIou = iouThresholdRef.current / 100.0;
-
-          if (currentModel.task_type === 'image-classification' && outShape.length >= 2) {
-            renderClassification(dCtx, outData, outShape, currentModel.labels || [], displayCanvas.width);
-          } 
-          else if (outShape.length === 3) {
-            const { boxes, numClasses } = parseYoloBoxes(
-              outData, outShape, currentModel.task_type, currentThreshold, currentIou,
-              width, height, scaleX, scaleY
+          
+          const parser = getParser(metadataRef.current.output_format);
+          const renderer = getRenderer(metadataRef.current.task);
+          
+          if (parser && renderer) {
+            const result = parser.parse(
+              outData, outShape, metadataRef.current.task, paramsRef.current, metadataRef.current,
+              scaleX, scaleY, protoData, protoShape
             );
-
-            for (const b of boxes) {
-              if (currentModel.task_type === 'instance-segmentation' && b.maskCoeffs && protoData) {
-                renderSegmentation(dCtx, b, protoData, protoShape, displayCanvas.width, displayCanvas.height);
-              }
-              
-              if (currentModel.task_type === 'pose-estimation') {
-                renderPose(dCtx, b);
-              } else {
-                renderDetection(dCtx, b, numClasses, currentModel.labels);
-              }
-            }
+            
+            renderer.render(
+              dCtx, result, paramsRef.current, metadataRef.current,
+              displayCanvas.width, displayCanvas.height, protoData, protoShape
+            );
+            
+            onDetectionCount(result.count);
           }
         }
       } finally {
@@ -213,13 +198,13 @@ export function useInference({
   }, []); 
 
   useEffect(() => {
-    if (compiledModelReady && cameraActive && !booting) {
+    if (compiledModelReady && (cameraActive || fileUrl) && !booting) {
       requestRef.current = requestAnimationFrame(processFrame);
     }
     return () => {
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
     };
-  }, [compiledModelReady, cameraActive, booting, processFrame]);
+  }, [compiledModelReady, cameraActive, fileUrl, booting, processFrame]);
 
   // Full cleanup on unmount
   useEffect(() => {

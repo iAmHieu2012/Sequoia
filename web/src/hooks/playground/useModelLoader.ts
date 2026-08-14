@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, Dispatch, SetStateAction } from 'react';
 import { loadLiteRt, loadAndCompile, CompiledModel } from '@litertjs/core';
-import { AiModel } from './index';
+import { AiModel, ModelMetadata } from '@/types/playground';
 
 export function useModelLoader(
   modelId: string,
@@ -70,13 +70,17 @@ export function useModelLoader(
         const modelData = data.data;
         if (modelData.metadata_url) {
           try {
-            const metaRes = await fetch(modelData.metadata_url);
+            // const metaRes = await fetch(`${modelData.metadata_url}?t=${Date.now()}`);
+            const metaRes = await fetch(modelData.metadata_url);                                  
+
             const metaJson = await metaRes.json();
-            modelData.labels = metaJson.labels;
-            modelData.inputSize = metaJson.input_size;
+            modelData.metadata = metaJson as ModelMetadata;
           } catch (e) {
             console.warn("Failed to fetch metadata.json from CDN", e);
+            modelData.metadata = null;
           }
+        } else {
+            modelData.metadata = null;
         }
         setModel(modelData);
         setLoading(false);
