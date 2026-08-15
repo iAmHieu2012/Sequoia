@@ -14,9 +14,10 @@ export interface ParameterDefinition {
 }
 
 export interface PostProcessingConfig {
-  type: 'nms' | 'top_k' | 'none';
+  type: string;
   num_keypoints?: number | null;
   num_mask_coefficients?: number | null;
+  simcc_split_ratio?: number;
   default_threshold?: number;
   default_iou?: number;
   default_max_detections?: number;
@@ -26,7 +27,7 @@ export interface PostProcessingConfig {
 }
 
 export interface VisualizationConfig {
-  type: 'bbox_corners' | 'bbox_solid' | 'skeleton' | 'mask_overlay' | 'top_k_overlay';
+  type: 'bbox_corners' | 'bbox_solid' | 'skeleton' | 'mask_overlay' | 'top_k_overlay' | 'background_removal';
   show_labels?: boolean;
   show_confidence?: boolean;
   skeleton?: number[][] | null;
@@ -56,6 +57,7 @@ export interface ModelMetadata {
   output_format: string;
   color_space?: 'rgb' | 'bgr';
   normalize?: NormalizeConfig;
+  supported_modes?: ('camera' | 'image')[];
 
   post_processing: PostProcessingConfig;
   visualization: VisualizationConfig;
@@ -87,6 +89,7 @@ export interface Keypoint {
   x: number;
   y: number;
   conf: number;
+  id?: number;
 }
 
 export interface BoundingBox {
@@ -135,12 +138,19 @@ export interface ParsedOCRResult {
   count: number;
 }
 
+export interface ParsedPoseResult {
+  type: 'pose';
+  keypoints: Keypoint[];
+  count: number;
+}
+
 export type ParsedResult = 
   | ParsedDetectionResult 
   | ParsedClassificationResult 
   | ParsedSemanticSegmentationResult
   | ParsedImageToImageResult
-  | ParsedOCRResult;
+  | ParsedOCRResult
+  | ParsedPoseResult;
 
 // ============================================================
 // Playground Telemetry

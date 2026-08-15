@@ -13,6 +13,7 @@ export interface TaskRenderer {
     canvasWidth: number,
     canvasHeight: number,
     protoData?: Float32Array | null,
-    protoShape?: number[]
+    protoShape?: number[],
+    mediaSource?: HTMLVideoElement | HTMLImageElement
   ): void;
 }

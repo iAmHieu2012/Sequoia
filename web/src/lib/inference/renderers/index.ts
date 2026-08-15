@@ -24,6 +24,7 @@ const renderers: Record<string, () => TaskRenderer> = {
   'hand-tracking': () => new PoseRenderer(),
   'instance-segmentation': () => new SegmentationRenderer(),
   'semantic-segmentation': () => new SemanticSegmentationRenderer(),
+  'image-segmentation': () => new SemanticSegmentationRenderer(),
   'image-classification': () => new ClassificationRenderer(),
   'image-to-image': () => new ImageToImageRenderer(),
   'style-transfer': () => new ImageToImageRenderer(),

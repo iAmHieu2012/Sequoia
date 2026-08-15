@@ -1,4 +1,4 @@
-import { ModelMetadata, PlaygroundParams, ParsedResult } from '@/types/playground';
+import { ModelMetadata, PlaygroundParams, ParsedResult, Keypoint } from '@/types/playground';
 import { TaskRenderer } from './types';
 
 export class PoseRenderer implements TaskRenderer {
@@ -10,7 +10,7 @@ export class PoseRenderer implements TaskRenderer {
     canvasWidth: number,
     canvasHeight: number
   ): void {
-    if (result.type !== 'detection') return;
+    if (result.type !== 'detection' && result.type !== 'pose') return;
     
     const kpThreshold = (params.keypoint_threshold as number) ?? 0.5;
     const skeleton = metadata.visualization?.skeleton || [];
@@ -18,9 +18,16 @@ export class PoseRenderer implements TaskRenderer {
     ctx.strokeStyle = '#49AEAE';
     ctx.lineWidth = 2;
     
-    for (const b of result.boxes) {
-      const kps = b.keypoints;
-      
+    const allKeypoints: Keypoint[][] = [];
+    if (result.type === 'detection') {
+      for (const b of result.boxes) {
+        allKeypoints.push(b.keypoints);
+      }
+    } else if (result.type === 'pose') {
+      allKeypoints.push(result.keypoints);
+    }
+    
+    for (const kps of allKeypoints) {
       for (const [i, j] of skeleton) {
         if (kps[i] && kps[j] && kps[i].conf > kpThreshold && kps[j].conf > kpThreshold) {
           ctx.beginPath();

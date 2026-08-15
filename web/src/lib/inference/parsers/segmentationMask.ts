@@ -53,12 +53,39 @@ export class SegmentationMaskParser implements OutputParser {
       [153, 0, 255, opacityValue]
     ];
 
+    let min = Infinity, max = -Infinity;
+    if (!isArgmaxed && channels === 1) {
+      for (let i = 0; i < height * width; i++) {
+        if (rawData[i] < min) min = rawData[i];
+        if (rawData[i] > max) max = rawData[i];
+      }
+      if (max === min) max = min + 1e-5;
+    }
+
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         let classId = 0;
+        const destIdx = (y * width + x) * 4;
 
-        if (isArgmaxed) {
-          classId = rawData[y * width + x];
+        if (isArgmaxed || (channels === 1 && metadata.classes_count > 1)) {
+          classId = Math.round(rawData[y * width + x]);
+        } else if (channels === 1 && metadata.visualization.type === 'background_removal') {
+          // Single channel & background removal mode: treat as alpha matte
+          const val = (rawData[y * width + x] - min) / (max - min);
+          maskData[destIdx] = 0;
+          maskData[destIdx + 1] = 0;
+          maskData[destIdx + 2] = 0;
+          maskData[destIdx + 3] = val * 255;
+          continue;
+        } else if (channels === 1) {
+          // Single channel & mask overlay mode (e.g. selfie binary mask)
+          const val = (rawData[y * width + x] - min) / (max - min);
+          const color = colors[1]; // Cyan for class 1
+          maskData[destIdx] = color[0];
+          maskData[destIdx + 1] = color[1];
+          maskData[destIdx + 2] = color[2];
+          maskData[destIdx + 3] = val > 0.1 ? color[3] : 0; // Hard threshold at 0.1 as per mediapipe docs
+          continue;
         } else {
           // Find argmax across channels
           let maxVal = -Infinity;
@@ -75,7 +102,6 @@ export class SegmentationMaskParser implements OutputParser {
           }
         }
 
-        const destIdx = (y * width + x) * 4;
         const color = colors[classId % colors.length];
         
         maskData[destIdx] = color[0];

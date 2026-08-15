@@ -49,6 +49,17 @@ export class ImageTensorParser implements OutputParser {
     const imageData = new ImageData(width, height);
     const planeSize = height * width;
 
+    let min = Infinity, max = -Infinity;
+    if (taskType === 'depth-estimation' && channels === 1) {
+      for (let i = 0; i < height * width; i++) {
+        if (rawData[i] < min) min = rawData[i];
+        if (rawData[i] > max) max = rawData[i];
+      }
+      if (max === min) max = min + 1e-5;
+    }
+
+    const isFloat = rawData[0] <= 1.0 && rawData[0] >= -1.0;
+
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const destIdx = (y * width + x) * 4;
@@ -76,13 +87,21 @@ export class ImageTensorParser implements OutputParser {
           }
         }
 
-        // Normalize if raw data is float 0-1 or 0-255
-        const isFloat = rawData[0] <= 1.0 && rawData[0] >= -1.0;
-        
-        imageData.data[destIdx] = isFloat ? Math.floor(Math.max(0, Math.min(1, r)) * 255) : r;
-        imageData.data[destIdx + 1] = isFloat ? Math.floor(Math.max(0, Math.min(1, g)) * 255) : g;
-        imageData.data[destIdx + 2] = isFloat ? Math.floor(Math.max(0, Math.min(1, b)) * 255) : b;
-        imageData.data[destIdx + 3] = 255;
+        if (taskType === 'depth-estimation' && channels === 1) {
+          // Normalize depth to 0-255 grayscale
+          const norm = (r - min) / (max - min);
+          const v = Math.floor(Math.max(0, Math.min(1, norm)) * 255);
+          imageData.data[destIdx] = v;
+          imageData.data[destIdx + 1] = v;
+          imageData.data[destIdx + 2] = v;
+          imageData.data[destIdx + 3] = 255;
+        } else {
+          // Normal image to image (Style Transfer, ESRGAN)
+          imageData.data[destIdx] = isFloat ? Math.floor(Math.max(0, Math.min(1, r)) * 255) : r;
+          imageData.data[destIdx + 1] = isFloat ? Math.floor(Math.max(0, Math.min(1, g)) * 255) : g;
+          imageData.data[destIdx + 2] = isFloat ? Math.floor(Math.max(0, Math.min(1, b)) * 255) : b;
+          imageData.data[destIdx + 3] = 255;
+        }
       }
     }
 

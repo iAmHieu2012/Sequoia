@@ -103,18 +103,46 @@ export function useInference({
     }
     const float32Data = floatBufferRef.current;
 
+    const mean = currentModel?.metadata?.normalize?.mean || [0, 0, 0];
+    const std = currentModel?.metadata?.normalize?.std || [1, 1, 1];
+    const isBGR = currentModel?.metadata?.color_space === 'bgr';
+    
+    // Default to 1/255.0 scaling (0-1), unless the model metadata specifies a custom scale
+    let scale = 1 / 255.0;
+    if (currentModel?.metadata?.normalize && 'scale' in currentModel.metadata.normalize) {
+      scale = (currentModel.metadata.normalize as any).scale;
+    }
+
     if (isNCHW) {
       const planeSize = width * height;
       for (let i = 0, p = 0; i < imageData.data.length; i += 4, p++) {
-        float32Data[p] = imageData.data[i] / 255.0;
-        float32Data[planeSize + p] = imageData.data[i + 1] / 255.0;
-        float32Data[planeSize * 2 + p] = imageData.data[i + 2] / 255.0;
+        let r = imageData.data[i];
+        let g = imageData.data[i + 1];
+        let b = imageData.data[i + 2];
+        if (isBGR) { const tmp = r; r = b; b = tmp; }
+        
+        const vr = r * scale;
+        const vg = g * scale;
+        const vb = b * scale;
+
+        float32Data[p] = (vr - mean[0]) / std[0];
+        float32Data[planeSize + p] = (vg - mean[1]) / std[1];
+        float32Data[planeSize * 2 + p] = (vb - mean[2]) / std[2];
       }
     } else {
       for (let i = 0, j = 0; i < imageData.data.length; i += 4, j += 3) {
-        float32Data[j] = imageData.data[i] / 255.0;
-        float32Data[j + 1] = imageData.data[i + 1] / 255.0;
-        float32Data[j + 2] = imageData.data[i + 2] / 255.0;
+        let r = imageData.data[i];
+        let g = imageData.data[i + 1];
+        let b = imageData.data[i + 2];
+        if (isBGR) { const tmp = r; r = b; b = tmp; }
+
+        const vr = r * scale;
+        const vg = g * scale;
+        const vb = b * scale;
+
+        float32Data[j] = (vr - mean[0]) / std[0];
+        float32Data[j + 1] = (vg - mean[1]) / std[1];
+        float32Data[j + 2] = (vb - mean[2]) / std[2];
       }
     }
 
@@ -170,19 +198,28 @@ export function useInference({
           const parser = getParser(metadataRef.current.output_format);
           const renderer = getRenderer(metadataRef.current.task);
           
-          if (parser && renderer) {
-            const result = parser.parse(
-              outData, outShape, metadataRef.current.task, paramsRef.current, metadataRef.current,
-              scaleX, scaleY, protoData, protoShape
-            );
+            const task = metadataRef.current.task;
+            const isReplacementTask = 
+              ['image-to-image', 'style-transfer', 'depth-estimation', 'super-resolution'].includes(task) || 
+              (task === 'image-segmentation' && metadataRef.current.visualization.type === 'background_removal');
             
-            renderer.render(
-              dCtx, result, paramsRef.current, metadataRef.current,
-              displayCanvas.width, displayCanvas.height, protoData, protoShape
-            );
-            
-            onDetectionCount(result.count);
-          }
+            if (mediaSource instanceof HTMLElement) {
+              mediaSource.style.opacity = isReplacementTask ? '0' : '1';
+            }
+
+            if (parser && renderer) {
+              const result = parser.parse(
+                outData, outShape, metadataRef.current.task, paramsRef.current, metadataRef.current,
+                scaleX, scaleY, protoData, protoShape
+              );
+              
+              renderer.render(
+                dCtx, result, paramsRef.current, metadataRef.current,
+                displayCanvas.width, displayCanvas.height, protoData, protoShape, mediaSource
+              );
+              
+              onDetectionCount(result.count);
+            }
         }
       } finally {
         for (const out of outputs) out.delete();

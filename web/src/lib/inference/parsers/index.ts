@@ -1,5 +1,6 @@
 export type { OutputParser } from './types';
 export { YoloParser } from './yolo';
+export { YoloxParser } from './yolox';
 export { ClassificationParser } from './classification';
 export { ImageTensorParser } from './imageTensor';
 export { SegmentationMaskParser } from './segmentationMask';
@@ -8,19 +9,23 @@ export { MoveNetParser } from './movenet';
 
 import { OutputParser } from './types';
 import { YoloParser } from './yolo';
+import { YoloxParser } from './yolox';
 import { ClassificationParser } from './classification';
 import { ImageTensorParser } from './imageTensor';
 import { SegmentationMaskParser } from './segmentationMask';
 import { SsdParser } from './ssd';
 import { MoveNetParser } from './movenet';
+import { RtmPoseParser } from './rtmpose';
 
 const parsers: Record<string, () => OutputParser> = {
   'yolo_v8': () => new YoloParser(),
+  'yolox': () => new YoloxParser(),
   'classification': () => new ClassificationParser(),
   'image_tensor': () => new ImageTensorParser(),
   'segmentation_mask': () => new SegmentationMaskParser(),
   'ssd': () => new SsdParser(),
   'movenet': () => new MoveNetParser(),
+  'rtmpose_simcc': () => new RtmPoseParser(),
 };
 
 export function getParser(outputFormat: string): OutputParser {

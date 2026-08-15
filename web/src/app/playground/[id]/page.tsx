@@ -97,6 +97,7 @@ export default function Playground() {
           cameraActive={cameraActive} 
           booting={booting} 
           setCameraActive={setCameraActive} 
+          supportedModes={metadata?.supported_modes}
         />
       </div>
     </div>

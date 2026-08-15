@@ -8,7 +8,10 @@ export class SemanticSegmentationRenderer implements TaskRenderer {
     params: PlaygroundParams,
     metadata: ModelMetadata,
     canvasWidth: number,
-    canvasHeight: number
+    canvasHeight: number,
+    protoData?: Float32Array | null,
+    protoShape?: number[],
+    mediaSource?: HTMLVideoElement | HTMLImageElement
   ): void {
     if (result.type !== 'semantic-segmentation') return;
     
@@ -29,8 +32,17 @@ export class SemanticSegmentationRenderer implements TaskRenderer {
     
     tempCtx.putImageData(imageData, 0, 0);
     
-    ctx.globalAlpha = maskOpacity;
-    ctx.drawImage(tempCanvas, 0, 0, result.width, result.height, 0, 0, canvasWidth, canvasHeight);
-    ctx.globalAlpha = 1.0;
+    if (mediaSource && metadata.visualization.type === 'background_removal') {
+      // Background removal mode (alpha matte)
+      ctx.drawImage(mediaSource, 0, 0, canvasWidth, canvasHeight);
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.drawImage(tempCanvas, 0, 0, result.width, result.height, 0, 0, canvasWidth, canvasHeight);
+      ctx.globalCompositeOperation = 'source-over';
+    } else {
+      // Normal colored mask overlay
+      ctx.globalAlpha = maskOpacity;
+      ctx.drawImage(tempCanvas, 0, 0, result.width, result.height, 0, 0, canvasWidth, canvasHeight);
+      ctx.globalAlpha = 1.0;
+    }
   }
 }

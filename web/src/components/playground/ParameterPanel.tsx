@@ -11,6 +11,7 @@ interface ParameterPanelProps {
   cameraActive: boolean;
   booting: boolean;
   setCameraActive: (active: boolean) => void;
+  supportedModes?: ('camera' | 'image')[];
 }
 
 export default function ParameterPanel({
@@ -20,7 +21,8 @@ export default function ParameterPanel({
   resetParams,
   cameraActive,
   booting,
-  setCameraActive
+  setCameraActive,
+  supportedModes
 }: ParameterPanelProps) {
   return (
     <div className="w-64 bg-black/60 border border-panel-border relative flex flex-col p-4 shrink-0 hidden lg:flex">
@@ -44,6 +46,7 @@ export default function ParameterPanel({
           cameraActive={cameraActive} 
           booting={booting} 
           setCameraActive={setCameraActive} 
+          supportedModes={supportedModes}
         />
 
         {paramDefs.map((paramDef) => (
