@@ -1,5 +1,6 @@
 import { ModelMetadata, PlaygroundParams, ParsedSemanticSegmentationResult } from '@/types/playground';
 import { OutputParser } from './types';
+import { SEGMENTATION_COLORS_RGB } from './utils';
 
 /**
  * Parser for semantic segmentation models.
@@ -41,17 +42,10 @@ export class SegmentationMaskParser implements OutputParser {
     }
 
     const maskData = new Uint8ClampedArray(width * height * 4);
-    const maskOpacity = (params.mask_opacity as number) ?? 0.6;
-    const opacityValue = Math.floor(maskOpacity * 255);
-
-    const colors = [
-      [0, 0, 0, 0], // Background (class 0)
-      [73, 174, 174, opacityValue],
-      [255, 80, 80, opacityValue],
-      [0, 255, 153, opacityValue],
-      [255, 153, 0, opacityValue],
-      [153, 0, 255, opacityValue]
-    ];
+    
+    // Resolve dynamic opacity from params or metadata
+    const rawOpacity = (params.mask_opacity as number) ?? metadata.post_processing?.default_mask_opacity ?? 0.6;
+    const opacityValue = Math.floor(rawOpacity * 255);
 
     let min = Infinity, max = -Infinity;
     if (!isArgmaxed && channels === 1) {
@@ -69,7 +63,7 @@ export class SegmentationMaskParser implements OutputParser {
 
         if (isArgmaxed || (channels === 1 && metadata.classes_count > 1)) {
           classId = Math.round(rawData[y * width + x]);
-        } else if (channels === 1 && metadata.visualization.type === 'background_removal') {
+        } else if (channels === 1 && metadata.visualization?.type === 'background_removal') {
           // Single channel & background removal mode: treat as alpha matte
           const val = (rawData[y * width + x] - min) / (max - min);
           maskData[destIdx] = 0;
@@ -80,11 +74,11 @@ export class SegmentationMaskParser implements OutputParser {
         } else if (channels === 1) {
           // Single channel & mask overlay mode (e.g. selfie binary mask)
           const val = (rawData[y * width + x] - min) / (max - min);
-          const color = colors[1]; // Cyan for class 1
-          maskData[destIdx] = color[0];
-          maskData[destIdx + 1] = color[1];
-          maskData[destIdx + 2] = color[2];
-          maskData[destIdx + 3] = val > 0.1 ? color[3] : 0; // Hard threshold at 0.1 as per mediapipe docs
+          const rgb = SEGMENTATION_COLORS_RGB[1]; // Cyan for class 1
+          maskData[destIdx] = rgb[0];
+          maskData[destIdx + 1] = rgb[1];
+          maskData[destIdx + 2] = rgb[2];
+          maskData[destIdx + 3] = val > 0.1 ? opacityValue : 0; // Hard threshold at 0.1
           continue;
         } else {
           // Find argmax across channels
@@ -102,12 +96,12 @@ export class SegmentationMaskParser implements OutputParser {
           }
         }
 
-        const color = colors[classId % colors.length];
+        const rgb = SEGMENTATION_COLORS_RGB[classId % SEGMENTATION_COLORS_RGB.length];
         
-        maskData[destIdx] = color[0];
-        maskData[destIdx + 1] = color[1];
-        maskData[destIdx + 2] = color[2];
-        maskData[destIdx + 3] = classId === 0 ? 0 : color[3];
+        maskData[destIdx] = rgb[0];
+        maskData[destIdx + 1] = rgb[1];
+        maskData[destIdx + 2] = rgb[2];
+        maskData[destIdx + 3] = classId === 0 ? 0 : opacityValue;
       }
     }
 

@@ -1,6 +1,11 @@
 import { ModelMetadata, PlaygroundParams, ParsedResult } from '@/types/playground';
 import { TaskRenderer } from './types';
+import { RENDERER_THEME } from './theme';
 
+/**
+ * Renderer for face landmark detection results.
+ * Draws bounding boxes and facial keypoints.
+ */
 export class FaceLandmarkRenderer implements TaskRenderer {
   render(
     ctx: CanvasRenderingContext2D,
@@ -17,13 +22,13 @@ export class FaceLandmarkRenderer implements TaskRenderer {
     
     for (const b of result.boxes) {
       if (showBbox) {
-        ctx.strokeStyle = 'rgba(73, 174, 174, 0.3)';
+        ctx.strokeStyle = RENDERER_THEME.colors.tealTranslucent;
         ctx.lineWidth = 1;
         ctx.strokeRect(b.cx - b.w / 2, b.cy - b.h / 2, b.w, b.h);
       }
 
       const kps = b.keypoints;
-      ctx.fillStyle = '#00FF99';
+      ctx.fillStyle = RENDERER_THEME.colors.darkRed;
       for (const kp of kps) {
         if (kp.conf > kpThreshold) {
           ctx.beginPath();

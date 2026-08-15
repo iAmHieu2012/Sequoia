@@ -1,5 +1,6 @@
 import { ModelMetadata, PlaygroundParams, ParsedClassificationResult } from '@/types/playground';
 import { OutputParser } from './types';
+import { getLabelName } from './utils';
 
 /**
  * Parser for classification output format.
@@ -15,7 +16,7 @@ export class ClassificationParser implements OutputParser {
     scaleX: number,
     scaleY: number
   ): ParsedClassificationResult {
-    const topK = (params.top_k as number) || 5;
+    const topK = (params.top_k as number) ?? metadata.post_processing?.default_top_k ?? 5;
     const numClasses = shape[shape.length - 1];
     
     let sum = 0;
@@ -48,13 +49,10 @@ export class ClassificationParser implements OutputParser {
     
     const results = [];
     for (let i = 0; i < Math.min(topK, scores.length); i++) {
-      let label = `CLASS ${scores[i].classId}`;
-      if (metadata.labels && metadata.labels.length > scores[i].classId) {
-        label = metadata.labels[scores[i].classId];
-      }
+      const classId = scores[i].classId;
       results.push({
-        classId: scores[i].classId,
-        label,
+        classId: classId,
+        label: getLabelName(classId, metadata),
         confidence: scores[i].confidence
       });
     }

@@ -90,6 +90,7 @@ export interface Keypoint {
   y: number;
   conf: number;
   id?: number;
+  label?: string;
 }
 
 export interface BoundingBox {
@@ -99,6 +100,7 @@ export interface BoundingBox {
   h: number;
   conf: number;
   classId: number;
+  label?: string;
   keypoints: Keypoint[];
   maskCoeffs: Float32Array | null;
 }

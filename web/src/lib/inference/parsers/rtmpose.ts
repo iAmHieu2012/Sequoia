@@ -1,6 +1,11 @@
 import { ModelMetadata, PlaygroundParams, ParsedResult, Keypoint } from '@/types/playground';
 import { OutputParser } from './types';
+import { getLabelName } from './utils';
 
+/**
+ * Parser for RTMPose models using SimCC representation.
+ * Expected outputs: SimCC X and SimCC Y vectors.
+ */
 export class RtmPoseParser implements OutputParser {
   parse(
     rawData: Float32Array,
@@ -20,8 +25,9 @@ export class RtmPoseParser implements OutputParser {
     const simccX = rawData;
     const simccY = protoData;
     
-    const numKeypoints = metadata.post_processing?.num_keypoints || 21;
-    const splitRatio = metadata.post_processing?.simcc_split_ratio || 2.0;
+    // Read parameters from metadata with fallbacks
+    const numKeypoints = metadata.post_processing?.num_keypoints ?? 21;
+    const splitRatio = metadata.post_processing?.simcc_split_ratio ?? 2.0;
 
     const xBins = simccX.length / numKeypoints;
     const yBins = simccY.length / numKeypoints;
@@ -29,11 +35,10 @@ export class RtmPoseParser implements OutputParser {
     const keypoints: Keypoint[] = [];
     
     for (let k = 0; k < numKeypoints; k++) {
-      // SimCC X
+      // SimCC X: find argmax in the 1D vector for keypoint k
       let maxValX = -Infinity;
       let argmaxX = 0;
       for (let i = 0; i < xBins; i++) {
-        // [1, 21, 512] -> index = k * 512 + i
         const val = simccX[k * xBins + i];
         if (val > maxValX) {
           maxValX = val;
@@ -41,7 +46,7 @@ export class RtmPoseParser implements OutputParser {
         }
       }
 
-      // SimCC Y
+      // SimCC Y: find argmax in the 1D vector for keypoint k
       let maxValY = -Infinity;
       let argmaxY = 0;
       for (let j = 0; j < yBins; j++) {
@@ -52,16 +57,17 @@ export class RtmPoseParser implements OutputParser {
         }
       }
 
-      // Convert from bin index to normalized model coordinates (0-256)
+      // Convert from bin index to input image coordinates
       const kx = argmaxX / splitRatio;
       const ky = argmaxY / splitRatio;
 
-      // Scale to canvas coordinates
+      // Scale directly to canvas coordinates and inject label
       keypoints.push({
         x: kx * scaleX,
         y: ky * scaleY,
-        conf: 1.0, 
-        id: k
+        conf: 1.0, // SimCC argmax does not directly yield a normalized confidence [0-1] without extra softmax
+        id: k,
+        label: getLabelName(k, metadata)
       });
     }
 

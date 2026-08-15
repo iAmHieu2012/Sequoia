@@ -1,10 +1,15 @@
 import { ModelMetadata, PlaygroundParams, ParsedResult } from '@/types/playground';
 import { TaskRenderer } from './types';
+import { RENDERER_THEME } from './theme';
 
-let cachedMaskCanvas: HTMLCanvasElement | null = null;
-let cachedMaskCtx: CanvasRenderingContext2D | null = null;
-
+/**
+ * Renderer for instance segmentation results.
+ * Draws individual object masks, bounding boxes, and labels.
+ */
 export class SegmentationRenderer implements TaskRenderer {
+  private tempCanvas: HTMLCanvasElement | null = null;
+  private tempCtx: CanvasRenderingContext2D | null = null;
+
   render(
     ctx: CanvasRenderingContext2D,
     result: ParsedResult,
@@ -38,14 +43,14 @@ export class SegmentationRenderer implements TaskRenderer {
           maskChannels = protoShape[3] || 32;
         }
         
-        if (!cachedMaskCanvas || cachedMaskCanvas.width !== maskW || cachedMaskCanvas.height !== maskH) {
-          cachedMaskCanvas = document.createElement('canvas');
-          cachedMaskCanvas.width = maskW;
-          cachedMaskCanvas.height = maskH;
-          cachedMaskCtx = cachedMaskCanvas.getContext('2d');
+        if (!this.tempCanvas || this.tempCanvas.width !== maskW || this.tempCanvas.height !== maskH) {
+          this.tempCanvas = document.createElement('canvas');
+          this.tempCanvas.width = maskW;
+          this.tempCanvas.height = maskH;
+          this.tempCtx = this.tempCanvas.getContext('2d');
         }
         
-        const maskCtx = cachedMaskCtx;
+        const maskCtx = this.tempCtx;
         if (maskCtx) {
           const imgData = maskCtx.createImageData(maskW, maskH);
           
@@ -56,13 +61,7 @@ export class SegmentationRenderer implements TaskRenderer {
           const top = Math.max(0, Math.floor((b.cy - b.h / 2) * maskScaleY));
           const bottom = Math.min(maskH, Math.ceil((b.cy + b.h / 2) * maskScaleY));
 
-          const colors = [
-            [73, 174, 174],
-            [255, 80, 80],
-            [0, 255, 153],
-            [255, 153, 0],
-            [153, 0, 255]
-          ];
+          const colors = RENDERER_THEME.segmentationColorsRGB;
           const c = colors[b.classId % colors.length];
 
           for (let y = top; y < bottom; y++) {
@@ -89,38 +88,40 @@ export class SegmentationRenderer implements TaskRenderer {
             }
           }
           maskCtx.putImageData(imgData, 0, 0);
-          ctx.drawImage(cachedMaskCanvas!, 0, 0, maskW, maskH, 0, 0, canvasWidth, canvasHeight);
+          ctx.drawImage(this.tempCanvas!, 0, 0, maskW, maskH, 0, 0, canvasWidth, canvasHeight);
         }
       }
 
       // Draw bounding box + labels
       if (showLabels || showConf) {
+        const scale = Math.max(canvasWidth, canvasHeight) / 640;
+        const fontSize = Math.floor(10 * scale);
+        const boxHeight = Math.floor(18 * scale);
+        const padding = Math.floor(4 * scale);
+
         const x = b.cx - b.w / 2;
         const y = b.cy - b.h / 2;
-        const coralColor = '#FF5050';
         
-        ctx.strokeStyle = coralColor;
+        ctx.strokeStyle = RENDERER_THEME.colors.coral;
         ctx.lineWidth = 1.5;
         ctx.strokeRect(x, y, b.w, b.h);
         
-        let labelStr = `OBJ ${b.classId}`;
-        if (metadata.labels && metadata.labels.length > b.classId) {
-          labelStr = metadata.labels[b.classId];
-        }
-        
         let text = '';
-        if (showLabels) text += labelStr.toUpperCase();
+        if (showLabels) text += (b.label || `OBJ ${b.classId}`).toUpperCase();
         if (showLabels && showConf) text += ' ';
         if (showConf) text += `${(b.conf * 100).toFixed(0)}%`;
         
-        ctx.font = '10px monospace';
+        ctx.font = `${fontSize}px monospace`;
         const textWidth = ctx.measureText(text).width;
         
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.fillRect(x, y - 18, textWidth + 8, 18);
+        // Prevent label from drawing outside the top of the canvas
+        const labelY = Math.max(boxHeight, y);
+
+        ctx.fillStyle = RENDERER_THEME.colors.textBg;
+        ctx.fillRect(x, labelY - boxHeight, textWidth + padding * 2, boxHeight);
         
-        ctx.fillStyle = coralColor;
-        ctx.fillText(text, x + 4, y - 5);
+        ctx.fillStyle = RENDERER_THEME.colors.coral;
+        ctx.fillText(text, x + padding, labelY - padding);
       }
     }
   }

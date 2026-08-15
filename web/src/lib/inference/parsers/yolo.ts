@@ -1,5 +1,6 @@
-import { BoundingBox, ModelMetadata, PlaygroundParams, ParsedResult, ParsedDetectionResult } from '@/types/playground';
+import { BoundingBox, ModelMetadata, PlaygroundParams, ParsedDetectionResult } from '@/types/playground';
 import { OutputParser } from './types';
+import { applyNMS, getLabelName } from './utils';
 
 /**
  * Parser for YOLO v8 output format.
@@ -18,8 +19,9 @@ export class YoloParser implements OutputParser {
     protoData?: Float32Array | null,
     protoShape?: number[]
   ): ParsedDetectionResult {
-    const threshold = (params.threshold as number) ?? 0.5;
-    const iouThreshold = (params.iou_threshold as number) ?? 0.45;
+    const threshold = (params.threshold as number) ?? metadata.post_processing.default_threshold ?? 0.5;
+    const iouThreshold = (params.iou_threshold as number) ?? metadata.post_processing.default_iou ?? 0.45;
+    const maxDetections = (params.max_detections as number) ?? metadata.post_processing.default_max_detections ?? 20;
     const width = metadata.input_size[1] || 640;
     const height = metadata.input_size[0] || 640;
 
@@ -82,7 +84,9 @@ export class YoloParser implements OutputParser {
         
         const box: BoundingBox = { 
           cx, cy, w: boxW, h: boxH, 
-          conf: maxClassConf, classId, 
+          conf: maxClassConf, 
+          classId, 
+          label: getLabelName(classId, metadata),
           keypoints: [],
           maskCoeffs: null
         };
@@ -104,7 +108,7 @@ export class YoloParser implements OutputParser {
             
             if (kconf < 0 || kconf > 1) kconf = 1 / (1 + Math.exp(-kconf));
             
-            box.keypoints.push({x: kx, y: ky, conf: kconf});
+            box.keypoints.push({x: kx, y: ky, conf: kconf, label: getLabelName(k, metadata)});
           }
         }
         
@@ -121,7 +125,6 @@ export class YoloParser implements OutputParser {
       }
     }
 
-    const maxDetections = (params.max_detections as number) ?? 20;
     return { 
       type: 'detection', 
       boxes: applyNMS(boxes, iouThreshold, maxDetections), 
@@ -129,41 +132,4 @@ export class YoloParser implements OutputParser {
       count: boxes.length 
     };
   }
-}
-
-// ============================================================
-// NMS utilities (shared)
-// ============================================================
-
-function calculateIoU(b1: BoundingBox, b2: BoundingBox): number {
-  const x1 = Math.max(b1.cx - b1.w / 2, b2.cx - b2.w / 2);
-  const y1 = Math.max(b1.cy - b1.h / 2, b2.cy - b2.h / 2);
-  const x2 = Math.min(b1.cx + b1.w / 2, b2.cx + b2.w / 2);
-  const y2 = Math.min(b1.cy + b1.h / 2, b2.cy + b2.h / 2);
-  const intersection = Math.max(0, x2 - x1) * Math.max(0, y2 - y1);
-  const area1 = b1.w * b1.h;
-  const area2 = b2.w * b2.h;
-  const union = area1 + area2 - intersection;
-  return union > 0 ? intersection / union : 0;
-}
-
-function applyNMS(boxes: BoundingBox[], iouThreshold: number, maxDetections = 20): BoundingBox[] {
-  boxes.sort((a, b) => b.conf - a.conf);
-  const kept: BoundingBox[] = [];
-  const active = [...boxes];
-  
-  while (active.length > 0 && kept.length < maxDetections) {
-    const current = active.shift()!;
-    kept.push(current);
-    
-    for (let i = active.length - 1; i >= 0; i--) {
-      if (active[i].classId === current.classId) {
-        if (calculateIoU(current, active[i]) > iouThreshold) {
-          active.splice(i, 1);
-        }
-      }
-    }
-  }
-  
-  return kept;
 }

@@ -1,7 +1,14 @@
 import { ModelMetadata, PlaygroundParams, ParsedResult } from '@/types/playground';
 import { TaskRenderer } from './types';
 
+/**
+ * Renderer for image-to-image tasks (e.g., style transfer, super-resolution).
+ * Draws the processed image tensor directly onto the canvas.
+ */
 export class ImageToImageRenderer implements TaskRenderer {
+  private tempCanvas: HTMLCanvasElement | null = null;
+  private tempCtx: CanvasRenderingContext2D | null = null;
+
   render(
     ctx: CanvasRenderingContext2D,
     result: ParsedResult,
@@ -12,10 +19,15 @@ export class ImageToImageRenderer implements TaskRenderer {
   ): void {
     if (result.type !== 'image-to-image') return;
     
-    let tempCanvas = document.createElement('canvas');
-    tempCanvas.width = result.width;
-    tempCanvas.height = result.height;
-    let tempCtx = tempCanvas.getContext('2d');
+    if (!this.tempCanvas || this.tempCanvas.width !== result.width || this.tempCanvas.height !== result.height) {
+      this.tempCanvas = document.createElement('canvas');
+      this.tempCanvas.width = result.width;
+      this.tempCanvas.height = result.height;
+      this.tempCtx = this.tempCanvas.getContext('2d');
+    }
+    
+    const tempCanvas = this.tempCanvas;
+    const tempCtx = this.tempCtx;
     if (!tempCtx) return;
     
     tempCtx.putImageData(result.imageData, 0, 0);

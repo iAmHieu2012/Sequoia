@@ -1,6 +1,11 @@
 import { ModelMetadata, PlaygroundParams, ParsedResult } from '@/types/playground';
 import { TaskRenderer } from './types';
+import { RENDERER_THEME } from './theme';
 
+/**
+ * Renderer for object detection and face detection results.
+ * Draws bounding boxes, labels, and confidence scores.
+ */
 export class DetectionRenderer implements TaskRenderer {
   render(
     ctx: CanvasRenderingContext2D,
@@ -21,10 +26,9 @@ export class DetectionRenderer implements TaskRenderer {
       const x = b.cx - b.w / 2;
       const y = b.cy - b.h / 2;
       const cLen = Math.min(15, b.w * 0.25, b.h * 0.25);
-      const coralColor = '#FF5050';
       
       // Corner brackets
-      ctx.strokeStyle = coralColor;
+      ctx.strokeStyle = RENDERER_THEME.colors.coral;
       ctx.lineWidth = 2;
       
       ctx.beginPath();
@@ -45,29 +49,32 @@ export class DetectionRenderer implements TaskRenderer {
 
       // Faint inner box
       ctx.globalAlpha = 0.2;
-      ctx.strokeStyle = coralColor;
+      ctx.strokeStyle = RENDERER_THEME.colors.coral;
       ctx.strokeRect(x, y, b.w, b.h);
       ctx.globalAlpha = 1.0;
       
       if (showLabels || showConf) {
-        let labelStr = `OBJ ${b.classId}`;
-        if (metadata.labels && metadata.labels.length > b.classId) {
-          labelStr = metadata.labels[b.classId];
-        }
-        
+        const scale = Math.max(canvasWidth, canvasHeight) / 640;
+        const fontSize = Math.floor(10 * scale);
+        const boxHeight = Math.floor(18 * scale);
+        const padding = Math.floor(4 * scale);
+
         let text = '';
-        if (showLabels) text += labelStr.toUpperCase();
+        if (showLabels) text += (b.label || `OBJ ${b.classId}`).toUpperCase();
         if (showLabels && showConf) text += ' ';
         if (showConf) text += `${(b.conf * 100).toFixed(0)}%`;
         
-        ctx.font = '10px monospace';
+        ctx.font = `${fontSize}px monospace`;
         const textWidth = ctx.measureText(text).width;
         
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.fillRect(x, y - 18, textWidth + 8, 18);
+        // Prevent label from drawing outside the top of the canvas
+        const labelY = Math.max(boxHeight, y);
+
+        ctx.fillStyle = RENDERER_THEME.colors.textBg;
+        ctx.fillRect(x, labelY - boxHeight, textWidth + padding * 2, boxHeight);
         
-        ctx.fillStyle = coralColor;
-        ctx.fillText(text, x + 4, y - 5);
+        ctx.fillStyle = RENDERER_THEME.colors.coral;
+        ctx.fillText(text, x + padding, labelY - padding);
       }
     }
   }

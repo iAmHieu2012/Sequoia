@@ -1,7 +1,14 @@
 import { ModelMetadata, PlaygroundParams, ParsedResult } from '@/types/playground';
 import { TaskRenderer } from './types';
 
+/**
+ * Renderer for semantic segmentation and background removal tasks.
+ * Draws a full-image mask overlay or handles alpha-matte background removal.
+ */
 export class SemanticSegmentationRenderer implements TaskRenderer {
+  private tempCanvas: HTMLCanvasElement | null = null;
+  private tempCtx: CanvasRenderingContext2D | null = null;
+
   render(
     ctx: CanvasRenderingContext2D,
     result: ParsedResult,
@@ -17,10 +24,15 @@ export class SemanticSegmentationRenderer implements TaskRenderer {
     
     const maskOpacity = (params.mask_opacity as number) ?? 0.6;
     
-    let tempCanvas = document.createElement('canvas');
-    tempCanvas.width = result.width;
-    tempCanvas.height = result.height;
-    let tempCtx = tempCanvas.getContext('2d');
+    if (!this.tempCanvas || this.tempCanvas.width !== result.width || this.tempCanvas.height !== result.height) {
+      this.tempCanvas = document.createElement('canvas');
+      this.tempCanvas.width = result.width;
+      this.tempCanvas.height = result.height;
+      this.tempCtx = this.tempCanvas.getContext('2d');
+    }
+    
+    const tempCanvas = this.tempCanvas;
+    const tempCtx = this.tempCtx;
     if (!tempCtx) return;
     
     let imageData: ImageData;

@@ -1,6 +1,11 @@
 import { BoundingBox, ModelMetadata, PlaygroundParams, ParsedDetectionResult } from '@/types/playground';
 import { OutputParser } from './types';
+import { applyNMS, getLabelName } from './utils';
 
+/**
+ * Parser for SSD (Single Shot MultiBox Detector) models.
+ * Expected outputs: 2 tensors (bounding boxes and class scores).
+ */
 export class SsdParser implements OutputParser {
   parse(
     rawData: Float32Array,
@@ -13,7 +18,10 @@ export class SsdParser implements OutputParser {
     protoData?: Float32Array | null,
     protoShape?: number[]
   ): ParsedDetectionResult {
-    const threshold = (params.threshold as number) ?? 0.5;
+    const threshold = (params.threshold as number) ?? metadata.post_processing?.default_threshold ?? 0.5;
+    const iouThreshold = (params.iou_threshold as number) ?? metadata.post_processing?.default_iou ?? 0.45;
+    const maxDetections = (params.max_detections as number) ?? metadata.post_processing?.default_max_detections ?? 20;
+    
     const width = metadata.input_size[1] || 640;
     const height = metadata.input_size[0] || 640;
 
@@ -57,7 +65,7 @@ export class SsdParser implements OutputParser {
       }
 
       if (maxConf > threshold) {
-        // SSD typically outputs [ymin, xmin, ymax, xmax] in normalized coordinates
+        // SSD typically outputs [ymin, xmin, ymax, xmax] in normalized coordinates [0..1]
         let ymin = boxesData[i * 4];
         let xmin = boxesData[i * 4 + 1];
         let ymax = boxesData[i * 4 + 2];
@@ -69,7 +77,7 @@ export class SsdParser implements OutputParser {
         let boxW = (xmax - xmin);
         let boxH = (ymax - ymin);
 
-        // De-normalize and scale to canvas
+        // De-normalize and scale directly to canvas size
         cx = cx * width * scaleX;
         cy = cy * height * scaleY;
         boxW = boxW * width * scaleX;
@@ -79,27 +87,21 @@ export class SsdParser implements OutputParser {
           cx, cy, w: boxW, h: boxH,
           conf: maxConf,
           classId,
+          label: getLabelName(classId, metadata),
           keypoints: [],
           maskCoeffs: null
         });
       }
     }
 
-    // Usually SSD models have internal NMS, but we can apply it just in case
-    // For simplicity, we just return the boxes filtered by threshold
-    // You could import applyNMS here if needed.
-    
-    // Sort by confidence
-    boxes.sort((a, b) => b.conf - a.conf);
-    
-    const maxDetections = (params.max_detections as number) ?? 20;
-    const kept = boxes.slice(0, maxDetections);
+    // Apply strict NMS (SSD raw outputs often need it, even if some have internal NMS ops)
+    const keptBoxes = applyNMS(boxes, iouThreshold, maxDetections);
 
     return {
       type: 'detection',
-      boxes: kept,
+      boxes: keptBoxes,
       numClasses,
-      count: kept.length
+      count: keptBoxes.length
     };
   }
 }

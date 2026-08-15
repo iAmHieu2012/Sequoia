@@ -1,6 +1,11 @@
 import { ModelMetadata, PlaygroundParams, ParsedResult, Keypoint } from '@/types/playground';
 import { TaskRenderer } from './types';
+import { RENDERER_THEME } from './theme';
 
+/**
+ * Renderer for pose estimation and hand tracking results.
+ * Draws keypoints and connects them with a skeleton based on model metadata.
+ */
 export class PoseRenderer implements TaskRenderer {
   render(
     ctx: CanvasRenderingContext2D,
@@ -15,7 +20,7 @@ export class PoseRenderer implements TaskRenderer {
     const kpThreshold = (params.keypoint_threshold as number) ?? 0.5;
     const skeleton = metadata.visualization?.skeleton || [];
     
-    ctx.strokeStyle = '#49AEAE';
+    ctx.strokeStyle = RENDERER_THEME.colors.teal;
     ctx.lineWidth = 2;
     
     const allKeypoints: Keypoint[][] = [];
@@ -37,7 +42,7 @@ export class PoseRenderer implements TaskRenderer {
         }
       }
 
-      ctx.fillStyle = '#FF5050';
+      ctx.fillStyle = RENDERER_THEME.colors.coral;
       for (const kp of kps) {
         if (kp.conf > kpThreshold) {
           ctx.beginPath();
