@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createClient();
     const { data, error } = await supabase
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
 
     if (error) throw error;
     return NextResponse.json({ data: data });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: (err instanceof Error ? err.message : "Unknown error") }, { status: 500 });
   }
 }

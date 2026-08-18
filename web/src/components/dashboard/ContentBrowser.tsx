@@ -7,6 +7,9 @@ import NebulasTab from "./tabs/NebulasTab";
 import RogueTab from "./tabs/RogueTab";
 import ModulesTab from "./tabs/ModulesTab";
 
+import { Topic, Article, Textbook, ProgressSummary } from "@/types/dashboard";
+import { CosmosMap } from "@/hooks/cosmos/useCosmosData";
+
 type TabId = "nebulas" | "rogue" | "modules";
 
 export interface TabTarget {
@@ -20,19 +23,19 @@ export interface TabTarget {
 interface ContentBrowserProps {
   activeTab: TabId;
   setActiveTab: (tab: TabId) => void;
-  topics: any[];
-  rogueArticles: any[];
-  textbooks: any[];
-  articles: any[];
+  topics: Topic[];
+  rogueArticles: Article[];
+  textbooks: Textbook[];
+  articles: Article[];
   loading: boolean;
   drilldownLoading: boolean;
-  selectedTopic: any | null;
-  setSelectedTopic: (topic: any | null) => void;
-  fetchTopicArticles: (topic: any) => void;
+  selectedTopic: Topic | null;
+  setSelectedTopic: (topic: Topic | null) => void;
+  fetchTopicArticles: (topic: Topic) => void;
   setMapTarget: React.Dispatch<React.SetStateAction<TabTarget>>;
   user: User | null;
   getNodeStatus: (id: string) => boolean;
-  progressSummary: any;
+  progressSummary: ProgressSummary | null;
 }
 
 export default function ContentBrowser({
@@ -41,24 +44,25 @@ export default function ContentBrowser({
   fetchTopicArticles, setMapTarget, user, getNodeStatus,
   progressSummary
 }: ContentBrowserProps) {
-  const [mapData, setMapData] = useState<any>(null);
+  const [mapData, setMapData] = useState<CosmosMap | null>(null);
   const currentMapId = activeTab === "rogue" ? "standalone-articles" : (activeTab === "nebulas" && selectedTopic ? selectedTopic.id : undefined);
 
   useEffect(() => {
     if (currentMapId) {
-      setMapData(null);
+      let isMounted = true;
       fetch(`/api/v1/cosmos/maps/${currentMapId}`)
         .then(res => res.json())
         .then(data => {
-          if (data.data) setMapData(data.data);
-          else setMapData(null);
+          if (isMounted) {
+            if (data.data) setMapData(data.data);
+            else setMapData(null);
+          }
         })
         .catch(err => {
           console.error(err);
-          setMapData(null);
+          if (isMounted) setMapData(null);
         });
-    } else {
-      setMapData(null);
+      return () => { isMounted = false; setMapData(null); };
     }
   }, [currentMapId]);
 
@@ -102,8 +106,12 @@ export default function ContentBrowser({
       </div>
 
       {/* Tab content */}
-      <div className="flex-1 overflow-y-auto min-h-0 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-white/20 uppercase tracking-wider">
-
+      <div className={`flex-1 overflow-y-auto min-h-0 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-black/20 uppercase tracking-wider ${
+        activeTab === "nebulas" ? "[&::-webkit-scrollbar-thumb]:bg-turquoise/20 hover:[&::-webkit-scrollbar-thumb]:bg-turquoise/40" :
+        activeTab === "rogue" ? "[&::-webkit-scrollbar-thumb]:bg-purple/20 hover:[&::-webkit-scrollbar-thumb]:bg-purple/40" :
+        activeTab === "modules" ? "[&::-webkit-scrollbar-thumb]:bg-orange/20 hover:[&::-webkit-scrollbar-thumb]:bg-orange/40" :
+        "[&::-webkit-scrollbar-thumb]:bg-white/20 hover:[&::-webkit-scrollbar-thumb]:bg-white/40"
+      }`}>
         {/* NEBULAS tab */}
         {activeTab === "nebulas" && (
           <NebulasTab 

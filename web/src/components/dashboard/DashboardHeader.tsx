@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Orbit, User as UserIcon, LogOut, Cpu } from "lucide-react";
+import { Orbit, User as UserIcon, Cpu } from "lucide-react";
 import Link from "next/link";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,7 +13,7 @@ export default function DashboardHeader() {
   const { user } = useAuth();
 
   useEffect(() => {
-    // eslint-disable-next-line
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentTime(new Date());
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);

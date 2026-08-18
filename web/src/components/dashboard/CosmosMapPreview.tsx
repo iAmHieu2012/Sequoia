@@ -134,7 +134,7 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
 
                   <div className={`${styles.observationLog} scale-150 transform-origin-top-left`}>
                     <div className={styles.logHeader}>
-                      <span>{node.celestial_type} //</span>
+                      <span>{node.celestial_type} {'//'}</span>
                       <span className="opacity-40">ID: {node.article_id.length > 10 ? node.article_id.substring(0, 10) + '...' : node.article_id}</span>
                     </div>
                     <div className={styles.logTitle}>{node.title}</div>

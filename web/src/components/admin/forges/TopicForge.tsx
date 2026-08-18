@@ -1,30 +1,27 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import CyberBrackets from '@/components/ui/CyberBrackets';
 import { ForgeLabel, ForgeInput, ForgeTextarea, ForgeHeader, ForgeWrapper } from './ForgeShared';
 
 interface TopicForgeProps {
   onClose: () => void;
   onSave: (data: Record<string, unknown>) => void;
-  initialData?: any;
+  initialData?: {
+    id?: string;
+    name?: string;
+    description?: string;
+    sort_order?: number | string;
+  };
 }
 
 export default function TopicForge({ onClose, onSave, initialData }: TopicForgeProps) {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [sortOrder, setSortOrder] = useState('99');
-
-  useEffect(() => {
-    if (initialData) {
-      setName(initialData.name || '');
-      setDescription(initialData.description || '');
-      setSortOrder(initialData.sort_order?.toString() || '99');
-    }
-  }, [initialData]);
+  const [name, setName] = useState(initialData?.name || '');
+  const [description, setDescription] = useState(initialData?.description || '');
+  const [sortOrder, setSortOrder] = useState(initialData?.sort_order?.toString() || '99');
 
   const handleSave = () => {
-    onSave({ name, description, sort_order: parseInt(sortOrder) || 99 });
+    onSave({ id: initialData?.id, name, description, sort_order: parseInt(sortOrder) || 99 });
   };
 
   return (

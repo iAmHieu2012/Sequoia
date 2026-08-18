@@ -1,5 +1,5 @@
-import { ModelMetadata, PlaygroundParams, ParsedImageToImageResult } from '@/types/playground';
-import { OutputParser } from './types';
+import { ParsedImageToImageResult } from '@/types/playground';
+import { OutputParser, ParseOptions } from './types';
 
 /**
  * Parser for models that return an image tensor (e.g. style transfer, depth estimation, super resolution).
@@ -7,15 +7,7 @@ import { OutputParser } from './types';
  * C is usually 1 (grayscale) or 3 (RGB).
  */
 export class ImageTensorParser implements OutputParser {
-  parse(
-    rawData: Float32Array,
-    shape: number[],
-    taskType: string,
-    params: PlaygroundParams,
-    metadata: ModelMetadata,
-    scaleX: number,
-    scaleY: number
-  ): ParsedImageToImageResult {
+  parse({ rawData, shape, taskType }: ParseOptions): ParsedImageToImageResult {
     let height: number, width: number, channels: number;
     let isNCHW = false;
 

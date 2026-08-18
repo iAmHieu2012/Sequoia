@@ -10,7 +10,7 @@ export async function POST(request: NextRequest, props: { params: Promise<{ mapI
 
     const userId = user.id;
     return NextResponse.json({ message: `Decode started for ${params.mapId} by user ${userId}` });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: (err instanceof Error ? err.message : "Unknown error") }, { status: 500 });
   }
 }

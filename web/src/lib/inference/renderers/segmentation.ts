@@ -1,5 +1,5 @@
-import { ModelMetadata, PlaygroundParams, ParsedResult } from '@/types/playground';
-import { TaskRenderer } from './types';
+
+import { TaskRenderer, RenderOptions } from './types';
 import { RENDERER_THEME } from './theme';
 
 /**
@@ -10,16 +10,7 @@ export class SegmentationRenderer implements TaskRenderer {
   private tempCanvas: HTMLCanvasElement | null = null;
   private tempCtx: CanvasRenderingContext2D | null = null;
 
-  render(
-    ctx: CanvasRenderingContext2D,
-    result: ParsedResult,
-    params: PlaygroundParams,
-    metadata: ModelMetadata,
-    canvasWidth: number,
-    canvasHeight: number,
-    protoData?: Float32Array | null,
-    protoShape?: number[]
-  ): void {
+  render({ ctx, result, params, canvasWidth, canvasHeight, protoData, protoShape }: RenderOptions): void {
     if (result.type !== 'detection') return;
     
     const showLabels = params.show_labels !== false;

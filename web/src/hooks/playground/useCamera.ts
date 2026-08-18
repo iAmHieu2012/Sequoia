@@ -1,9 +1,9 @@
-import { useEffect, useRef, MutableRefObject, Dispatch, SetStateAction } from 'react';
+import { useEffect, useRef, RefObject, Dispatch, SetStateAction } from 'react';
 
 export function useCamera(
   cameraActive: boolean,
   setLogs: Dispatch<SetStateAction<string[]>>,
-  videoRef: MutableRefObject<HTMLVideoElement | HTMLImageElement | null>
+  videoRef: RefObject<HTMLVideoElement | HTMLImageElement | null>
 ) {
   const streamRef = useRef<MediaStream | null>(null);
 

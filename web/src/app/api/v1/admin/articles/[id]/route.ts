@@ -30,8 +30,8 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
     };
     
     return NextResponse.json({ data: articleDetail  });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: (err instanceof Error ? err.message : "Unknown error") }, { status: 500 });
   }
 }
 
@@ -68,8 +68,8 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
     const { data: mapData } = await supabaseAdmin.from('cosmos_maps').select('nodes').eq('id', mapId).single();
     if (mapData && mapData.nodes) {
       const updatedNodes = mapData.nodes
-        .filter((n: any) => n.article_id !== docId)
-        .map((n: any) => ({
+        .filter((n: Record<string, unknown>) => n.article_id !== docId)
+        .map((n: Record<string, unknown>) => ({
           ...n,
           connections: Array.isArray(n.connections) ? n.connections.filter((id: string) => id !== docId) : []
         }));
@@ -93,7 +93,7 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
     }
 
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: (err instanceof Error ? err.message : "Unknown error") }, { status: 500 });
   }
 }

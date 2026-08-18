@@ -1,5 +1,5 @@
-import { ModelMetadata, PlaygroundParams, ParsedResult } from '@/types/playground';
-import { TaskRenderer } from './types';
+
+import { TaskRenderer, RenderOptions } from './types';
 import { RENDERER_THEME } from './theme';
 
 /**
@@ -7,14 +7,7 @@ import { RENDERER_THEME } from './theme';
  * Draws the top-K predicted classes and their confidence scores.
  */
 export class ClassificationRenderer implements TaskRenderer {
-  render(
-    ctx: CanvasRenderingContext2D,
-    result: ParsedResult,
-    params: PlaygroundParams,
-    metadata: ModelMetadata,
-    canvasWidth: number,
-    canvasHeight: number
-  ): void {
+  render({ ctx, result, canvasWidth, canvasHeight }: RenderOptions): void {
     if (result.type !== 'classification') return;
     
     const scale = Math.max(canvasWidth, canvasHeight) / 640;

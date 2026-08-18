@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       title: body.title,
       topic_id: newTopicId,
       summary: body.summary,
-      tags: body.tags || [],
+      tags: body.tags?.map((t: string) => t.trim()) || [],
       is_published: body.is_published ?? false,
       created_at: oldArticle ? undefined : now,
       updated_at: now,
@@ -77,16 +77,16 @@ export async function POST(request: NextRequest) {
       // Remove from old map
       const { data: oldMapData } = await supabaseAdmin.from('cosmos_maps').select('nodes').eq('id', oldMapId).single();
       if (oldMapData) {
-        const updatedOldNodes = (oldMapData.nodes || []).filter((n: any) => n.article_id !== docId);
+        const updatedOldNodes = (oldMapData.nodes || []).filter((n: Record<string, unknown>) => n.article_id !== docId);
         await supabaseAdmin.from('cosmos_maps').update({ nodes: updatedOldNodes }).eq('id', oldMapId);
       }
     }
 
     // Add or Update in new map
-    const { data: newMapData, error: newMapError } = await supabaseAdmin.from('cosmos_maps').select('nodes').eq('id', newMapId).single();
+    const { data: newMapData } = await supabaseAdmin.from('cosmos_maps').select('nodes').eq('id', newMapId).single();
     if (newMapData) {
-      let nodes = newMapData.nodes || [];
-      const existingIdx = nodes.findIndex((n: any) => n.article_id === docId);
+      const nodes = newMapData.nodes || [];
+      const existingIdx = nodes.findIndex((n: Record<string, unknown>) => n.article_id === docId);
       
       if (existingIdx !== -1) {
         nodes[existingIdx] = newNodeData; // Update existing coords/connections
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ data: article });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: (err instanceof Error ? err.message : "Unknown error") }, { status: 500 });
   }
 }

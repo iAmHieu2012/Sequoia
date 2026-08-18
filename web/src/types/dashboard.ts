@@ -22,6 +22,9 @@ export interface Topic {
 }
 
 export interface Article {
+  is_published?: boolean;
+  tags?: string[];
+  file_size_bytes?: number;
   id: string;
   title: string;
   summary: string;
@@ -39,6 +42,7 @@ export interface ProgressSummary {
 }
 
 export interface AiModel {
+  file_size_bytes?: number;
   id: string;
   name: string;
   description: string;

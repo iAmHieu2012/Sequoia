@@ -12,20 +12,20 @@ export interface EntityForgeProps {
   activeTab: AdminTab;
   onClose: () => void;
   onSave: (data: Record<string, unknown>) => void;
-  initialData?: any;
+  initialData?: Record<string, unknown> | null;
 }
 
 export default function EntityForge({ activeTab, onClose, onSave, initialData }: EntityForgeProps) {
   switch (activeTab) {
     case 'stars':
     case 'anomalies':
-      return <ArticleForge onClose={onClose} onSave={onSave} initialData={initialData} isAnomaly={activeTab === 'anomalies'} />;
+      return <ArticleForge key={(initialData?.id as string) ?? 'new-article'} onClose={onClose} onSave={onSave} initialData={initialData as React.ComponentProps<typeof ArticleForge>['initialData']} isAnomaly={activeTab === 'anomalies'} />;
     case 'nebulas':
-      return <TopicForge onClose={onClose} onSave={onSave} initialData={initialData} />;
+      return <TopicForge key={(initialData?.id as string) ?? 'new-topic'} onClose={onClose} onSave={onSave} initialData={initialData as React.ComponentProps<typeof TopicForge>['initialData']} />;
     case 'models':
-      return <ModelForge onClose={onClose} onSave={onSave} initialData={initialData} />;
+      return <ModelForge key={(initialData?.id as string) ?? 'new-model'} onClose={onClose} onSave={onSave} initialData={initialData as React.ComponentProps<typeof ModelForge>['initialData']} />;
     case 'textbooks':
-      return <TextbookForge onClose={onClose} onSave={onSave} initialData={initialData} />;
+      return <TextbookForge key={(initialData?.id as string) ?? 'new-textbook'} onClose={onClose} onSave={onSave} initialData={initialData as React.ComponentProps<typeof TextbookForge>['initialData']} />;
     default:
       return null;
   }

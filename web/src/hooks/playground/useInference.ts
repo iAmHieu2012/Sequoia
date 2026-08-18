@@ -1,18 +1,18 @@
-import { useEffect, useRef, MutableRefObject, Dispatch, SetStateAction, useCallback } from 'react';
+import { useCallback, useEffect, useRef, Dispatch, SetStateAction, RefObject } from 'react';
 import { CompiledModel, Tensor } from '@litertjs/core';
 import { getParser, getRenderer } from "@/lib/inference/registry";
 import { AiModel, ModelMetadata, PlaygroundParams } from '@/types/playground';
 
 interface UseInferenceProps {
-  videoRef: MutableRefObject<HTMLVideoElement | HTMLImageElement | null>;
-  canvasRef: MutableRefObject<HTMLCanvasElement | null>;
-  compiledModelRef: MutableRefObject<CompiledModel | null>;
+  videoRef: RefObject<HTMLVideoElement | HTMLImageElement | null>;
+  canvasRef: RefObject<HTMLCanvasElement | null>;
+  compiledModelRef: RefObject<CompiledModel | null>;
   model: AiModel | null;
   metadata: ModelMetadata | null;
   cameraActive: boolean;
   booting: boolean;
   compiledModelReady: boolean;
-  paramsRef: MutableRefObject<PlaygroundParams>;
+  paramsRef: RefObject<PlaygroundParams>;
   onFrame: (inferenceTimeMs: number) => void;
   onDetectionCount: (count: number) => void;
   setLogs: Dispatch<SetStateAction<string[]>>;
@@ -76,13 +76,20 @@ export function useInference({
     
     let height: number, width: number;
     let isNCHW = false;
-    if (shape[1] === 3) {
-      isNCHW = true;
-      height = shape[2];
-      width = shape[3];
+
+    if (metadataRef.current?.input_layout) {
+      isNCHW = metadataRef.current.input_layout === 'nchw';
+      height = isNCHW ? shape[2] : shape[1];
+      width = isNCHW ? shape[3] : shape[2];
     } else {
-      height = shape[1];
-      width = shape[2];
+      if (shape[1] === 3 || shape[1] === 1) {
+        isNCHW = true;
+        height = shape[2];
+        width = shape[3];
+      } else {
+        height = shape[1];
+        width = shape[2];
+      }
     }
 
     if (!workerCtxRef.current || workerCtxRef.current.canvas.width !== width) {
@@ -110,14 +117,14 @@ export function useInference({
     // Default to 1/255.0 scaling (0-1), unless the model metadata specifies a custom scale
     let scale = 1 / 255.0;
     if (currentModel?.metadata?.normalize && 'scale' in currentModel.metadata.normalize) {
-      scale = (currentModel.metadata.normalize as any).scale;
+      scale = Number((currentModel.metadata.normalize as Record<string, unknown>).scale);
     }
 
     if (isNCHW) {
       const planeSize = width * height;
       for (let i = 0, p = 0; i < imageData.data.length; i += 4, p++) {
         let r = imageData.data[i];
-        let g = imageData.data[i + 1];
+        const g = imageData.data[i + 1];
         let b = imageData.data[i + 2];
         if (isBGR) { const tmp = r; r = b; b = tmp; }
         
@@ -132,7 +139,7 @@ export function useInference({
     } else {
       for (let i = 0, j = 0; i < imageData.data.length; i += 4, j += 3) {
         let r = imageData.data[i];
-        let g = imageData.data[i + 1];
+        const g = imageData.data[i + 1];
         let b = imageData.data[i + 2];
         if (isBGR) { const tmp = r; r = b; b = tmp; }
 
@@ -152,7 +159,7 @@ export function useInference({
       const outputs = await compiledModel.run([inputTensor]);
       
       try {
-        if (!canvasRef.current) return;
+        if (!canvasRef.current || !outputs || outputs.length === 0) return;
         
         const inferenceTimeMs = performance.now() - start;
         onFrame(inferenceTimeMs);
@@ -208,15 +215,29 @@ export function useInference({
             }
 
             if (parser && renderer) {
-              const result = parser.parse(
-                outData, outShape, metadataRef.current.task, paramsRef.current, metadataRef.current,
-                scaleX, scaleY, protoData, protoShape
-              );
+              const result = parser.parse({
+                rawData: outData, 
+                shape: outShape, 
+                taskType: metadataRef.current.task, 
+                params: paramsRef.current, 
+                metadata: metadataRef.current,
+                scaleX, 
+                scaleY, 
+                protoData, 
+                protoShape
+              });
               
-              renderer.render(
-                dCtx, result, paramsRef.current, metadataRef.current,
-                displayCanvas.width, displayCanvas.height, protoData, protoShape, mediaSource
-              );
+              renderer.render({
+                ctx: dCtx, 
+                result, 
+                params: paramsRef.current, 
+                metadata: metadataRef.current,
+                canvasWidth: displayCanvas.width, 
+                canvasHeight: displayCanvas.height, 
+                protoData, 
+                protoShape, 
+                mediaSource
+              });
               
               onDetectionCount(result.count);
             }

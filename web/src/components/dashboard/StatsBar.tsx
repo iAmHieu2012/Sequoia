@@ -3,6 +3,7 @@
 import { ShieldCheck, ClipboardClock, Radar, BookText, Activity } from "lucide-react";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 import { type User } from "@supabase/supabase-js";
+import { UserProgress } from "@/hooks/cosmos/useCosmosData";
 
 interface CategoryProgress {
   total: number;
@@ -20,7 +21,7 @@ interface StatsBarProps {
   progressSummary: ProgressSummary | null;
   rogueArticlesLength: number;
   textbooksLength: number;
-  userProgress: any;
+  userProgress: UserProgress | null;
 }
 
 export default function StatsBar({
@@ -32,7 +33,7 @@ export default function StatsBar({
 }: StatsBarProps) {
   let sigDecoded = 0;
   let undiscovered = 0;
-  let anomalies = rogueArticlesLength;
+  const anomalies = rogueArticlesLength;
   let totalNodes = 0;
 
   if (progressSummary) {

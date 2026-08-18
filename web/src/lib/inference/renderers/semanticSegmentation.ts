@@ -1,5 +1,5 @@
-import { ModelMetadata, PlaygroundParams, ParsedResult } from '@/types/playground';
-import { TaskRenderer } from './types';
+
+import { TaskRenderer, RenderOptions } from './types';
 
 /**
  * Renderer for semantic segmentation and background removal tasks.
@@ -9,17 +9,7 @@ export class SemanticSegmentationRenderer implements TaskRenderer {
   private tempCanvas: HTMLCanvasElement | null = null;
   private tempCtx: CanvasRenderingContext2D | null = null;
 
-  render(
-    ctx: CanvasRenderingContext2D,
-    result: ParsedResult,
-    params: PlaygroundParams,
-    metadata: ModelMetadata,
-    canvasWidth: number,
-    canvasHeight: number,
-    protoData?: Float32Array | null,
-    protoShape?: number[],
-    mediaSource?: HTMLVideoElement | HTMLImageElement
-  ): void {
+  render({ ctx, result, params, metadata, canvasWidth, canvasHeight, mediaSource }: RenderOptions): void {
     if (result.type !== 'semantic-segmentation') return;
     
     const maskOpacity = (params.mask_opacity as number) ?? 0.6;

@@ -1,5 +1,5 @@
-import { ModelMetadata, PlaygroundParams, ParsedResult, Keypoint } from '@/types/playground';
-import { TaskRenderer } from './types';
+import { Keypoint } from '@/types/playground';
+import { TaskRenderer, RenderOptions } from './types';
 import { RENDERER_THEME } from './theme';
 
 /**
@@ -7,14 +7,7 @@ import { RENDERER_THEME } from './theme';
  * Draws keypoints and connects them with a skeleton based on model metadata.
  */
 export class PoseRenderer implements TaskRenderer {
-  render(
-    ctx: CanvasRenderingContext2D,
-    result: ParsedResult,
-    params: PlaygroundParams,
-    metadata: ModelMetadata,
-    canvasWidth: number,
-    canvasHeight: number
-  ): void {
+  render({ ctx, result, params, metadata }: RenderOptions): void {
     if (result.type !== 'detection' && result.type !== 'pose') return;
     
     const kpThreshold = (params.keypoint_threshold as number) ?? 0.5;

@@ -1,5 +1,5 @@
-import { ModelMetadata, PlaygroundParams, ParsedResult } from '@/types/playground';
-import { TaskRenderer } from './types';
+
+import { TaskRenderer, RenderOptions } from './types';
 
 /**
  * Renderer for image-to-image tasks (e.g., style transfer, super-resolution).
@@ -9,14 +9,7 @@ export class ImageToImageRenderer implements TaskRenderer {
   private tempCanvas: HTMLCanvasElement | null = null;
   private tempCtx: CanvasRenderingContext2D | null = null;
 
-  render(
-    ctx: CanvasRenderingContext2D,
-    result: ParsedResult,
-    params: PlaygroundParams,
-    metadata: ModelMetadata,
-    canvasWidth: number,
-    canvasHeight: number
-  ): void {
+  render({ ctx, result, canvasWidth, canvasHeight }: RenderOptions): void {
     if (result.type !== 'image-to-image') return;
     
     if (!this.tempCanvas || this.tempCanvas.width !== result.width || this.tempCanvas.height !== result.height) {

@@ -19,6 +19,7 @@ export default function usePanZoom(
   const translateX = useRef(0);
   const translateY = useRef(0);
   const isTransitioning = useRef(false);
+  const flyToTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const isDragging = useRef(false);
   const startX = useRef(0);
@@ -71,7 +72,8 @@ export default function usePanZoom(
     translateY.current = clamped.y;
     scale.current = newScale;
     notifyUpdate();
-    setTimeout(() => {
+    if (flyToTimeout.current) clearTimeout(flyToTimeout.current);
+    flyToTimeout.current = setTimeout(() => {
       isTransitioning.current = false;
       notifyUpdate();
     }, 800);

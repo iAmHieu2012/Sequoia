@@ -9,9 +9,15 @@ interface TelemetryPanelProps {
   model: AiModel;
 }
 
+interface PerformanceWithMemory extends Performance {
+  memory?: {
+    usedJSHeapSize: number;
+  };
+}
+
 export default function TelemetryPanel({ telemetry, cameraActive, metadata, model }: TelemetryPanelProps) {
-  const memUsed = typeof performance !== 'undefined' && (performance as any).memory
-    ? String(Math.round((performance as any).memory.usedJSHeapSize / 1048576))
+  const memUsed = typeof performance !== 'undefined' && (performance as PerformanceWithMemory).memory
+    ? String(Math.round((performance as PerformanceWithMemory).memory!.usedJSHeapSize / 1048576))
     : 'N/A';
 
   return (
@@ -24,8 +30,8 @@ export default function TelemetryPanel({ telemetry, cameraActive, metadata, mode
       <TelemetryRow label="FPS" value={cameraActive ? String(telemetry.fps) : '--'} icon={<Activity className="w-3 h-3 text-system" />} />
       <TelemetryRow label="INFERENCE" value={cameraActive ? String(telemetry.inferenceTime) : '--'} unit="ms" />
       <TelemetryRow label="AVG_INFERENCE" value={cameraActive ? String(telemetry.avgInferenceTime) : '--'} unit="ms" />
-      <TelemetryRow label="DETECTIONS" value={cameraActive ? String(telemetry.detectionCount) : '--'} icon={<Box className="w-3 h-3 text-system" />} />
-      <TelemetryRow label="INPUT_RES" value={metadata ? `${metadata.input_size[0]}×${metadata.input_size[1]}` : '--'} />
+      <TelemetryRow label="ENTITIES" value={cameraActive ? String(telemetry.detectionCount) : '--'} icon={<Box className="w-3 h-3 text-system" />} />
+      <TelemetryRow label="INPUT_RES" value={metadata ? `[${metadata.input_size.join(', ')}]` : '--'} />
       <TelemetryRow label="MODEL_SIZE" value={model.file_size_bytes ? `${(model.file_size_bytes / 1048576).toFixed(1)}` : 'N/A'} unit="MB" />
       <TelemetryRow label="MEMORY" value={cameraActive ? memUsed : '--'} unit="MB" />
     </div>

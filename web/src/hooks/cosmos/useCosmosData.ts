@@ -25,53 +25,51 @@ export interface UserProgress {
   active_dates?: string[];
 }
 
-export default function useCosmosData(mapId?: string, refreshKey?: number) {
+export default function useCosmosData(mapId?: string, refreshKey?: number, skipProgressFetch: boolean = false) {
   const { user } = useAuth();
-  const [mapData, setMapData] = useState<CosmosMap | null>(null);
-  const [userProgress, setUserProgress] = useState<UserProgress | null>(null);
+  const [mapCache, setMapCache] = useState<{ id: string | undefined, data: CosmosMap | null }>({ id: undefined, data: null });
+  const [progressCache, setProgressCache] = useState<{ userId: string | undefined, data: UserProgress | null }>({ userId: undefined, data: null });
+
+  const mapData = mapCache.id === mapId ? mapCache.data : null;
+  const userProgress = progressCache.userId === user?.id ? progressCache.data : null;
 
   useEffect(() => {
-    if (mapId) {
-      setMapData(null); // Clear previous map while fetching
-      const fetchMap = async () => {
-        try {
-          const res = await fetch(`/api/v1/cosmos/maps/${mapId}`);
-          const data = await res.json();
-          if (data.data) {
-            setMapData(data.data);
-          } else {
-            setMapData(null);
-          }
-        } catch (err) {
-          console.error(err);
-          setMapData(null);
-        }
-      };
-      fetchMap();
-    } else {
-      setMapData(null);
-    }
+    if (!mapId) return;
+    
+    let isMounted = true;
+    const fetchMap = async () => {
+      try {
+        const res = await fetch(`/api/v1/cosmos/maps/${mapId}`);
+        const data = await res.json();
+        if (isMounted) setMapCache({ id: mapId, data: data.data || null });
+      } catch (err: unknown) {
+        console.error(err);
+        if (isMounted) setMapCache({ id: mapId, data: null });
+      }
+    };
+    fetchMap();
+    return () => { isMounted = false; };
   }, [mapId, refreshKey]);
 
   useEffect(() => {
-    if (user) {
-      const fetchProgress = async () => {
-        try {
-          const localDate = new Date().toLocaleDateString('en-CA');
-          const res = await fetch(`/api/v1/users/progress?localDate=${localDate}`);
-          const data = await res.json();
-          if (data.data) {
-            setUserProgress(data.data);
-          }
-        } catch (err) {
-          console.error('User not authenticated or no progress yet');
-        }
-      };
-      fetchProgress();
-    } else {
-      setUserProgress(null);
-    }
-  }, [user]);
+    if (!user || skipProgressFetch) return;
+    
+    let isMounted = true;
+    const fetchProgress = async () => {
+      try {
+        const localDate = new Date().toLocaleDateString('en-CA');
+        const res = await fetch(`/api/v1/users/progress?localDate=${localDate}`);
+        const data = await res.json();
+        if (isMounted) setProgressCache({ userId: user.id, data: data.data || null });
+      } catch (err: unknown) {
+        console.error(err);
+        console.error('User not authenticated or no progress yet');
+        if (isMounted) setProgressCache({ userId: user.id, data: null });
+      }
+    };
+    fetchProgress();
+    return () => { isMounted = false; };
+  }, [user, skipProgressFetch]);
 
   const getNodeStatus = useCallback((article_id: string) => {
     if (!userProgress) return false;

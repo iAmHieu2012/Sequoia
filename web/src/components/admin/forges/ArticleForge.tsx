@@ -13,22 +13,23 @@ type ArticleSubTab = 'general' | 'map' | 'content';
 interface ArticleForgeProps {
   onClose: () => void;
   onSave: (data: Record<string, unknown>) => void;
-  initialData?: any;
+  initialData?: {
+    id?: string;
+    title?: string;
+    topic_id?: string;
+    summary?: string;
+    content?: string;
+    tags?: string[];
+    x?: number | string;
+    y?: number | string;
+    connections?: string[];
+    is_published?: boolean;
+  };
   isAnomaly?: boolean;
 }
 
 export default function ArticleForge({ onClose, onSave, initialData, isAnomaly = false }: ArticleForgeProps) {
-  const [entityId, setEntityId] = useState('');
-  const [title, setTitle] = useState('');
-  const [category, setCategory] = useState('');
-  const [summary, setSummary] = useState('');
-  const [content, setContent] = useState('');
-  const [tags, setTags] = useState('');
-  const [x, setX] = useState('');
-  const [y, setY] = useState('');
-  const [connections, setConnections] = useState('');
-  const [isPublished, setIsPublished] = useState(true);
-  
+  const [entityId, setEntityId] = useState(initialData?.id || '');
   const [viewMode, setViewMode] = useState<ViewMode>('edit');
   const [articleSubTab, setArticleSubTab] = useState<ArticleSubTab>('general');
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -36,20 +37,15 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    if (initialData) {
-      setEntityId(initialData.id || '');
-      setTitle(initialData.title || '');
-      setCategory(initialData.topic_id || '');
-      setSummary(initialData.summary || '');
-      setContent(initialData.content || '');
-      setTags(initialData.tags?.join(', ') || '');
-      setX(initialData.x?.toString() || '');
-      setY(initialData.y?.toString() || '');
-      setConnections(initialData.connections?.join(', ') || '');
-      setIsPublished(initialData.is_published !== false);
-    }
-  }, [initialData]);
+  const [title, setTitle] = useState(initialData?.title || '');
+  const [category, setCategory] = useState(initialData?.topic_id || '');
+  const [summary, setSummary] = useState(initialData?.summary || '');
+  const [content, setContent] = useState(initialData?.content || '');
+  const [tags, setTags] = useState(initialData?.tags?.join(', ') || '');
+  const [x, setX] = useState(initialData?.x?.toString() || '');
+  const [y, setY] = useState(initialData?.y?.toString() || '');
+  const [connections, setConnections] = useState(initialData?.connections?.join(', ') || '');
+  const [isPublished, setIsPublished] = useState(initialData?.is_published !== false);
 
   const insertMarkdown = (prefix: string, suffix: string) => {
     if (!textareaRef.current) return;
@@ -139,7 +135,7 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
         </div>
       </ForgeHeader>
 
-      <div className="flex-1 flex flex-col min-w-0 bg-black/40 border border-white/20 relative p-6 relative z-10">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-black/40 border border-white/20 relative p-6 z-10">
         <CyberBrackets color="border-white/40" />
 
         {articleSubTab === 'general' && (
@@ -212,7 +208,7 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
                   y: !isNaN(parseFloat(y)) ? parseFloat(y) : 5000,
                   celestial_type: isAnomaly ? 'anomaly' : 'article',
                   connections: connections.split(',').map(c => c.trim()).filter(Boolean)
-                } as any}
+                } as React.ComponentProps<typeof CosmosMapEditor>['draftNode']}
                 onDraftNodeDrag={(newX: number, newY: number) => {
                   setX(Math.round(newX).toString());
                   setY(Math.round(newY).toString());
@@ -275,12 +271,12 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
                   ref={textareaRef}
                   value={content}
                   onChange={e => setContent(e.target.value)}
-                  className="flex-1 w-full bg-black/40 border border-white/20 p-4 text-sm text-white/80 outline-none font-mono resize-none [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-white/20"
+                  className="flex-1 w-full bg-black/40 border border-white/20 p-4 text-sm text-white/80 outline-none font-mono resize-none min-h-0 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-black/20 [&::-webkit-scrollbar-thumb]:bg-white/20 hover:[&::-webkit-scrollbar-thumb]:bg-white/50"
                   placeholder="> INITIATING MARKDOWN DATA STREAM..."
                 />
               )}
               {(viewMode === 'preview' || viewMode === 'split') && (
-                <div className="flex-1 bg-[#050505] border border-white/20 p-6 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-white/20">
+                <div className="flex-1 min-h-0 bg-[#050505] border border-white/20 p-6 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-black/20 [&::-webkit-scrollbar-thumb]:bg-white/20 hover:[&::-webkit-scrollbar-thumb]:bg-white/50">
                   {title && viewMode === 'preview' && (
                     <div className="mb-8 border-b border-white/20 pb-6">
                       <h1 className="text-3xl font-black text-white mb-3 font-heading uppercase">{title}</h1>

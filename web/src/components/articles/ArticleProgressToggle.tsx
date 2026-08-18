@@ -40,9 +40,6 @@ export default function ArticleProgressToggle({ article_id }: ArticleProgressTog
         }
       };
       fetchProgress();
-    } else {
-      setIsCompleted(null);
-      setIsLoading(false);
     }
   }, [article_id, user, authLoading]);
 
@@ -73,17 +70,8 @@ export default function ArticleProgressToggle({ article_id }: ArticleProgressTog
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="mt-16 p-8 border border-panel-border bg-black/40 flex items-center justify-center relative">
-        <CyberBrackets color="border-system/20" />
-        <Loader2 className="w-6 h-6 text-system animate-spin" />
-      </div>
-    );
-  }
-
   // Nếu là Guest thì không hiện nút (hoặc hiện thông báo đăng nhập)
-  if (!user) {
+  if (!authLoading && !user) {
     return (
       <div className="mt-16 p-8 border border-panel-border bg-black/40 flex flex-col items-center justify-center relative gap-4">
         <CyberBrackets color="border-system/20" />
@@ -97,6 +85,15 @@ export default function ArticleProgressToggle({ article_id }: ArticleProgressTog
         >
           Initialize Uplink (Login)
         </Link>
+      </div>
+    );
+  }
+
+  if (authLoading || isLoading) {
+    return (
+      <div className="mt-16 p-8 border border-panel-border bg-black/40 flex items-center justify-center relative">
+        <CyberBrackets color="border-system/20" />
+        <Loader2 className="w-6 h-6 text-system animate-spin" />
       </div>
     );
   }

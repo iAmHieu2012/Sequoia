@@ -1,6 +1,6 @@
-import { BoundingBox, ModelMetadata, PlaygroundParams, ParsedDetectionResult } from '@/types/playground';
-import { OutputParser } from './types';
-import { applyNMS, getLabelName } from './utils';
+import { BoundingBox, ParsedDetectionResult } from '@/types/playground';
+import { OutputParser, ParseOptions } from './types';
+import { applyNMS, getLabelName, getParsedInputSize } from './utils';
 
 /**
  * Parser for YOLOX output format.
@@ -9,17 +9,7 @@ import { applyNMS, getLabelName } from './utils';
  * Note: Boxes are NOT decoded. Must decode using strides 8, 16, 32.
  */
 export class YoloxParser implements OutputParser {
-  parse(
-    rawData: Float32Array,
-    shape: number[],
-    taskType: string,
-    params: PlaygroundParams,
-    metadata: ModelMetadata,
-    scaleX: number,
-    scaleY: number,
-    protoData?: Float32Array | null,
-    protoShape?: number[]
-  ): ParsedDetectionResult {
+  parse({ rawData, shape, params, metadata, scaleX, scaleY }: ParseOptions): ParsedDetectionResult {
     const threshold = (params.threshold as number) ?? metadata.post_processing?.default_threshold ?? 0.25;
     const iouThreshold = (params.iou_threshold as number) ?? metadata.post_processing?.default_iou ?? 0.45;
     const maxDetections = (params.max_detections as number) ?? metadata.post_processing?.default_max_detections ?? 100;
@@ -29,9 +19,7 @@ export class YoloxParser implements OutputParser {
     const numFeatures = shape[2];
     const numClasses = numFeatures - 5;
     
-    // Dynamically get input size instead of hardcoding 416
-    const inputWidth = metadata.input_size[1] || 416;
-    const inputHeight = metadata.input_size[0] || 416;
+    const { width: inputWidth, height: inputHeight } = getParsedInputSize(metadata, 416);
     
     // Dynamically compute grids based on actual input size
     const grids: {x: number, y: number, s: number}[] = [];

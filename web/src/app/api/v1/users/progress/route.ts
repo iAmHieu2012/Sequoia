@@ -10,11 +10,13 @@ export async function GET(request: NextRequest) {
     const localDate = request.nextUrl.searchParams.get('localDate');
     const userId = user.id;
 
-    let { data: progress, error } = await supabase
+    const { data, error } = await supabase
       .from('user_progress')
       .select('*')
       .eq('id', userId)
       .single();
+
+    let progress = data;
 
     if (error && error.code !== 'PGRST116') throw error;
     if (!progress) {
@@ -69,7 +71,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({ data: progress  });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: (err instanceof Error ? err.message : "Unknown error") }, { status: 500 });
   }
 }

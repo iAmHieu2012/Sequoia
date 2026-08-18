@@ -1,21 +1,13 @@
-import { ModelMetadata, PlaygroundParams, ParsedClassificationResult } from '@/types/playground';
-import { OutputParser } from './types';
+import { ParsedClassificationResult } from '@/types/playground';
+import { OutputParser, ParseOptions } from './types';
 import { getLabelName } from './utils';
 
 /**
- * Parser for classification output format.
- * Output tensor layout: [batch, num_classes] — a flat softmax/logit vector.
+ * Parser for classification models.
+ * Expected output: [1, numClasses] (probabilities or logits).
  */
 export class ClassificationParser implements OutputParser {
-  parse(
-    rawData: Float32Array,
-    shape: number[],
-    taskType: string,
-    params: PlaygroundParams,
-    metadata: ModelMetadata,
-    scaleX: number,
-    scaleY: number
-  ): ParsedClassificationResult {
+  parse({ rawData, shape, params, metadata }: ParseOptions): ParsedClassificationResult {
     const topK = (params.top_k as number) ?? metadata.post_processing?.default_top_k ?? 5;
     const numClasses = shape[shape.length - 1];
     
@@ -41,7 +33,7 @@ export class ClassificationParser implements OutputParser {
 
     const scores = [];
     for (let i = 0; i < numClasses; i++) {
-      let conf = isSoftmax ? rawData[i] : expScores[i] / expSum;
+      const conf = isSoftmax ? rawData[i] : expScores[i] / expSum;
       scores.push({ classId: i, confidence: conf });
     }
     

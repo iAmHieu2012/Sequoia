@@ -1,22 +1,22 @@
 import React from 'react';
-import { Save, X, Sparkles, ChevronLeft, Terminal } from 'lucide-react';
+import { Save, ChevronLeft, Terminal } from 'lucide-react';
 import CyberBrackets from "@/components/ui/CyberBrackets";
 
 export const ForgeLabel = ({ children }: { children: React.ReactNode }) => (
   <label className="block text-[10px] font-mono text-white/50 tracking-widest uppercase mb-1">{children}</label>
 );
 
-export const ForgeInput = ({ ...props }: React.InputHTMLAttributes<HTMLInputElement>) => (
+export const ForgeInput = ({ className, ...props }: React.InputHTMLAttributes<HTMLInputElement>) => (
   <input 
     {...props}
-    className="w-full bg-black/60 border border-white/20 p-2 text-sm text-white focus:border-white focus:shadow-[0_0_10px_rgba(255,255,255,0.2)] outline-none font-mono transition-all" 
+    className={`w-full bg-black/60 border border-white/20 p-2 text-sm text-white focus:border-white focus:shadow-[0_0_10px_rgba(255,255,255,0.2)] outline-none font-mono transition-all disabled:opacity-50 disabled:cursor-not-allowed ${className || ''}`} 
   />
 );
 
-export const ForgeTextarea = ({ ...props }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) => (
+export const ForgeTextarea = ({ className, ...props }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) => (
   <textarea 
     {...props}
-    className="w-full bg-black/60 border border-white/20 p-2 text-sm text-white focus:border-white focus:shadow-[0_0_10px_rgba(255,255,255,0.2)] outline-none font-mono resize-none transition-all" 
+    className={`w-full bg-black/60 border border-white/20 p-2 text-sm text-white focus:border-white focus:shadow-[0_0_10px_rgba(255,255,255,0.2)] outline-none font-mono resize-none transition-all disabled:opacity-50 disabled:cursor-not-allowed ${className || ''}`} 
   />
 );
 

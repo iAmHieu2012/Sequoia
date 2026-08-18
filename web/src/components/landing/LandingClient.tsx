@@ -3,7 +3,8 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { ArrowRight, Sparkles, Network, Orbit } from 'lucide-react';
+import { ArrowRight, Sparkles, Network } from 'lucide-react';
+import Image from 'next/image';
 import CyberGrid from '@/components/ui/CyberGrid';
 
 import CyberBrackets from '@/components/ui/CyberBrackets';
@@ -33,7 +34,7 @@ export default function LandingClient() {
       <div className="relative z-10 w-full max-w-4xl flex flex-col items-center text-center">
         
         <div className="flex items-center gap-3 mb-6">
-          <img src="/bot-idle.gif" alt="Sequoia Bot" className="w-12 h-12 object-contain" />
+          <Image src="/bot-idle.gif" alt="Sequoia Bot" width={48} height={48} unoptimized className="object-contain" />
           <span className="font-mono text-xs md:text-sm tracking-[0.4em] text-system">
             SYS.CORE.INITIALIZED
           </span>

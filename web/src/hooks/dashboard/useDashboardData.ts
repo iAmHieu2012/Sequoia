@@ -11,11 +11,13 @@ export function useDashboardData(activeTab: string) {
   const [models, setModels] = useState<AiModel[]>([]);
   
   const [loading, setLoading] = useState(true);
-  const [loadingModels, setLoadingModels] = useState(false);
-  const [progressSummary, setProgressSummary] = useState<ProgressSummary | null>(null);
+  const [loadingModels, setLoadingModels] = useState(true);
+  const [progressCache, setProgressCache] = useState<{ userId: string | undefined, data: ProgressSummary | null }>({ userId: undefined, data: null });
+  const progressSummary = progressCache.userId === user?.id ? progressCache.data : null;
 
   // Fetch Core Dashboard Data (Topics, Rogue Articles, Textbooks)
   useEffect(() => {
+    let isMounted = true;
     async function fetchData() {
       try {
         const [tpRes, rogueRes, tbRes] = await Promise.all([
@@ -28,56 +30,59 @@ export function useDashboardData(activeTab: string) {
         const rogueJson = await rogueRes.json();
         const tbJson = await tbRes.json();
 
-        setTopics(tpJson.data || []);
-        setRogueArticles(rogueJson.data || []);
-        if (tbJson.data) setTextbooks(tbJson.data);
-
+        if (isMounted) {
+          setTopics(tpJson.data || []);
+          setRogueArticles(rogueJson.data || []);
+          if (tbJson.data) setTextbooks(tbJson.data);
+        }
       } catch (e) {
         console.error(e);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     }
     fetchData();
+    return () => { isMounted = false; };
   }, []);
 
   // Fetch AI Models
   useEffect(() => {
+    let isMounted = true;
     if (models.length === 0) {
-      setLoadingModels(true);
       fetch('/api/v1/models')
         .then(res => res.json())
         .then(data => {
-          setModels(data.data || []);
-          setLoadingModels(false);
+          if (isMounted) {
+            setModels(data.data || []);
+            setLoadingModels(false);
+          }
         })
         .catch(err => {
           console.error(err);
-          setLoadingModels(false);
+          if (isMounted) setLoadingModels(false);
         });
     }
+    return () => { isMounted = false; };
   }, [activeTab, models.length]);
 
   // Fetch User Progress Summary when user is available
   useEffect(() => {
-    if (!user) {
-      setProgressSummary(null);
-      return;
-    }
-
+    if (!user) return;
+    
+    let isMounted = true;
     const fetchProgress = async () => {
       try {
         const progressRes = await fetch('/api/v1/users/progress/summary');
         const progressJson = await progressRes.json();
-        if (progressJson.data) {
-          setProgressSummary(progressJson.data);
-        }
+        if (isMounted) setProgressCache({ userId: user.id, data: progressJson.data || null });
       } catch (e) {
         console.error('Progress summary fetch failed', e);
+        if (isMounted) setProgressCache({ userId: user.id, data: null });
       }
     };
 
     fetchProgress();
+    return () => { isMounted = false; };
   }, [user]);
 
   return {

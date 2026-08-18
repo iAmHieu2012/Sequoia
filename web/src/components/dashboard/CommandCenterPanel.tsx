@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User, LogOut, Settings, Palette, GitBranch, Shield, FileText, ChevronRight, ChevronLeft, X, Cpu, Activity, Terminal } from "lucide-react";
+import { User, LogOut, Palette, GitBranch, Shield, FileText, ChevronRight, ChevronLeft, X, Cpu, Activity, Terminal } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 import { createClient } from "@/utils/supabase/client";
 import CyberBrackets from "@/components/ui/CyberBrackets";
@@ -158,9 +159,7 @@ export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPan
   const [activeView, setActiveView] = useState<'main' | 'privacy' | 'terms' | 'about'>('main');
   const [isDecrypted, setIsDecrypted] = useState(false);
 
-  useEffect(() => {
-    setIsDecrypted(false);
-  }, [activeView]);
+
 
   useEffect(() => {
     const root = document.documentElement;
@@ -198,15 +197,17 @@ export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPan
     
     const targetAngle = -(activeIndex * 360) / 9;
     
-    setWheelRotation(prev => {
-      const currentMod = prev % 360;
-      let diff = targetAngle - currentMod;
-      
-      // Normalize difference to [-180, 180] for shortest path
-      if (diff > 180) diff -= 360;
-      else if (diff < -180) diff += 360;
-      
-      return prev + diff;
+    requestAnimationFrame(() => {
+      setWheelRotation(prev => {
+        const currentMod = prev % 360;
+        let diff = targetAngle - currentMod;
+        
+        // Normalize difference to [-180, 180] for shortest path
+        if (diff > 180) diff -= 360;
+        else if (diff < -180) diff += 360;
+        
+        return prev + diff;
+      });
     });
   }, [activeTheme]);
 
@@ -282,7 +283,7 @@ export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPan
                   <div className="flex items-start gap-4">
                     <div className="w-16 h-16 bg-system/10 border border-system flex items-center justify-center shrink-0 shadow-[0_0_10px_var(--color-system)]">
                       {user?.user_metadata?.avatar_url ? (
-                        <img src={user.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                        <Image src={user.user_metadata.avatar_url} alt="Avatar" width={64} height={64} unoptimized className="object-cover" />
                       ) : (
                         <User className="w-8 h-8 text-system" />
                       )}
@@ -453,21 +454,21 @@ export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPan
                   </div>
                   <ChevronRight className="w-5 h-5 text-white/20 group-hover:text-system group-hover:translate-x-1 transition-all" />
                 </a>
-                <button onClick={() => setActiveView('privacy')} className="flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/20 transition-all group">
+                <button onClick={() => { setActiveView('privacy'); setIsDecrypted(false); }} className="flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/20 transition-all group">
                   <div className="flex items-center gap-4 text-white/50 group-hover:text-white">
                     <Shield className="w-5 h-5" />
                     <span className="text-xs uppercase tracking-[0.1em]">Privacy Directive</span>
                   </div>
                   <ChevronRight className="w-5 h-5 text-white/20 group-hover:text-system group-hover:translate-x-1 transition-all" />
                 </button>
-                <button onClick={() => setActiveView('terms')} className="flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/20 transition-all group">
+                <button onClick={() => { setActiveView('terms'); setIsDecrypted(false); }} className="flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/20 transition-all group">
                   <div className="flex items-center gap-4 text-white/50 group-hover:text-white">
                     <FileText className="w-5 h-5" />
                     <span className="text-xs uppercase tracking-[0.1em]">Terms of Service</span>
                   </div>
                   <ChevronRight className="w-5 h-5 text-white/20 group-hover:text-system group-hover:translate-x-1 transition-all" />
                 </button>
-                <button onClick={() => setActiveView('about')} className="flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/20 transition-all group">
+                <button onClick={() => { setActiveView('about'); setIsDecrypted(false); }} className="flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/20 transition-all group">
                   <div className="flex items-center gap-4 text-white/50 group-hover:text-white">
                     <Cpu className="w-5 h-5" />
                     <span className="text-xs uppercase tracking-[0.1em]">About Sequoia</span>
@@ -482,7 +483,7 @@ export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPan
             <div className="max-w-4xl mx-auto w-full flex flex-col font-mono h-full animate-in slide-in-from-right-8 fade-in duration-500">
               <div className="flex items-center justify-between mb-8 border-b border-white/20 pb-4">
                 <button 
-                  onClick={() => setActiveView('main')}
+                  onClick={() => { setActiveView('main'); setIsDecrypted(false); }}
                   className="flex items-center gap-2 text-system hover:text-white transition-colors uppercase tracking-[0.2em] text-xs group"
                 >
                   <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Return to Main Node

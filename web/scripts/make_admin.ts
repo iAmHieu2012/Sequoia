@@ -28,7 +28,7 @@ async function makeAllAdmins() {
   console.log(`Found ${users.users.length} users. Elevating privileges...`);
   
   for (const user of users.users) {
-    const { data, error: updateError } = await supabase.auth.admin.updateUserById(
+    const { error: updateError } = await supabase.auth.admin.updateUserById(
       user.id,
       { app_metadata: { ...user.app_metadata, is_admin: true } }
     );

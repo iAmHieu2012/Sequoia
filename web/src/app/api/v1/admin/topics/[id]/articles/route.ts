@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { supabaseAdmin } from '@/utils/supabase/admin';
 
 export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -10,14 +11,14 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
       return NextResponse.json({ error: 'Admin privileges required' }, { status: 403 });
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('articles')
       .select('*')
       .eq('topic_id', params.id);
 
     if (error) throw error;
     return NextResponse.json({ data: data });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: (err instanceof Error ? err.message : "Unknown error") }, { status: 500 });
   }
 }

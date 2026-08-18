@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Orbit, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import CyberBrackets from '@/components/ui/CyberBrackets';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 import { useAuthActions } from '@/hooks/auth/useAuthActions';
 import { useAuth } from '@/contexts/AuthContext';
+
+import Image from "next/image";
 
 export default function AuthClient() {
   const [isLogin, setIsLogin] = useState(true);
@@ -59,7 +61,7 @@ export default function AuthClient() {
 
       {/* Header Logo */}
       <div className="relative z-10 flex items-center gap-2 sm:gap-3 mb-4 sm:mb-8 [@media(max-height:750px)]:mb-4">
-        <img src="/bot-idle.gif" alt="Sequoia Bot" className="w-10 h-10 object-contain" />
+        <Image src="/bot-idle.gif" alt="Sequoia Bot" width={40} height={40} unoptimized className="w-10 h-10 object-contain" />
         <div>
           <div className="flex items-center gap-2 mb-1 text-system">
             <span className="font-mono text-[10px] tracking-[0.3em]">SYS.AUTH.PROTOCOL</span>

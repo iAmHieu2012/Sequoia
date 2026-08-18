@@ -1,4 +1,6 @@
-import { useState, useRef } from 'react';
+"use client";
+
+import { useState } from 'react';
 
 export function useImageUpload() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -7,7 +9,7 @@ export function useImageUpload() {
 
   const handleUpload = (file: File) => {
     if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
-      alert("Chỉ hỗ trợ file ảnh hoặc video.");
+      alert("Only images and videos are supported.");
       return;
     }
     

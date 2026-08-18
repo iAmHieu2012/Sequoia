@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { Bot, TerminalSquare, X } from "lucide-react";
+import { TerminalSquare, X } from "lucide-react";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 import { useChat } from "@ai-sdk/react";
+import type { UIMessage } from "ai";
 import { DefaultChatTransport } from "ai";
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
+import Image from "next/image";
 
 interface AiAssistantProps {
   isOpen: boolean;
@@ -15,25 +17,29 @@ interface AiAssistantProps {
 export default function AiAssistant({ isOpen, setIsOpen }: AiAssistantProps) {
   const [input, setInput] = useState('');
   const [modelId, setModelId] = useState('gemini-3.5-flash-lite');
-  const modelIdRef = useRef(modelId);
-  React.useEffect(() => { modelIdRef.current = modelId; }, [modelId]);
-
   const pendingModelRef = useRef(modelId);
   const [messageModels, setMessageModels] = useState<Record<string, string>>({});
+  const pulseTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [showPulse, setShowPulse] = useState(false);
+
   const { messages, sendMessage, status, error } = useChat({
-    transport: new DefaultChatTransport({
-      api: '/api/chat',
-      prepareSendMessagesRequest({ messages, id }) {
-        return { body: { messages, id, modelId: modelIdRef.current } };
-      },
-    }),
+    transport: new DefaultChatTransport({ api: '/api/chat' }),
+    onFinish: () => {
+      setShowPulse(true);
+      if (pulseTimerRef.current) clearTimeout(pulseTimerRef.current);
+      pulseTimerRef.current = setTimeout(() => setShowPulse(false), 3000);
+    },
   });
+
+  React.useEffect(() => {
+    return () => { if (pulseTimerRef.current) clearTimeout(pulseTimerRef.current); };
+  }, []);
 
   React.useEffect(() => {
     setMessageModels(prev => {
       const next = { ...prev };
       let changed = false;
-      messages.forEach((m: any) => {
+      messages.forEach((m: UIMessage) => {
         if (m.role === 'assistant' && !next[m.id]) {
           next[m.id] = pendingModelRef.current;
           changed = true;
@@ -45,29 +51,19 @@ export default function AiAssistant({ isOpen, setIsOpen }: AiAssistantProps) {
 
   const isLoading = status === 'streaming';
   
-  const [botState, setBotState] = useState<'/bot-idle.gif' | '/bot-loading.gif' | '/bot-negative.gif' | '/bot-positive.gif'>('/bot-idle.gif');
-
-  React.useEffect(() => {
-    if (isLoading) {
-      setBotState('/bot-loading.gif');
-    } else if (error) {
-      setBotState('/bot-negative.gif');
-    } else {
-      if (messages.length > 0 && messages[messages.length - 1].role === 'assistant') {
-        setBotState('/bot-positive.gif');
-        const timer = setTimeout(() => setBotState('/bot-idle.gif'), 3000);
-        return () => clearTimeout(timer);
-      } else {
-        setBotState('/bot-idle.gif');
-      }
-    }
-  }, [isLoading, error, messages]);
+  const botState = isLoading
+    ? '/bot-loading.gif'
+    : error
+    ? '/bot-negative.gif'
+    : showPulse
+    ? '/bot-positive.gif'
+    : '/bot-idle.gif';
   
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
-    pendingModelRef.current = modelIdRef.current;
-    sendMessage({ text: input });
+    pendingModelRef.current = modelId;
+    sendMessage({ text: input }, { body: { modelId } });
     setInput('');
   };
 
@@ -95,7 +91,7 @@ export default function AiAssistant({ isOpen, setIsOpen }: AiAssistantProps) {
         }}
       >
         <div className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 text-left font-heading text-[11px] font-bold tracking-[0.12em] uppercase border-b-2 transition-all duration-300 ${isOpen ? 'text-system border-system bg-system/5 drop-shadow-[0_0_8px_var(--color-system)]' : 'text-text-dim border-transparent group-hover/panel:text-system group-hover/panel:drop-shadow-[0_0_8px_var(--color-system)]'}`}>
-          <img src={botState} alt="AI Bot" className={`w-8 h-8 object-contain transition-all duration-500 ${!isOpen && 'group-hover/panel:scale-110 opacity-70 group-hover/panel:opacity-100'}`} />
+          <Image src={botState} alt="AI Bot" width={32} height={32} unoptimized className={`object-contain transition-all duration-500 ${!isOpen && 'group-hover/panel:scale-110 opacity-70 group-hover/panel:opacity-100'}`} />
           <div className="text-left">
             ASSISTANT
             {isOpen && <span className="block text-[8px] font-mono font-normal mt-0.5 opacity-50 normal-case tracking-wider">AI Uplink</span>}
@@ -116,7 +112,7 @@ export default function AiAssistant({ isOpen, setIsOpen }: AiAssistantProps) {
               </div>
             </div>
             
-            {messages.map((m: any, index: number) => (
+            {messages.map((m: UIMessage, index: number) => (
               <div key={`${m.id}-${index}`} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`group relative overflow-hidden border p-3 transition-all duration-300 max-w-[85%] ${m.role === 'user' ? 'border-text-dim/30 bg-text-dim/5 text-right' : 'border-system/30 bg-system/5'}`}>
                   <div className={`absolute top-0 w-1 h-full ${m.role === 'user' ? 'right-0 bg-text-dim shadow-[0_0_10px_var(--color-text-dim)]' : 'left-0 bg-system shadow-[0_0_10px_var(--color-system)]'}`} />
@@ -129,7 +125,7 @@ export default function AiAssistant({ isOpen, setIsOpen }: AiAssistantProps) {
                         </span>
                       )}
                     </div>
-                    {m.parts ? m.parts.map((part: any, i: number) => {
+                    {m.parts.map((part, i: number) => {
                       switch (part.type) {
                         case 'text':
                           return m.role === 'user' ? (
@@ -142,7 +138,7 @@ export default function AiAssistant({ isOpen, setIsOpen }: AiAssistantProps) {
                         default:
                           return null;
                       }
-                    }) : m.content}
+                    })}
                   </div>
                 </div>
               </div>

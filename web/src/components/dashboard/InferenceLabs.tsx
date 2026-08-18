@@ -56,7 +56,7 @@ export default function InferenceLabs({
                     &gt; {model.description}
                   </p>
                   <div className="flex justify-between items-center border-t border-panel-border pt-3">
-                    <span className="text-[10px] text-text-dim font-mono">v{model.version} // {model.format.toUpperCase()}</span>
+                    <span className="text-[10px] text-text-dim font-mono">v{model.version} {'//'} {model.format.toUpperCase()}</span>
                     <Link href={`/playground/${model.id}`} className="text-[10px] font-mono font-bold text-red tracking-wider flex items-center gap-1 group-hover:translate-x-1 transition-transform duration-300">
                       INIT_RUNTIME <Cpu className="w-3 h-3" />
                     </Link>

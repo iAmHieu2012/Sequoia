@@ -35,7 +35,7 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
         
       if (mapData) {
         const currentNodes = Array.isArray(mapData.nodes) ? mapData.nodes : [];
-        const newNodes = topicArticles.map((a: any) => ({
+        const newNodes = topicArticles.map((a: Record<string, unknown>) => ({
           article_id: a.id,
           title: a.title,
           celestial_type: 'anomaly',
@@ -52,7 +52,7 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
     }
     
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: (err instanceof Error ? err.message : "Unknown error") }, { status: 500 });
   }
 }

@@ -1,5 +1,5 @@
-import { ModelMetadata, PlaygroundParams, ParsedResult, Keypoint } from '@/types/playground';
-import { OutputParser } from './types';
+import { ParsedResult, Keypoint } from '@/types/playground';
+import { OutputParser, ParseOptions } from './types';
 import { getLabelName } from './utils';
 
 /**
@@ -7,17 +7,7 @@ import { getLabelName } from './utils';
  * Expected outputs: SimCC X and SimCC Y vectors.
  */
 export class RtmPoseParser implements OutputParser {
-  parse(
-    rawData: Float32Array,
-    shape: number[],
-    taskType: string,
-    params: PlaygroundParams,
-    metadata: ModelMetadata,
-    scaleX: number,
-    scaleY: number,
-    protoData?: Float32Array | null,
-    protoShape?: number[]
-  ): ParsedResult {
+  parse({ rawData, metadata, scaleX, scaleY, protoData }: ParseOptions): ParsedResult {
     if (!protoData) {
       return { type: 'pose', keypoints: [], count: 0 };
     }

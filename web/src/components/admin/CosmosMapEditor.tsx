@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import usePanZoom from "@/hooks/cosmos/usePanZoom";
 import { useAuth } from "@/contexts/AuthContext";
 import useCosmosData, { CosmosNode } from "@/hooks/cosmos/useCosmosData";
 import CyberBrackets from "@/components/ui/CyberBrackets";
-import { Save, Plus } from "lucide-react";
+import { Save } from "lucide-react";
 import styles from '../dashboard/CosmosMapPreview.module.css';
 
 const CANVAS_SIZE = 10000;
@@ -31,19 +30,22 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
   const canvasRef = useRef<HTMLDivElement>(null);
   const hudScaleRef = useRef<HTMLSpanElement>(null);
   const hudTargetRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
 
-  const [localNodes, setLocalNodes] = useState<CosmosNode[]>([]);
+  const { mapData, getNodeStatus } = useCosmosData(mapId, refreshKey, true);
+  const [localNodes, setLocalNodes] = useState<CosmosNode[]>(mapData ? mapData.nodes : []);
   const currentScaleRef = useRef(targetScale);
   const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null);
   const [linkingNodeId, setLinkingNodeId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   const draftNodeRef = useRef(draftNode);
+  // eslint-disable-next-line react-hooks/refs
   draftNodeRef.current = draftNode;
   const onDraftNodeDragRef = useRef(onDraftNodeDrag);
+  // eslint-disable-next-line react-hooks/refs
   onDraftNodeDragRef.current = onDraftNodeDrag;
   const onDraftNodeConnectionsChangeRef = useRef(onDraftNodeConnectionsChange);
+  // eslint-disable-next-line react-hooks/refs
   onDraftNodeConnectionsChangeRef.current = onDraftNodeConnectionsChange;
 
   const onUpdate = useCallback((x: number, y: number, s: number, isTransitioning: boolean) => {
@@ -71,15 +73,12 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
   }, []);
 
   const { flyTo, handlers } = usePanZoom(viewportRef, { onUpdate });
-  const { mapData, getNodeStatus } = useCosmosData(mapId, refreshKey);
+  const [prevMapData, setPrevMapData] = useState(mapData);
 
-  useEffect(() => {
-    if (mapData) {
-      setLocalNodes(mapData.nodes);
-    } else {
-      setLocalNodes([]);
-    }
-  }, [mapData]);
+  if (mapData !== prevMapData) {
+    setPrevMapData(mapData);
+    setLocalNodes(mapData ? mapData.nodes : []);
+  }
 
   useEffect(() => {
     
@@ -125,19 +124,31 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
   useEffect(() => {
     if (draggingNodeId) return;
 
-    if (activeNodeId) {
-      let activeNode = localNodes.find(n => n.article_id === activeNodeId);
-      if (!activeNode && draftNode && draftNode.article_id === activeNodeId) {
-        activeNode = draftNode as CosmosNode;
+    const doFlyTo = () => {
+      if (activeNodeId) {
+        let activeNode: CosmosNode | undefined;
+        if (draftNode && draftNode.article_id === activeNodeId) {
+          activeNode = draftNode as CosmosNode;
+        } else {
+          activeNode = localNodes.find(n => n.article_id === activeNodeId);
+        }
+        
+        if (activeNode) {
+          flyTo(activeNode.x, activeNode.y, targetScale);
+          return;
+        }
       }
       
-      if (activeNode) {
-        flyTo(activeNode.x, activeNode.y, targetScale);
-        return;
-      }
+      flyTo(targetX, targetY, targetScale);
+    };
+
+    if (viewportRef.current && viewportRef.current.clientWidth === 0) {
+      const t = setTimeout(doFlyTo, 350);
+      return () => clearTimeout(t);
+    } else {
+      doFlyTo();
     }
-    
-    flyTo(targetX, targetY, targetScale);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetX, targetY, targetScale, flyTo, activeNodeId, localNodes.length, draggingNodeId, draftNode]);
 
   const handleSaveMap = async () => {

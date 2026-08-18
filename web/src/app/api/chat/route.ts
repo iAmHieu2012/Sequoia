@@ -1,3 +1,4 @@
+import { NextResponse } from 'next/server';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { 
   streamText, 
@@ -28,10 +29,7 @@ export async function POST(req: Request) {
     return createUIMessageStreamResponse({
       stream: toUIMessageStream({ stream: result.stream }),
     });
-  } catch (error: any) {
-    return Response.json(
-      { error: error.message || 'Unknown error occurred.' },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error instanceof Error ? error.message : "Unknown error") }, { status: 500 });
   }
 }

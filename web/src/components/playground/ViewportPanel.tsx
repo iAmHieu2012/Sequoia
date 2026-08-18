@@ -1,11 +1,12 @@
-import { MutableRefObject, useEffect, useRef } from 'react';
-import { Camera, Zap, X, Download } from 'lucide-react';
+import { RefObject } from 'react';
+import { Zap, X, Download } from 'lucide-react';
+import Image from 'next/image';
 import CyberBrackets from '@/components/ui/CyberBrackets';
 import ImageDropzone from './ImageDropzone';
 
 interface ViewportPanelProps {
-  videoRef: MutableRefObject<HTMLVideoElement | HTMLImageElement | null>;
-  canvasRef: MutableRefObject<HTMLCanvasElement | null>;
+  videoRef: RefObject<HTMLVideoElement | HTMLImageElement | null>;
+  canvasRef: RefObject<HTMLCanvasElement | null>;
   cameraActive: boolean;
   booting: boolean;
   setCameraActive: (active: boolean) => void;
@@ -94,7 +95,7 @@ export default function ViewportPanel({
         ) : cameraActive ? (
           <div className="absolute inset-0 bg-space-bg flex items-center justify-center overflow-hidden">
             <video 
-              ref={videoRef as any}
+              ref={videoRef as React.RefObject<HTMLVideoElement>}
               className="absolute w-full h-full object-contain"
               playsInline
               muted
@@ -110,7 +111,7 @@ export default function ViewportPanel({
           <div className="absolute inset-0 bg-space-bg flex items-center justify-center overflow-hidden">
             {fileType === 'video' ? (
               <video 
-                ref={videoRef as any}
+                ref={videoRef as React.RefObject<HTMLVideoElement>}
                 src={fileUrl}
                 className="absolute w-full h-full object-contain"
                 playsInline
@@ -119,10 +120,11 @@ export default function ViewportPanel({
                 loop
               />
             ) : (
-              <img 
-                ref={videoRef as any}
+              <Image 
+                ref={videoRef as React.RefObject<HTMLImageElement>}
                 id="uploaded-image"
                 src={fileUrl}
+                width={0} height={0} sizes="100vw" unoptimized
                 className="absolute w-full h-full object-contain"
                 alt="Uploaded"
                 crossOrigin="anonymous"

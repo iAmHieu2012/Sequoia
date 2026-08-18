@@ -1,5 +1,5 @@
-import { ModelMetadata, PlaygroundParams, ParsedResult } from '@/types/playground';
-import { TaskRenderer } from './types';
+
+import { TaskRenderer, RenderOptions } from './types';
 import { RENDERER_THEME } from './theme';
 
 /**
@@ -7,14 +7,7 @@ import { RENDERER_THEME } from './theme';
  * Draws bounding boxes, labels, and confidence scores.
  */
 export class DetectionRenderer implements TaskRenderer {
-  render(
-    ctx: CanvasRenderingContext2D,
-    result: ParsedResult,
-    params: PlaygroundParams,
-    metadata: ModelMetadata,
-    canvasWidth: number,
-    canvasHeight: number
-  ): void {
+  render({ ctx, result, params, canvasWidth, canvasHeight }: RenderOptions): void {
     if (result.type !== 'detection') return;
     
     const showLabels = params.show_labels !== false;

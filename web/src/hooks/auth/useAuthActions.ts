@@ -39,8 +39,8 @@ export function useAuthActions() {
         if (error) throw error;
       }
       router.push('/dashboard');
-    } catch (err: any) {
-      setError(mapSupabaseError(err.message));
+    } catch (err: unknown) {
+      setError(mapSupabaseError(err instanceof Error ? err.message : String(err)));
     } finally {
       setLoading(false);
     }
@@ -58,8 +58,8 @@ export function useAuthActions() {
         }
       });
       if (error) throw error;
-    } catch (err: any) {
-      setError(mapSupabaseError(err.message));
+    } catch (err: unknown) {
+      setError(mapSupabaseError(err instanceof Error ? err.message : String(err)));
       setLoading(false);
     }
   };
@@ -79,8 +79,8 @@ export function useAuthActions() {
       });
       if (error) throw error;
       setMessage("RESET_LINK_DISPATCHED_TO_EMAIL");
-    } catch (err: any) {
-      setError(err.message || 'FAILED_TO_DISPATCH_RESET_LINK');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'FAILED_TO_DISPATCH_RESET_LINK');
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,5 @@
-import { ModelMetadata, PlaygroundParams, ParsedResult } from '@/types/playground';
-import { TaskRenderer } from './types';
+
+import { TaskRenderer, RenderOptions } from './types';
 import { RENDERER_THEME } from './theme';
 
 /**
@@ -7,14 +7,7 @@ import { RENDERER_THEME } from './theme';
  * Draws text bounding polygons and the recognized text.
  */
 export class OcrRenderer implements TaskRenderer {
-  render(
-    ctx: CanvasRenderingContext2D,
-    result: ParsedResult,
-    params: PlaygroundParams,
-    metadata: ModelMetadata,
-    canvasWidth: number,
-    canvasHeight: number
-  ): void {
+  render({ ctx, result, params, canvasWidth, canvasHeight }: RenderOptions): void {
     if (result.type !== 'ocr') return;
     
     const showConf = params.show_confidence !== false;

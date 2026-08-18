@@ -67,3 +67,32 @@ export function applyNMS(boxes: BoundingBox[], iouThreshold: number, maxDetectio
   
   return kept;
 }
+
+/**
+ * Helper to safely extract input width and height from ModelMetadata.input_size.
+ * Handles both 2D arrays [H, W] and 4D arrays like [1, H, W, 3] or [1, 3, H, W].
+ */
+export function getParsedInputSize(
+  metadata: ModelMetadata, 
+  defaultWidth = 640,
+  defaultHeight?: number
+): { width: number, height: number } {
+  let width = defaultWidth;
+  let height = defaultHeight ?? defaultWidth;
+  
+  if (metadata.input_size) {
+    if (metadata.input_size.length === 2) {
+      height = metadata.input_size[0];
+      width = metadata.input_size[1];
+    } else if (metadata.input_size.length === 4) {
+      if (metadata.input_layout === 'nchw') {
+        height = metadata.input_size[2];
+        width = metadata.input_size[3];
+      } else {
+        height = metadata.input_size[1];
+        width = metadata.input_size[2];
+      }
+    }
+  }
+  return { width, height };
+}

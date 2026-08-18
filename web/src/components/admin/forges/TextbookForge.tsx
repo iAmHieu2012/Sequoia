@@ -1,35 +1,31 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import CyberBrackets from '@/components/ui/CyberBrackets';
 import { ForgeLabel, ForgeInput, ForgeTextarea, ForgeHeader, ForgeWrapper } from './ForgeShared';
 
 interface TextbookForgeProps {
   onClose: () => void;
   onSave: (data: Record<string, unknown>) => void;
-  initialData?: any;
+  initialData?: {
+    id?: string;
+    title?: string;
+    description?: string;
+    authors?: string[];
+    cover_image_url?: string;
+    pdf_url?: string;
+    sort_order?: number | string;
+  };
 }
 
 export default function TextbookForge({ onClose, onSave, initialData }: TextbookForgeProps) {
-  const [entityId, setEntityId] = useState('');
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [authors, setAuthors] = useState('');
-  const [coverImageUrl, setCoverImageUrl] = useState('');
-  const [pdfUrl, setPdfUrl] = useState('');
-  const [sortOrder, setSortOrder] = useState('99');
-
-  useEffect(() => {
-    if (initialData) {
-      setEntityId(initialData.id || '');
-      setTitle(initialData.title || '');
-      setAuthors(initialData.authors?.join(', ') || '');
-      setCoverImageUrl(initialData.cover_image_url || '');
-      setPdfUrl(initialData.pdf_url || '');
-      setDescription(initialData.description || '');
-      setSortOrder(initialData.sort_order?.toString() || '99');
-    }
-  }, [initialData]);
+  const [entityId, setEntityId] = useState(initialData?.id || '');
+  const [title, setTitle] = useState(initialData?.title || '');
+  const [description, setDescription] = useState(initialData?.description || '');
+  const [authors, setAuthors] = useState(initialData?.authors?.join(', ') || '');
+  const [coverImageUrl, setCoverImageUrl] = useState(initialData?.cover_image_url || '');
+  const [pdfUrl, setPdfUrl] = useState(initialData?.pdf_url || '');
+  const [sortOrder, setSortOrder] = useState(initialData?.sort_order?.toString() || '99');
 
   const handleSave = () => {
     onSave({ 
@@ -52,7 +48,7 @@ export default function TextbookForge({ onClose, onSave, initialData }: Textbook
           <div className="flex gap-4">
             <div className="w-1/4">
               <ForgeLabel>MODULE_ID</ForgeLabel>
-              <ForgeInput value={entityId} onChange={e => setEntityId(e.target.value)} placeholder="e.g. intro-to-ai" />
+              <ForgeInput value={entityId} onChange={e => setEntityId(e.target.value)} placeholder="e.g. intro-to-ai" disabled={!!initialData?.id} className={!!initialData?.id ? "opacity-50 cursor-not-allowed" : ""} />
             </div>
             <div className="flex-1">
               <ForgeLabel>MODULE_TITLE</ForgeLabel>

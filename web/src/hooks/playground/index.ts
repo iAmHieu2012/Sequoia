@@ -7,7 +7,6 @@ import { useModelLoader } from './useModelLoader';
 import { useInference } from './useInference';
 import { usePlaygroundParams } from './usePlaygroundParams';
 import { useTelemetry } from './useTelemetry';
-import { AiModel } from '@/types/playground';
 
 import { useImageUpload } from './useImageUpload';
 

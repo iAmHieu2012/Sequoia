@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
+import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
@@ -14,12 +15,12 @@ interface MarkdownRendererProps {
   content: string;
 }
 
-function getHeadingId(children: any): string {
+function getHeadingId(children: React.ReactNode): string {
   const text = React.Children.toArray(children)
-    .reduce((str: string, child: any) => {
+    .reduce((str: string, child: React.ReactNode) => {
       if (typeof child === 'string') return str + child;
-      if (React.isValidElement(child) && (child as React.ReactElement<any>).props.children) {
-        return str + getHeadingId((child as React.ReactElement<any>).props.children);
+      if (React.isValidElement(child) && (child as React.ReactElement<{children?: React.ReactNode}>).props.children) {
+        return str + getHeadingId((child as React.ReactElement<{children?: React.ReactNode}>).props.children);
       }
       return str;
     }, '');
@@ -83,41 +84,51 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
       <div className="w-full clear-both text-text-main font-sans text-base">
         <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[rehypeKatex]}
+        rehypePlugins={[[rehypeKatex, { strict: false }]]}
         components={{
-          h1: ({ node, children, ...props }) => <h1 id={getHeadingId(children)} className="text-3xl md:text-4xl font-heading font-black uppercase text-white mt-10 mb-6 drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] scroll-mt-24" {...props}>{children}</h1>,
-          h2: ({ node, children, ...props }) => <h2 id={getHeadingId(children)} className="text-2xl md:text-3xl font-heading font-bold uppercase text-system mt-10 mb-4 border-b border-panel-border pb-2 shadow-[0_1px_0_color-mix(in_srgb,var(--color-system)_30%,transparent)] scroll-mt-24" {...props}>{children}</h2>,
-          h3: ({ node, children, ...props }) => <h3 id={getHeadingId(children)} className="text-xl md:text-2xl font-heading font-bold uppercase text-white mt-8 mb-4 flex items-center gap-2 scroll-mt-24" {...props}><span className="text-system opacity-50">&gt;</span> <span>{children}</span></h3>,
-          p: (props: any) => {
-            const { node, children, ...rest } = props;
+          h1: ({ children, ...props }) => <h1 id={getHeadingId(children)} className="text-3xl md:text-4xl font-heading font-black uppercase text-white mt-10 mb-6 drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] scroll-mt-24" {...props}>{children}</h1>,
+          h2: ({ children, ...props }) => <h2 id={getHeadingId(children)} className="text-2xl md:text-3xl font-heading font-bold uppercase text-system mt-10 mb-4 border-b border-panel-border pb-2 shadow-[0_1px_0_color-mix(in_srgb,var(--color-system)_30%,transparent)] scroll-mt-24" {...props}>{children}</h2>,
+          h3: ({ children, ...props }) => <h3 id={getHeadingId(children)} className="text-xl md:text-2xl font-heading font-bold uppercase text-white mt-8 mb-4 flex items-center gap-2 scroll-mt-24" {...props}><span className="text-system opacity-50">&gt;</span> <span>{children}</span></h3>,
+          p: ({ node, children, ...rest }) => {
             // React-markdown wraps images in <p> tags. 
             // Rendering <figure> inside <p> causes hydration errors.
             // We check if the paragraph contains an image, and if so, render a <div> instead.
-            const hasImage = node?.children?.some((child: any) => child.tagName === 'img');
+            type HastNode = { tagName?: string; children?: HastNode[] };
+            const nodeElement = node as HastNode | undefined;
+            const hasImage = nodeElement?.children?.some((child) => child.tagName === 'img');
             if (hasImage) {
               return <div className="mb-6 w-full" {...rest}>{children}</div>;
             }
             return <p className="text-base font-sans text-text-main leading-relaxed mb-6" {...rest}>{children}</p>;
           },
-          ul: ({ node, ...props }) => <ul className="list-disc list-outside space-y-2 mb-6 text-text-main pl-6 marker:text-system" {...props} />,
-          ol: ({ node, ...props }) => <ol className="list-decimal list-outside space-y-2 mb-6 text-text-main pl-6 marker:text-system marker:font-mono" {...props} />,
-          li: ({ node, ...props }) => <li className="text-base text-text-main" {...props} />,
-          a: ({ node, ...props }) => <a className="text-system border-b border-system/30 hover:border-system hover:bg-system/10 transition-colors" {...props} />,
-          blockquote: ({ node, className, children, ...props }) => (
+          ul: ({ ...props }) => <ul className="list-disc list-outside space-y-2 mb-6 text-text-main pl-6 marker:text-system" {...props} />,
+          ol: ({ ...props }) => <ol className="list-decimal list-outside space-y-2 mb-6 text-text-main pl-6 marker:text-system marker:font-mono" {...props} />,
+          li: ({ ...props }) => <li className="text-base text-text-main" {...props} />,
+          a: ({ ...props }) => <a className="text-system border-b border-system/30 hover:border-system hover:bg-system/10 transition-colors" {...props} />,
+          blockquote: ({ className, children, ...props }) => (
              <blockquote {...props} className={`border-l-2 border-system pl-5 italic text-text-dim my-6 bg-system/5 py-3 pr-4 font-mono text-sm relative ${className || ''}`}>
                <span className="absolute top-0 left-0 w-2 h-2 border-t border-l border-system"></span>
                <span className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-system"></span>
                {children}
              </blockquote>
           ),
-          strong: ({ node, ...props }) => <strong className="font-bold text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]" {...props} />,
-          em: ({ node, ...props }) => <em className="italic text-text-main font-mono text-sm" {...props} />,
-          img: ({ node, alt, src, ...props }) => {
+          strong: ({ ...props }) => <strong className="font-bold text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]" {...props} />,
+          em: ({ ...props }) => <em className="italic text-text-main font-mono text-sm" {...props} />,
+          img: ({ alt, src }) => {
             return (
               <figure className="my-10 flex flex-col items-center relative group">
                 <div className="absolute -inset-1 bg-gradient-to-r from-system/20 via-transparent to-system/20 opacity-0 group-hover:opacity-100 transition-opacity blur-md z-0" />
-                <div className="relative z-10 border border-panel-border bg-black/60 p-1">
-                  <img src={src} alt={alt} className="w-full max-w-3xl object-contain opacity-90 group-hover:opacity-100 transition-opacity" {...props} />
+                <div className="relative z-10 border border-panel-border bg-black/60 p-1 w-full">
+                  <Image 
+                    src={(src as string) || ''} 
+                    alt={alt || ''} 
+                    width={0} 
+                    height={0} 
+                    sizes="100vw" 
+                    unoptimized 
+                    style={{ width: '100%', height: 'auto' }} 
+                    className="max-w-3xl object-contain opacity-90 group-hover:opacity-100 transition-opacity" 
+                  />
                 </div>
                 {alt && (
                   <figcaption className="mt-4 text-xs font-mono text-system tracking-widest text-center uppercase bg-system/10 border border-system/20 px-3 py-1">
@@ -127,8 +138,8 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
               </figure>
             );
           },
-          pre: ({ node, children, ...props }) => <pre className="p-0 m-0 bg-transparent" {...props}>{children}</pre>,
-          code: CodeBlock
+          pre: ({ children, ...props }) => <pre className="p-0 m-0 bg-transparent" {...props}>{children}</pre>,
+          code: CodeBlock as React.ElementType
         }}
       >
         {content}
@@ -138,7 +149,12 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   );
 }
 
-function CodeBlock({ node, className, children, ...props }: any) {
+interface CodeBlockProps extends React.HTMLAttributes<HTMLElement> {
+  node?: unknown;
+  inline?: boolean;
+}
+
+function CodeBlock({ className, children, ...props }: CodeBlockProps) {
   const [copied, setCopied] = React.useState(false);
   const match = /language-(\w+)/.exec(className || "");
   const isMermaid = match && match[1] === "mermaid";

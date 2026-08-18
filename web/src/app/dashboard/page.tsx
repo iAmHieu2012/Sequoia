@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { createClient } from "@/utils/supabase/client";
 
 import CyberGrid from '@/components/ui/CyberGrid';
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
@@ -40,19 +39,11 @@ export default function Dashboard() {
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [articles, setArticles] = useState<Article[]>([]);
   const [drilldownLoading, setDrilldownLoading] = useState(false);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
-  useEffect(() => {
-    if (topics.length > 0 && !mapTarget.mapId) {
-      setMapTarget(prev => ({ ...prev, mapId: topics[0].id }));
-    }
-  }, [topics, mapTarget.mapId]);
-
-  const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    setShowProfileMenu(false);
-  };
+  // Derived state during render: Initialize mapId when topics are loaded
+  if (topics.length > 0 && !mapTarget.mapId) {
+    setMapTarget({ ...mapTarget, mapId: topics[0].id });
+  }
 
   const fetchTopicArticles = async (topic: Topic) => {
     setDrilldownLoading(true);

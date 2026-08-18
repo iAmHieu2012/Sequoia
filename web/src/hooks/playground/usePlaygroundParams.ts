@@ -20,6 +20,7 @@ export function usePlaygroundParams(metadata: ModelMetadata | null) {
 
   useEffect(() => {
     if (metadata) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       initParams(metadata);
     }
   }, [metadata, initParams]);

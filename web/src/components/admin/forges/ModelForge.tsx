@@ -1,39 +1,35 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import CyberBrackets from '@/components/ui/CyberBrackets';
 import { ForgeLabel, ForgeInput, ForgeTextarea, ForgeHeader, ForgeWrapper } from './ForgeShared';
 
 interface ModelForgeProps {
   onClose: () => void;
   onSave: (data: Record<string, unknown>) => void;
-  initialData?: any;
+  initialData?: {
+    id?: string;
+    name?: string;
+    description?: string;
+    task_type?: string;
+    file_url?: string;
+    metadata_url?: string;
+    version?: string;
+    format?: string;
+    file_size_bytes?: number | string;
+  };
 }
 
 export default function ModelForge({ onClose, onSave, initialData }: ModelForgeProps) {
-  const [entityId, setEntityId] = useState('');
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [taskType, setTaskType] = useState('');
-  const [fileUrl, setFileUrl] = useState('');
-  const [metadataUrl, setMetadataUrl] = useState('');
-  const [version, setVersion] = useState('1.0');
-  const [format, setFormat] = useState('litert');
-  const [fileSizeBytes, setFileSizeBytes] = useState('0');
-
-  useEffect(() => {
-    if (initialData) {
-      setEntityId(initialData.id || '');
-      setName(initialData.name || '');
-      setTaskType(initialData.task_type || '');
-      setFileUrl(initialData.file_url || '');
-      setMetadataUrl(initialData.metadata_url || '');
-      setVersion(initialData.version || '1.0');
-      setDescription(initialData.description || '');
-      setFormat(initialData.format || 'litert');
-      setFileSizeBytes(initialData.file_size_bytes?.toString() || '0');
-    }
-  }, [initialData]);
+  const [entityId, setEntityId] = useState(initialData?.id || '');
+  const [name, setName] = useState(initialData?.name || '');
+  const [description, setDescription] = useState(initialData?.description || '');
+  const [taskType, setTaskType] = useState(initialData?.task_type || '');
+  const [fileUrl, setFileUrl] = useState(initialData?.file_url || '');
+  const [metadataUrl, setMetadataUrl] = useState(initialData?.metadata_url || '');
+  const [version, setVersion] = useState(initialData?.version || '1.0');
+  const [format, setFormat] = useState(initialData?.format || 'litert');
+  const [fileSizeBytes, setFileSizeBytes] = useState(initialData?.file_size_bytes?.toString() || '0');
 
   const handleSave = () => {
     onSave({ 
@@ -51,7 +47,7 @@ export default function ModelForge({ onClose, onSave, initialData }: ModelForgeP
           <div className="flex gap-4">
             <div className="flex-1">
               <ForgeLabel>MODEL_ID</ForgeLabel>
-              <ForgeInput value={entityId} onChange={e => setEntityId(e.target.value)} placeholder="e.g. yolov8n-detect" />
+              <ForgeInput value={entityId} onChange={e => setEntityId(e.target.value)} placeholder="e.g. yolov8n-detect" disabled={!!initialData?.id} className={!!initialData?.id ? "opacity-50 cursor-not-allowed" : ""} />
             </div>
             <div className="flex-1">
               <ForgeLabel>DISPLAY_NAME</ForgeLabel>

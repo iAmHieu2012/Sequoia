@@ -1,5 +1,5 @@
-import { ModelMetadata, PlaygroundParams, ParsedSemanticSegmentationResult } from '@/types/playground';
-import { OutputParser } from './types';
+import { ParsedSemanticSegmentationResult } from '@/types/playground';
+import { OutputParser, ParseOptions } from './types';
 import { SEGMENTATION_COLORS_RGB } from './utils';
 
 /**
@@ -7,15 +7,7 @@ import { SEGMENTATION_COLORS_RGB } from './utils';
  * Expected output: [1, H, W, C] (logits/probs per class) or [1, H, W] (class IDs).
  */
 export class SegmentationMaskParser implements OutputParser {
-  parse(
-    rawData: Float32Array,
-    shape: number[],
-    taskType: string,
-    params: PlaygroundParams,
-    metadata: ModelMetadata,
-    scaleX: number,
-    scaleY: number
-  ): ParsedSemanticSegmentationResult {
+  parse({ rawData, shape, params, metadata }: ParseOptions): ParsedSemanticSegmentationResult {
     let height: number, width: number, channels: number;
     let isArgmaxed = false;
 

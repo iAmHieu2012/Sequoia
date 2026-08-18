@@ -1,24 +1,15 @@
-import { BoundingBox, ModelMetadata, PlaygroundParams, ParsedDetectionResult } from '@/types/playground';
-import { OutputParser } from './types';
-import { getLabelName } from './utils';
+import { BoundingBox, ParsedDetectionResult } from '@/types/playground';
+import { OutputParser, ParseOptions } from './types';
+import { getLabelName, getParsedInputSize } from './utils';
 
 /**
  * Parser for MoveNet pose estimation models.
  * Expected output tensor: [1, 1, 17, 3] containing [y, x, conf] per keypoint.
  */
 export class MoveNetParser implements OutputParser {
-  parse(
-    rawData: Float32Array,
-    shape: number[],
-    taskType: string,
-    params: PlaygroundParams,
-    metadata: ModelMetadata,
-    scaleX: number,
-    scaleY: number
-  ): ParsedDetectionResult {
+  parse({ rawData, shape, params, metadata, scaleX, scaleY }: ParseOptions): ParsedDetectionResult {
     // Dynamically fallback to 256 if not specified
-    const width = metadata.input_size[1] ?? 256;
-    const height = metadata.input_size[0] ?? 256;
+    const { width, height } = getParsedInputSize(metadata, 256);
 
     // MoveNet typically outputs [1, 1, 17, 3]
     if (shape.length !== 4 || shape[3] !== 3) {
@@ -39,7 +30,7 @@ export class MoveNetParser implements OutputParser {
       // Data is [y, x, conf] in normalized coordinates [0-1]
       let ky = rawData[i * 3];
       let kx = rawData[i * 3 + 1];
-      let conf = rawData[i * 3 + 2];
+      const conf = rawData[i * 3 + 2];
 
       // De-normalize and scale to canvas
       kx = kx * width * scaleX;

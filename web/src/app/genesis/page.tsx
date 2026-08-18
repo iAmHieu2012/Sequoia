@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { ArrowLeft, ChevronLeft, Rocket, ArrowRight, Edit2, Trash2, Plus, Terminal, Cpu, Zap, Activity } from "lucide-react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Plus, Edit2, Trash2, Cpu, ChevronLeft, ArrowRight, Terminal, Activity, Zap } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 import CosmosMapEditor from "@/components/admin/CosmosMapEditor";
 import EntityForge from "@/components/admin/EntityForge";
@@ -11,27 +12,28 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 
 export type AdminTab = "nebulas" | "anomalies" | "models" | "textbooks";
+import { Topic, Article, Textbook, AiModel } from "@/types/dashboard";
 
 export default function GenesisPage() {
+  interface MapNode { article_id: string; x: number; y: number; [key: string]: unknown; }
   const router = useRouter();
   const { user, isAdmin, loading: authLoading } = useAuth();
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const hasFetched = useRef(false);
 
-  const authFetch = async (url: string, options: RequestInit = {}) => {
+  const authFetch = useCallback(async (url: string, options: RequestInit = {}) => {
     if (!user) throw new Error("Unauthenticated");
     return fetch(url, options);
-  };
+  }, [user]);
   const [activeTab, setActiveTab] = useState<AdminTab>("nebulas");
-  const [selectedTopic, setSelectedTopic] = useState<any | null>(null);
+  const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
+  const [topics, setTopics] = useState<Topic[]>([]);
+  const [rogueArticles, setRogueArticles] = useState<Article[]>([]);
+  const [models, setModels] = useState<AiModel[]>([]);
+  const [textbooks, setTextbooks] = useState<Textbook[]>([]);
+  const [articles, setArticles] = useState<Article[]>([]); // Articles inside selected topic
+  const [mapNodes, setMapNodes] = useState<MapNode[]>([]); // Nodes for the current active map
 
-  const [topics, setTopics] = useState<any[]>([]);
-  const [rogueArticles, setRogueArticles] = useState<any[]>([]);
-  const [models, setModels] = useState<any[]>([]);
-  const [textbooks, setTextbooks] = useState<any[]>([]);
-  const [articles, setArticles] = useState<any[]>([]); // Articles inside selected topic
-  const [mapNodes, setMapNodes] = useState<any[]>([]); // Nodes for the current active map
-
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [drilldownLoading, setDrilldownLoading] = useState(false);
 
   const [hoverTarget, setHoverTarget] = useState<{ x: number, y: number, scale: number, mapId?: string, activeNodeId?: string }>({
@@ -39,28 +41,20 @@ export default function GenesisPage() {
   });
 
   const [isForgeOpen, setIsForgeOpen] = useState(false);
-  const [forgeInitialData, setForgeInitialData] = useState<any>(null);
+  const [forgeInitialData, setForgeInitialData] = useState<Record<string, unknown> | null>(null);
   const [forgeTab, setForgeTab] = useState<"nebulas" | "stars" | "anomalies" | "models" | "textbooks">("nebulas");
   const [refreshKey, setRefreshKey] = useState(0);
 
-  useEffect(() => {
-    if (!authLoading) {
-      if (!user || !isAdmin) {
-        router.push("/dashboard");
-      } else {
-        setIsCheckingAuth(false);
-      }
-    }
-  }, [user, isAdmin, authLoading, router]);
+
 
   const [rightPanelMode, setRightPanelMode] = useState<'map' | 'preview'>('map');
   const [selectedArticleContent, setSelectedArticleContent] = useState<string>('');
   const [selectedArticleId, setSelectedArticleId] = useState<string | undefined>(undefined);
-  const [selectedTextbook, setSelectedTextbook] = useState<any>(null);
-  const [selectedModel, setSelectedModel] = useState<any>(null);
+  const [selectedTextbook, setSelectedTextbook] = useState<Textbook | null>(null);
+  const [selectedModel, setSelectedModel] = useState<AiModel | null>(null);
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = useCallback(async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       const [tRes, rRes, mRes, txRes, mapRes] = await Promise.all([
         authFetch("/api/v1/topics").catch(() => null),
@@ -72,8 +66,13 @@ export default function GenesisPage() {
       if (tRes && tRes.ok) {
         const data = (await tRes.json()).data || [];
         setTopics(data);
-        if (data.length > 0 && hoverTarget.mapId === undefined && activeTab === 'nebulas') {
-          setHoverTarget(prev => ({ ...prev, mapId: data[0].id }));
+        if (data.length > 0) {
+          setHoverTarget(prev => {
+            if (prev.mapId === undefined && activeTab === 'nebulas') {
+              return { ...prev, mapId: data[0].id };
+            }
+            return prev;
+          });
         }
       }
       if (rRes && rRes.ok) setRogueArticles((await rRes.json()).data || []);
@@ -87,9 +86,9 @@ export default function GenesisPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab, authFetch]);
 
-  const fetchTopicArticles = async (topic: any) => {
+  const fetchTopicArticles = async (topic: Topic) => {
     setSelectedTopic(topic);
     setDrilldownLoading(true);
     try {
@@ -109,11 +108,17 @@ export default function GenesisPage() {
   };
 
   useEffect(() => {
-    if (!isCheckingAuth) fetchData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isCheckingAuth]);
+    if (!authLoading) {
+      if (!user || !isAdmin) {
+        router.push("/dashboard");
+      } else if (!hasFetched.current) {
+        hasFetched.current = true;
+        fetchData(false);
+      }
+    }
+  }, [user, isAdmin, authLoading, router, fetchData]);
 
-  const handleArticleSelect = async (article: any, targetX: number, targetY: number, mapId: string) => {
+  const handleArticleSelect = async (article: Article, targetX: number, targetY: number, mapId: string) => {
     setSelectedArticleId(article.id);
     setHoverTarget({ x: targetX, y: targetY, scale: 1.5, mapId, activeNodeId: article.id });
     setSelectedArticleContent('LOADING_DATA_STREAM...');
@@ -126,14 +131,15 @@ export default function GenesisPage() {
         setSelectedArticleContent('ERROR: FAILED_TO_FETCH_CONTENT');
       }
     } catch (e) {
+      console.error("Failed to fetch article content:", e);
       setSelectedArticleContent('ERROR: CONNECTION_LOST');
     }
   };
 
-  const handleEdit = async (tab: any, item: any, e: React.MouseEvent) => {
+  const handleEdit = async (tab: AdminTab | "stars", item: { id: string } & Partial<Topic & Article & AiModel & Textbook>, e: React.MouseEvent) => {
     e.stopPropagation();
     
-    let fullItem = { ...item };
+    let fullItem: { id: string } & Partial<Topic & Article & AiModel & Textbook> & { x?: number; y?: number; connections?: unknown } = { ...item };
     
     if (tab === 'stars' || tab === 'anomalies') {
       try {
@@ -145,7 +151,7 @@ export default function GenesisPage() {
         }
         
         // Also find node coordinates
-        const node = mapNodes.find((n: any) => n.article_id === articleId);
+        const node = mapNodes.find((n: MapNode) => n.article_id === articleId);
         if (node) {
           fullItem.x = node.x;
           fullItem.y = node.y;
@@ -161,13 +167,13 @@ export default function GenesisPage() {
     setIsForgeOpen(true);
   };
 
-  const handleCreate = (tab: any) => {
+  const handleCreate = (tab: AdminTab | "stars") => {
     setForgeTab(tab);
     setForgeInitialData(tab === 'stars' && selectedTopic ? { topic_id: selectedTopic.id } : null);
     setIsForgeOpen(true);
   };
 
-  const handleSave = async (payload: any) => {
+  const handleSave = async (payload: Record<string, unknown>) => {
     try {
       let endpoint = '';
       if (forgeTab === 'stars' || forgeTab === 'anomalies') endpoint = '/api/v1/admin/articles';
@@ -192,7 +198,7 @@ export default function GenesisPage() {
     }
   };
 
-  const handleDelete = async (tab: any, item: any, e: React.MouseEvent) => {
+  const handleDelete = async (tab: AdminTab | "stars", item: { id: string } & Partial<Topic & Article & AiModel & Textbook>, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!confirm(`Are you sure you want to delete this ${tab}? This action cannot be undone.`)) return;
 
@@ -562,7 +568,7 @@ export default function GenesisPage() {
                   <div className="px-5 pb-6 flex flex-col gap-4 animate-in slide-in-from-top-2 duration-300 relative z-10">
                     <div className="flex gap-4">
                       {book.cover_image_url && (
-                        <img src={book.cover_image_url} alt="Cover" className="w-24 h-32 object-cover border border-white/20 shadow-[0_0_10px_rgba(255,255,255,0.1)]" />
+                        <Image src={book.cover_image_url} alt="Cover" width={96} height={128} unoptimized className="w-24 h-32 object-cover border border-white/20 shadow-[0_0_10px_rgba(255,255,255,0.1)]" />
                       )}
                       <div className="flex-1 flex flex-col">
                         <div className="text-xs font-mono text-white/50 mb-2 tracking-widest uppercase">
@@ -623,7 +629,7 @@ export default function GenesisPage() {
                 </div>
               </div>
 
-              <div className={`absolute inset-0 transition-opacity duration-300 overflow-y-auto p-12 bg-[#050505] prose prose-invert max-w-none ${rightPanelMode === 'preview' ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'}`}>
+              <div className={`absolute inset-0 transition-opacity duration-300 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-black/20 [&::-webkit-scrollbar-thumb]:bg-white/30 hover:[&::-webkit-scrollbar-thumb]:bg-white/50 p-12 bg-[#050505] prose prose-invert max-w-none ${rightPanelMode === 'preview' ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'}`}>
                 {selectedArticleContent === 'LOADING_DATA_STREAM...' ? (
                   <div className="text-white/30 font-mono text-center mt-32 text-xs tracking-widest animate-pulse">{selectedArticleContent}</div>
                 ) : selectedArticleId ? (
