@@ -52,8 +52,8 @@ export default function Dashboard() {
       const res = await fetch(`/api/v1/topics/${topic.id}/articles`);
       const json = await res.json();
       setArticles(json.data || []);
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error(error);
     } finally {
       setDrilldownLoading(false);
     }

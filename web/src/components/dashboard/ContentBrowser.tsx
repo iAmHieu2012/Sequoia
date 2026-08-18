@@ -58,8 +58,8 @@ export default function ContentBrowser({
             else setMapData(null);
           }
         })
-        .catch(err => {
-          console.error(err);
+        .catch(error => {
+          console.error(error);
           if (isMounted) setMapData(null);
         });
       return () => { isMounted = false; setMapData(null); };

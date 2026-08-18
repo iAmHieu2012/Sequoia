@@ -245,8 +245,8 @@ export function useInference({
       } finally {
         for (const out of outputs) out.delete();
       }
-    } catch (e) {
-      console.error("Inference Error:", e);
+    } catch (error) {
+      console.error("Inference Error:", error);
     } finally {
       inputTensor.delete();
     }

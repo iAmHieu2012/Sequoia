@@ -18,7 +18,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
 
     if (error) throw error;
     return NextResponse.json({ data: data });
-  } catch (err: unknown) {
-    return NextResponse.json({ error: (err instanceof Error ? err.message : "Unknown error") }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error instanceof Error ? error.message : "Unknown error") }, { status: 500 });
   }
 }

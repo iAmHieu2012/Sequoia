@@ -46,8 +46,8 @@ export async function generateStaticParams() {
     if (data) {
       return data.map(t => ({ id: t.id }));
     }
-  } catch (e) {
-    console.error("Failed to generate static params for textbooks", e);
+  } catch (error) {
+    console.error("Failed to generate static params for textbooks", error);
   }
   return [];
 }

@@ -22,7 +22,7 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ mapId
     }
 
     return NextResponse.json({ success: true });
-  } catch (err: unknown) {
-    return NextResponse.json({ error: (err instanceof Error ? err.message : "Unknown error") }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error instanceof Error ? error.message : "Unknown error") }, { status: 500 });
   }
 }

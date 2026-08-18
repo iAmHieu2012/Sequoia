@@ -162,8 +162,8 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
       });
       if (res.ok) alert("Map saved successfully!");
       else alert("Failed to save map.");
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error(error);
       alert("Error saving map.");
     }
     setIsSaving(false);

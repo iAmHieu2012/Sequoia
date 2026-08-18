@@ -32,8 +32,8 @@ export default function ArticleProgressToggle({ article_id }: ArticleProgressTog
           } else {
             setIsCompleted(false);
           }
-        } catch (e) {
-          console.error("Failed to fetch progress", e);
+        } catch (error) {
+          console.error("Failed to fetch progress", error);
           setIsCompleted(false);
         } finally {
           setIsLoading(false);
@@ -62,8 +62,8 @@ export default function ArticleProgressToggle({ article_id }: ArticleProgressTog
       } else {
         throw new Error("Failed to update status");
       }
-    } catch (e) {
-      console.error("Failed to update progress", e);
+    } catch (error) {
+      console.error("Failed to update progress", error);
       setErrorMsg("SYS_ERR: NEURAL UPLINK DISCONNECTED");
     } finally {
       setIsUpdating(false);

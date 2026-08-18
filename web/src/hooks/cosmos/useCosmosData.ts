@@ -42,8 +42,8 @@ export default function useCosmosData(mapId?: string, refreshKey?: number, skipP
         const res = await fetch(`/api/v1/cosmos/maps/${mapId}`);
         const data = await res.json();
         if (isMounted) setMapCache({ id: mapId, data: data.data || null });
-      } catch (err: unknown) {
-        console.error(err);
+      } catch (error: unknown) {
+        console.error(error);
         if (isMounted) setMapCache({ id: mapId, data: null });
       }
     };
@@ -61,8 +61,8 @@ export default function useCosmosData(mapId?: string, refreshKey?: number, skipP
         const res = await fetch(`/api/v1/users/progress?localDate=${localDate}`);
         const data = await res.json();
         if (isMounted) setProgressCache({ userId: user.id, data: data.data || null });
-      } catch (err: unknown) {
-        console.error(err);
+      } catch (error: unknown) {
+        console.error(error);
         console.error('User not authenticated or no progress yet');
         if (isMounted) setProgressCache({ userId: user.id, data: null });
       }

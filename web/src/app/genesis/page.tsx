@@ -80,8 +80,8 @@ export default function GenesisPage() {
       if (txRes && txRes.ok) setTextbooks((await txRes.json()).data || []);
       if (mapRes && mapRes.ok) setMapNodes((await mapRes.json()).data?.nodes || []);
       else setMapNodes([]);
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error(error);
       setMapNodes([]);
     } finally {
       setLoading(false);
@@ -99,8 +99,8 @@ export default function GenesisPage() {
       if (artRes.ok) setArticles((await artRes.json()).data || []);
       if (mapRes && mapRes.ok) setMapNodes((await mapRes.json()).data?.nodes || []);
       else setMapNodes([]);
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error(error);
       setMapNodes([]);
     } finally {
       setDrilldownLoading(false);
@@ -130,8 +130,8 @@ export default function GenesisPage() {
       } else {
         setSelectedArticleContent('ERROR: FAILED_TO_FETCH_CONTENT');
       }
-    } catch (e) {
-      console.error("Failed to fetch article content:", e);
+    } catch (error) {
+      console.error("Failed to fetch article content:", error);
       setSelectedArticleContent('ERROR: CONNECTION_LOST');
     }
   };
@@ -157,8 +157,8 @@ export default function GenesisPage() {
           fullItem.y = node.y;
           fullItem.connections = node.connections;
         }
-      } catch (err) {
-        console.error("Failed to fetch article details", err);
+      } catch (error) {
+        console.error("Failed to fetch article details", error);
       }
     }
     

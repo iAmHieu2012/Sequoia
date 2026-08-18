@@ -48,8 +48,8 @@ export async function generateStaticParams() {
     if (data) {
       data.forEach(a => ids.push({ id: a.id }));
     }
-  } catch (e) {
-    console.error("Failed to generate static params", e);
+  } catch (error) {
+    console.error("Failed to generate static params", error);
   }
 
   return ids;

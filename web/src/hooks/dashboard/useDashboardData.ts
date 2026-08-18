@@ -35,8 +35,8 @@ export function useDashboardData(activeTab: string) {
           setRogueArticles(rogueJson.data || []);
           if (tbJson.data) setTextbooks(tbJson.data);
         }
-      } catch (e) {
-        console.error(e);
+      } catch (error) {
+        console.error(error);
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -57,8 +57,8 @@ export function useDashboardData(activeTab: string) {
             setLoadingModels(false);
           }
         })
-        .catch(err => {
-          console.error(err);
+        .catch(error => {
+          console.error(error);
           if (isMounted) setLoadingModels(false);
         });
     }
@@ -75,8 +75,8 @@ export function useDashboardData(activeTab: string) {
         const progressRes = await fetch('/api/v1/users/progress/summary');
         const progressJson = await progressRes.json();
         if (isMounted) setProgressCache({ userId: user.id, data: progressJson.data || null });
-      } catch (e) {
-        console.error('Progress summary fetch failed', e);
+      } catch (error) {
+        console.error('Progress summary fetch failed', error);
         if (isMounted) setProgressCache({ userId: user.id, data: null });
       }
     };

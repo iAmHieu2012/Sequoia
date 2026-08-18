@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     if (mapError) throw mapError;
     
     return NextResponse.json({ data: topic  });
-  } catch (err: unknown) {
-    return NextResponse.json({ error: (err instanceof Error ? err.message : "Unknown error") }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error instanceof Error ? error.message : "Unknown error") }, { status: 500 });
   }
 }

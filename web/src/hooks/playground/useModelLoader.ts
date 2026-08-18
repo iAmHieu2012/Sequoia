@@ -41,9 +41,9 @@ export function useModelLoader(
       setLogs(prev => [...prev, "> INITIALIZING LiteRT WASM ENGINE..."]);
       try {
         await loadLiteRt("https://cdn.jsdelivr.net/npm/@litertjs/core@2.5.3/wasm/");
-      } catch (err: unknown) {
-        if (err instanceof Error && !err.message?.includes("already loading") && !err.message?.includes("already loaded")) {
-           throw err;
+      } catch (error: unknown) {
+        if (error instanceof Error && !error.message?.includes("already loading") && !error.message?.includes("already loaded")) {
+           throw error;
         }
       }
       
@@ -54,8 +54,8 @@ export function useModelLoader(
       setCompiledModelReady(true);
       
       setLogs(prev => [...prev, "> MODEL COMPILED SUCCESSFULLY."]);
-    } catch (err: unknown) {
-      console.error(err);
+    } catch (error: unknown) {
+      console.error(error);
       setLogs(prev => [...prev, "> ERROR: LiteRT COMPILE FAILED."]);
     }
   };
@@ -75,8 +75,8 @@ export function useModelLoader(
 
             const metaJson = await metaRes.json();
             modelData.metadata = metaJson as ModelMetadata;
-          } catch (e) {
-            console.warn("Failed to fetch metadata.json from CDN", e);
+          } catch (error) {
+            console.warn("Failed to fetch metadata.json from CDN", error);
             modelData.metadata = null;
           }
         } else {
@@ -86,8 +86,8 @@ export function useModelLoader(
         setLoading(false);
         simulateBootSequence(modelData);
       })
-      .catch(err => {
-        console.error(err);
+      .catch(error => {
+        console.error(error);
         setLogs(prev => [...prev, "> ERROR: FAILED TO FETCH MODEL MATRIX."]);
         setLoading(false);
       });

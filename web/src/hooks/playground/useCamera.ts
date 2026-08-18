@@ -26,8 +26,8 @@ export function useCamera(
             setLogs(prev => [...prev, "> CAMERA UPLINK STABLE."]);
           }
         })
-        .catch(err => {
-          console.error("Camera error:", err);
+        .catch(error => {
+          console.error("Camera error:", error);
           if (active) {
             setLogs(prev => [...prev, "> ERROR: FAILED TO ACCESS OPTICAL SENSOR."]);
           }

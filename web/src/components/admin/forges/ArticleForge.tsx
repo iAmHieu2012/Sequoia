@@ -91,8 +91,8 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
       } else {
         alert(`Upload failed: ${data.error?.message || "Unknown error"}`);
       }
-    } catch (err) {
-      console.error("Cloudinary upload error:", err);
+    } catch (error) {
+      console.error("Cloudinary upload error:", error);
       alert("An error occurred while uploading the image.");
     } finally {
       setIsUploadingImage(false);
