@@ -10,14 +10,23 @@ import styles from './CosmosMapPreview.module.css';
 const CANVAS_SIZE = 10000;
 
 interface CosmosMapPreviewProps {
+  /** Target X coordinate to fly to initially */
   targetX: number;
+  /** Target Y coordinate to fly to initially */
   targetY: number;
+  /** Zoom scale, defaults to 0.2 */
   targetScale?: number;
+  /** The map data ID to load and render */
   mapId?: string;
+  /** If provided, overrides targetX/targetY and flies to this specific node's coordinates */
   activeNodeId?: string;
   className?: string;
 }
 
+/**
+ * A high-performance 2D canvas that renders Cosmos Map nodes and connections.
+ * Bypasses React state for pan/zoom rendering to achieve 60fps via usePanZoom hook.
+ */
 export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, mapId, activeNodeId, className = "" }: CosmosMapPreviewProps) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);

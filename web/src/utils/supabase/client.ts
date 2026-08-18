@@ -1,5 +1,9 @@
 import { createBrowserClient } from '@supabase/ssr'
 
+/**
+ * Browser-side Supabase Client setup using @supabase/ssr.
+ * Safe to import in Client Components.
+ */
 export function createClient() {
   return createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

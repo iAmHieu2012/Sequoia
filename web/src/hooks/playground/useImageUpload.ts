@@ -2,6 +2,10 @@
 
 import { useState } from 'react';
 
+/**
+ * Hook to manage the state and lifecycle of uploaded static media (images/videos).
+ * Automatically handles `URL.createObjectURL` and `URL.revokeObjectURL` to prevent memory leaks.
+ */
 export function useImageUpload() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [fileUrl, setFileUrl] = useState<string | null>(null);

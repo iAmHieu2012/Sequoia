@@ -2,10 +2,16 @@ import { useEffect, useRef } from "react";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 
 interface LogsPanelProps {
+  /** Array of log strings emitted by the Web Worker/Inference Engine */
   logs: string[];
+  /** True if the inference engine is currently booting up */
   booting: boolean;
 }
 
+/**
+ * A cyberpunk-themed terminal panel that displays live execution logs 
+ * from the AI Inference Engine. Automatically scrolls to the newest log entry.
+ */
 export default function LogsPanel({ logs, booting }: LogsPanelProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 

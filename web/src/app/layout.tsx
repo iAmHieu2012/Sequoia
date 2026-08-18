@@ -23,7 +23,10 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sequoia - The Neural Cosmos",
+  title: {
+    template: "%s | SEQUOIA",
+    default: "SEQUOIA | The Neural Cosmos",
+  },
   description: "Explore AI/ML in the infinite universe.",
   icons: {
     icon: [

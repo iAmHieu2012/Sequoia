@@ -6,13 +6,23 @@ import { TabTarget } from "../ContentBrowser";
 import { CosmosMap } from "@/hooks/cosmos/useCosmosData";
 
 interface RogueTabProps {
+  /** List of standalone articles (Rogue Papers) */
   rogueArticles: Article[];
+  /** Loading state for the main dashboard data */
   loading: boolean;
+  /** State setter to pan/zoom the Cosmos map to specific coordinates */
   setMapTarget: React.Dispatch<React.SetStateAction<TabTarget>>;
+  /** Global progress statistics */
   progressSummary: ProgressSummary | null;
+  /** Cached map spatial data for calculating hover target coordinates */
   mapData: CosmosMap | null;
 }
 
+/**
+ * Renders the "Rogue" tab within the ContentBrowser.
+ * Displays a list of standalone anomalies (Articles without a specific topic)
+ * and triggers Cosmos map panning on hover.
+ */
 export default function RogueTab({
   rogueArticles, loading, setMapTarget, progressSummary, mapData
 }: RogueTabProps) {

@@ -10,10 +10,17 @@ import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 import Image from "next/image";
 
 interface AiAssistantProps {
+  /** Controls whether the chat panel is expanded or collapsed */
   isOpen: boolean;
+  /** State setter to toggle the panel's visibility */
   setIsOpen: (open: boolean) => void;
 }
 
+/**
+ * A cyberpunk-themed AI Assistant chat interface using Vercel AI SDK.
+ * Integrates with the backend `/api/chat` route to stream responses from Google Gemini.
+ * Renders AI responses using the advanced MarkdownRenderer.
+ */
 export default function AiAssistant({ isOpen, setIsOpen }: AiAssistantProps) {
   const [input, setInput] = useState('');
   const [modelId, setModelId] = useState('gemini-3.5-flash-lite');

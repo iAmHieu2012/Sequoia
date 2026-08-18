@@ -3,9 +3,14 @@ import { ArrowRight } from "lucide-react";
 import { Textbook } from "@/types/dashboard";
 
 interface ModulesTabProps {
+  /** List of interactive textbooks (Modules) */
   textbooks: Textbook[];
 }
 
+/**
+ * Renders the "Modules" tab within the ContentBrowser.
+ * Displays a list of interactive textbooks available for the user.
+ */
 export default function ModulesTab({ textbooks }: ModulesTabProps) {
   if (textbooks.length === 0) {
     return <div className="p-8 text-center text-text-dim font-mono text-xs">NO MODULES ACTIVE.</div>;

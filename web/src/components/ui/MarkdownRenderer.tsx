@@ -27,6 +27,10 @@ function getHeadingId(children: React.ReactNode): string {
   return text.toLowerCase().replace(/[^\w]+/g, '-');
 }
 
+/**
+ * Renders Markdown content with support for GFM, Math (KaTeX), Mermaid diagrams, and custom UI components.
+ * Automatically generates a Table of Contents (TOC) from heading tags.
+ */
 export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   const [isTocExpanded, setIsTocExpanded] = React.useState(true);
 
@@ -59,7 +63,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
       {toc.length > 0 && (
         <div className={`mb-10 border border-system/20 bg-black/40 transition-all duration-300 ${isTocExpanded ? 'w-full' : 'w-fit float-right ml-6 mb-6'}`}>
           <div className="flex items-center justify-between p-3 border-b border-system/20 bg-system/5">
-            <h6 className="text-system font-heading font-bold text-xs tracking-widest uppercase m-0 pr-6">Mục lục</h6>
+            <h6 className="text-system font-heading font-bold text-xs tracking-widest uppercase m-0 pr-6">INDEX_TOC</h6>
             <button onClick={() => setIsTocExpanded(!isTocExpanded)} className="text-text-dim hover:text-system transition-colors">
               {isTocExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </button>

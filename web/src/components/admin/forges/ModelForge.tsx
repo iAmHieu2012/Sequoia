@@ -20,6 +20,11 @@ interface ModelForgeProps {
   };
 }
 
+/**
+ * ModelForge Component
+ * Form for creating and editing AI Models in the Labs section.
+ * Manages model metadata, file URLs, and versioning details.
+ */
 export default function ModelForge({ onClose, onSave, initialData }: ModelForgeProps) {
   const [entityId, setEntityId] = useState(initialData?.id || '');
   const [name, setName] = useState(initialData?.name || '');

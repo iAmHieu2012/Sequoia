@@ -5,11 +5,18 @@ import { CheckCircle2, XCircle, Cpu, Loader2, AlertTriangle } from "lucide-react
 import { useAuth } from "@/contexts/AuthContext";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 import Link from "next/link";
+import { UserService } from "@/services/user.service";
+import { ArticleService } from "@/services/article.service";
 
 interface ArticleProgressToggleProps {
+  /** The unique identifier of the article */
   article_id: string;
 }
 
+/**
+ * A cyberpunk-themed interactive button that allows authenticated users to 
+ * mark an article as completed (decoded) or revert its status.
+ */
 export default function ArticleProgressToggle({ article_id }: ArticleProgressToggleProps) {
   const { user, loading: authLoading } = useAuth();
   const [isCompleted, setIsCompleted] = useState<boolean | null>(null);
@@ -21,25 +28,25 @@ export default function ArticleProgressToggle({ article_id }: ArticleProgressTog
     if (authLoading) return;
     
     if (user) {
+      let isMounted = true;
       const fetchProgress = async () => {
         try {
           const localDate = new Date().toLocaleDateString('en-CA');
-          const res = await fetch(`/api/v1/users/progress?localDate=${localDate}`);
-          const json = await res.json();
-          if (json.data && json.data.completed_article_ids) {
-            const arr = json.data.completed_article_ids;
-            setIsCompleted(arr.includes(article_id));
-          } else {
+          const data = await UserService.getUserProgress(localDate);
+          if (data && data.completed_article_ids && isMounted) {
+            setIsCompleted(data.completed_article_ids.includes(article_id));
+          } else if (isMounted) {
             setIsCompleted(false);
           }
         } catch (error) {
           console.error("Failed to fetch progress", error);
-          setIsCompleted(false);
+          if (isMounted) setIsCompleted(false);
         } finally {
-          setIsLoading(false);
+          if (isMounted) setIsLoading(false);
         }
       };
       fetchProgress();
+      return () => { isMounted = false; };
     }
   }, [article_id, user, authLoading]);
 
@@ -49,19 +56,8 @@ export default function ArticleProgressToggle({ article_id }: ArticleProgressTog
     setErrorMsg(null);
     try {
       const targetStatus = !isCompleted;
-      const res = await fetch(`/api/v1/articles/${article_id}/progress`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ completed: targetStatus })
-      });
-      
-      if (res.ok) {
-        setIsCompleted(targetStatus);
-      } else {
-        throw new Error("Failed to update status");
-      }
+      await ArticleService.updateArticleProgress(article_id, targetStatus);
+      setIsCompleted(targetStatus);
     } catch (error) {
       console.error("Failed to update progress", error);
       setErrorMsg("SYS_ERR: NEURAL UPLINK DISCONNECTED");
@@ -70,7 +66,6 @@ export default function ArticleProgressToggle({ article_id }: ArticleProgressTog
     }
   };
 
-  // Nếu là Guest thì không hiện nút (hoặc hiện thông báo đăng nhập)
   if (!authLoading && !user) {
     return (
       <div className="mt-16 p-8 border border-panel-border bg-black/40 flex flex-col items-center justify-center relative gap-4">
@@ -108,8 +103,8 @@ export default function ArticleProgressToggle({ article_id }: ArticleProgressTog
         </h4>
         <p className="text-xs font-mono text-text-dim max-w-md">
           {isCompleted 
-            ? 'Tài liệu này đã được lưu vào hệ thống thần kinh của bạn. Bạn có thể xem lại bất cứ lúc nào.' 
-            : 'Đánh dấu hoàn thành để ghi nhận dữ liệu vào hồ sơ tiến trình (Orbital Streak) của bạn.'}
+            ? 'Transmission securely archived in your neural cortex. Access retained indefinitely.' 
+            : 'Mark as decoded to synchronize this datapad with your Orbital Streak progression.'}
         </p>
         {errorMsg && (
           <div className="mt-3 text-[10px] font-mono text-coral uppercase tracking-widest flex items-center justify-center md:justify-start gap-2 bg-coral/10 border border-coral/30 px-3 py-1.5 w-fit">

@@ -2,12 +2,19 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 
+/**
+ * Translates raw Supabase error messages into system-specific uppercase error codes.
+ */
 export const mapSupabaseError = (errorMessage: string): string => {
   if (errorMessage.includes('Invalid login credentials')) return 'INVALID_CREDENTIALS';
   if (errorMessage.includes('User already registered')) return 'EMAIL_ALREADY_REGISTERED';
   return errorMessage || 'AUTHENTICATION_FAILED';
 };
 
+/**
+ * Orchestrates Supabase authentication flows including Email/Password login, registration, Google OAuth, and password resets.
+ * Manages its own loading, error, and success message states.
+ */
 export function useAuthActions() {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Bold, Italic, Heading, List, Quote, Link as LinkIcon, Image as ImageIcon, Sigma, SquareSigma, Eye, Edit3, Columns2, Loader2, Info, MapPin, FileText } from 'lucide-react';
 import MarkdownRenderer from '@/components/ui/MarkdownRenderer';
 import CyberBrackets from '@/components/ui/CyberBrackets';
@@ -28,8 +28,13 @@ interface ArticleForgeProps {
   isAnomaly?: boolean;
 }
 
+/**
+ * ArticleForge Component
+ * A full-featured editor for Articles and Anomalies. Includes a Markdown editor with
+ * live preview, Cloudinary image upload, and an embedded Cosmos Map editor for plotting coordinates.
+ */
 export default function ArticleForge({ onClose, onSave, initialData, isAnomaly = false }: ArticleForgeProps) {
-  const [entityId, setEntityId] = useState(initialData?.id || '');
+  const entityId = initialData?.id || '';
   const [viewMode, setViewMode] = useState<ViewMode>('edit');
   const [articleSubTab, setArticleSubTab] = useState<ArticleSubTab>('general');
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -66,34 +71,16 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-
-    if (!cloudName || !uploadPreset) {
-      alert("Missing Cloudinary configuration in .env.local");
-      return;
-    }
-
     setIsUploadingImage(true);
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", uploadPreset);
-
+    
     try {
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
-      
-      if (res.ok) {
-        insertMarkdown(`![${file.name}](${data.secure_url})`, '');
-      } else {
-        alert(`Upload failed: ${data.error?.message || "Unknown error"}`);
-      }
-    } catch (error) {
+      // Dynamically import to avoid circular dependencies or server-side issues if any
+      const { UploadService } = await import('@/services/upload.service');
+      const secureUrl = await UploadService.uploadImageToCloudinary(file);
+      insertMarkdown(`![${file.name}](${secureUrl})`, '');
+    } catch (error: unknown) {
       console.error("Cloudinary upload error:", error);
-      alert("An error occurred while uploading the image.");
+      alert(error instanceof Error ? error.message : "An error occurred while uploading the image.");
     } finally {
       setIsUploadingImage(false);
       if (fileInputRef.current) fileInputRef.current.value = "";

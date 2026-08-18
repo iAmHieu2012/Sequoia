@@ -2,6 +2,15 @@ import { useState, useRef, useEffect, Dispatch, SetStateAction } from 'react';
 import { loadLiteRt, loadAndCompile, CompiledModel } from '@litertjs/core';
 import { AiModel, ModelMetadata } from '@/types/playground';
 
+/**
+ * Hook to manage the lifecycle of an AI Model in the Playground.
+ * Fetches the model's DB record, downloads the CDN metadata, 
+ * simulates a secure boot sequence (for UI aesthetics), and ultimately 
+ * initializes the LiteRT WebAssembly engine and compiles the neural network.
+ * 
+ * @param modelId The ID of the model to load
+ * @param setLogs State setter to push system boot logs to the terminal
+ */
 export function useModelLoader(
   modelId: string,
   setLogs: Dispatch<SetStateAction<string[]>>

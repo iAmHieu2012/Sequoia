@@ -7,20 +7,37 @@ import { TabTarget } from "../ContentBrowser";
 import { CosmosMap } from "@/hooks/cosmos/useCosmosData";
 
 interface NebulasTabProps {
+  /** List of main knowledge topics */
   topics: Topic[];
+  /** Articles belonging to the currently selected Topic */
   articles: Article[];
+  /** Loading state for the main dashboard data */
   loading: boolean;
+  /** Loading state specifically for fetching topic's articles */
   drilldownLoading: boolean;
+  /** Currently selected topic for drill-down view */
   selectedTopic: Topic | null;
+  /** State setter for selected topic */
   setSelectedTopic: (topic: Topic | null) => void;
+  /** Function to fetch articles when a topic is clicked */
   fetchTopicArticles: (topic: Topic) => void;
+  /** State setter to pan/zoom the Cosmos map to specific coordinates */
   setMapTarget: React.Dispatch<React.SetStateAction<TabTarget>>;
+  /** The authenticated user */
   user: User | null;
+  /** Function to check completion status of an article */
   getNodeStatus: (id: string) => boolean;
+  /** Global progress statistics */
   progressSummary: ProgressSummary | null;
+  /** Cached map spatial data for calculating hover target coordinates */
   mapData: CosmosMap | null;
 }
 
+/**
+ * Renders the "Nebulas" tab within the ContentBrowser.
+ * Displays a list of Topics, and allows drilling down into specific Topic Articles.
+ * Triggers Cosmos map panning on hover.
+ */
 export default function NebulasTab({
   topics, articles, loading, drilldownLoading, selectedTopic, setSelectedTopic,
   fetchTopicArticles, setMapTarget, user, getNodeStatus, progressSummary, mapData

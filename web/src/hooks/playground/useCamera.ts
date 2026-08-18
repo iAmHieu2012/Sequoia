@@ -1,5 +1,14 @@
 import { useEffect, useRef, RefObject, Dispatch, SetStateAction } from 'react';
 
+/**
+ * Hook to manage the lifecycle of the user's webcam.
+ * Handles requesting permissions, assigning the MediaStream to the video element,
+ * and securely stopping the tracks when the camera is toggled off or unmounted.
+ * 
+ * @param cameraActive Whether the camera feed should be active
+ * @param setLogs State setter to push system logs to the playground terminal
+ * @param videoRef Reference to the video element to attach the stream to
+ */
 export function useCamera(
   cameraActive: boolean,
   setLogs: Dispatch<SetStateAction<string[]>>,

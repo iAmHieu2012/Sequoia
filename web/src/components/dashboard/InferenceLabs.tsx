@@ -2,6 +2,9 @@ import Link from "next/link";
 import { FlaskConical, Cpu } from "lucide-react";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 
+/**
+ * Representation of an AI Model available in the system.
+ */
 interface AiModel {
   id: string;
   name: string;
@@ -13,10 +16,16 @@ interface AiModel {
 }
 
 interface InferenceLabsProps {
+  /** Array of available AI models */
   models: AiModel[];
+  /** Indicates if models are currently being fetched */
   loadingModels: boolean;
 }
 
+/**
+ * A sidebar panel displaying a list of available AI Inference Models.
+ * Provides links to launch each model in the Playground environment.
+ */
 export default function InferenceLabs({
   models,
   loadingModels

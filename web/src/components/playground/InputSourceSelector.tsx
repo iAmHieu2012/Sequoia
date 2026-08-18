@@ -1,11 +1,20 @@
 import { Camera, Upload } from 'lucide-react';
 
 interface InputSourceSelectorProps {
+  /** True if the camera feed is currently selected */
   cameraActive: boolean;
+  /** True if the AI model is currently booting */
   booting: boolean;
+  /** Callback to switch between camera and file upload modes */
   setCameraActive: (active: boolean) => void;
+  /** Array of supported input modes dictated by the AI model metadata */
   supportedModes?: ('camera' | 'image')[];
 }
+
+/**
+ * A toggle switch to select the input source for the AI Inference engine.
+ * Allows users to choose between live webcam feed or static file uploads.
+ */
 
 export default function InputSourceSelector({ cameraActive, booting, setCameraActive, supportedModes = ['camera', 'image'] }: InputSourceSelectorProps) {
   const supportsCamera = supportedModes.includes('camera');

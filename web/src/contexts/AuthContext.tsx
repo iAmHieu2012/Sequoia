@@ -18,6 +18,11 @@ const AuthContext = createContext<AuthContextType>({
 
 export const useAuth = () => useContext(AuthContext);
 
+/**
+ * AuthContext Provider
+ * Manages global authentication state using Supabase.
+ * Exposes the current user, loading state, and an isAdmin boolean derived from app_metadata.
+ */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);

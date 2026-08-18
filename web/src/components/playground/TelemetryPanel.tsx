@@ -1,13 +1,23 @@
 import { Activity, Box } from "lucide-react";
 import CyberBrackets from "@/components/ui/CyberBrackets";
-import { PlaygroundTelemetry, ModelMetadata, AiModel } from "@/types/playground";
+import { PlaygroundTelemetry, ModelMetadata } from "@/types/playground";
+import { AiModel } from "@/types/playground";
 
 interface TelemetryPanelProps {
+  /** The live telemetry data (fps, inference time, etc) from the inference hook */
   telemetry: PlaygroundTelemetry;
+  /** Whether the camera feed is currently active and processing */
   cameraActive: boolean;
+  /** The loaded metadata for the current model */
   metadata: ModelMetadata | null;
+  /** The active AI model configuration */
   model: AiModel;
 }
+
+/**
+ * A cyberpunk-themed monitoring panel displaying live runtime statistics 
+ * such as FPS, memory usage, and inference latencies.
+ */
 
 interface PerformanceWithMemory extends Performance {
   memory?: {

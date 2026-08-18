@@ -1,7 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Topic, Article, Textbook, AiModel, ProgressSummary } from '@/types/dashboard';
+import { TopicService } from '@/services/topic.service';
+import { ArticleService } from '@/services/article.service';
+import { TextbookService } from '@/services/textbook.service';
+import { ModelService } from '@/services/model.service';
+import { UserService } from '@/services/user.service';
 
+/**
+ * Custom hook to manage the fetching and state of all core Dashboard data.
+ * Aggregates Topics, Standalone Articles, Textbooks, AI Models, and User Progress.
+ * @param activeTab Current active tab ID to conditionally fetch heavy resources
+ */
 export function useDashboardData(activeTab: string) {
   const { user } = useAuth();
   
@@ -20,23 +30,19 @@ export function useDashboardData(activeTab: string) {
     let isMounted = true;
     async function fetchData() {
       try {
-        const [tpRes, rogueRes, tbRes] = await Promise.all([
-          fetch('/api/v1/topics'),
-          fetch('/api/v1/articles/standalone'),
-          fetch('/api/v1/textbooks')
+        const [tpData, rogueData, tbData] = await Promise.all([
+          TopicService.getTopics(),
+          ArticleService.getStandaloneArticles(),
+          TextbookService.getTextbooks()
         ]);
-        
-        const tpJson = await tpRes.json();
-        const rogueJson = await rogueRes.json();
-        const tbJson = await tbRes.json();
 
         if (isMounted) {
-          setTopics(tpJson.data || []);
-          setRogueArticles(rogueJson.data || []);
-          if (tbJson.data) setTextbooks(tbJson.data);
+          setTopics(tpData);
+          setRogueArticles(rogueData);
+          setTextbooks(tbData);
         }
       } catch (error) {
-        console.error(error);
+        console.error('Failed to fetch dashboard core data:', error);
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -49,16 +55,15 @@ export function useDashboardData(activeTab: string) {
   useEffect(() => {
     let isMounted = true;
     if (models.length === 0) {
-      fetch('/api/v1/models')
-        .then(res => res.json())
+      ModelService.getModels()
         .then(data => {
           if (isMounted) {
-            setModels(data.data || []);
+            setModels(data);
             setLoadingModels(false);
           }
         })
         .catch(error => {
-          console.error(error);
+          console.error('Failed to fetch AI models:', error);
           if (isMounted) setLoadingModels(false);
         });
     }
@@ -71,14 +76,8 @@ export function useDashboardData(activeTab: string) {
     
     let isMounted = true;
     const fetchProgress = async () => {
-      try {
-        const progressRes = await fetch('/api/v1/users/progress/summary');
-        const progressJson = await progressRes.json();
-        if (isMounted) setProgressCache({ userId: user.id, data: progressJson.data || null });
-      } catch (error) {
-        console.error('Progress summary fetch failed', error);
-        if (isMounted) setProgressCache({ userId: user.id, data: null });
-      }
+      const data = await UserService.getUserProgressSummary();
+      if (isMounted) setProgressCache({ userId: user.id, data });
     };
 
     fetchProgress();

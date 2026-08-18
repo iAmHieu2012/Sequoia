@@ -9,6 +9,7 @@ import ModulesTab from "./tabs/ModulesTab";
 
 import { Topic, Article, Textbook, ProgressSummary } from "@/types/dashboard";
 import { CosmosMap } from "@/hooks/cosmos/useCosmosData";
+import { CosmosService } from "@/services/cosmos.service";
 
 type TabId = "nebulas" | "rogue" | "modules";
 
@@ -21,23 +22,43 @@ export interface TabTarget {
 }
 
 interface ContentBrowserProps {
+  /** Currently active tab ID */
   activeTab: TabId;
+  /** State setter to change the active tab */
   setActiveTab: (tab: TabId) => void;
+  /** List of main knowledge topics (Nebulas) */
   topics: Topic[];
+  /** List of standalone articles (Rogue Papers) */
   rogueArticles: Article[];
+  /** List of interactive textbooks (Modules) */
   textbooks: Textbook[];
+  /** Articles belonging to the currently selected Topic */
   articles: Article[];
+  /** Loading state for the main dashboard data */
   loading: boolean;
+  /** Loading state specifically for fetching topic's articles */
   drilldownLoading: boolean;
+  /** Currently selected topic for drill-down view */
   selectedTopic: Topic | null;
+  /** State setter for selected topic */
   setSelectedTopic: (topic: Topic | null) => void;
+  /** Function to fetch articles when a topic is clicked */
   fetchTopicArticles: (topic: Topic) => void;
+  /** State setter to pan/zoom the Cosmos map to specific coordinates */
   setMapTarget: React.Dispatch<React.SetStateAction<TabTarget>>;
+  /** The authenticated user */
   user: User | null;
+  /** Function to check completion status of an article */
   getNodeStatus: (id: string) => boolean;
+  /** Global progress statistics */
   progressSummary: ProgressSummary | null;
 }
 
+/**
+ * The primary navigation sidebar for the Dashboard.
+ * Allows users to browse through Nebulas (Topics), Rogue (Papers), and Modules (Textbooks).
+ * Handles fetching its own structural map data via CosmosService.
+ */
 export default function ContentBrowser({
   activeTab, setActiveTab, topics, rogueArticles, textbooks, articles,
   loading, drilldownLoading, selectedTopic, setSelectedTopic,
@@ -48,22 +69,20 @@ export default function ContentBrowser({
   const currentMapId = activeTab === "rogue" ? "standalone-articles" : (activeTab === "nebulas" && selectedTopic ? selectedTopic.id : undefined);
 
   useEffect(() => {
-    if (currentMapId) {
-      let isMounted = true;
-      fetch(`/api/v1/cosmos/maps/${currentMapId}`)
-        .then(res => res.json())
-        .then(data => {
-          if (isMounted) {
-            if (data.data) setMapData(data.data);
-            else setMapData(null);
-          }
-        })
-        .catch(error => {
-          console.error(error);
-          if (isMounted) setMapData(null);
-        });
-      return () => { isMounted = false; setMapData(null); };
-    }
+    let isMounted = true;
+    
+    const fetchMap = async () => {
+      if (!currentMapId) return;
+      const data = await CosmosService.getMapData(currentMapId);
+      if (isMounted) setMapData(data);
+    };
+
+    fetchMap();
+
+    return () => { 
+      isMounted = false; 
+      setMapData(null); 
+    };
   }, [currentMapId]);
 
   return (

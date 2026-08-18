@@ -3,6 +3,11 @@
 import { useState, useCallback, useRef } from 'react';
 import { PlaygroundTelemetry } from '@/types/playground';
 
+/**
+ * Hook to track and calculate real-time inference telemetry (FPS, Inference Time).
+ * Throttles React state updates to 500ms intervals to prevent the UI from choking 
+ * while maintaining a hyper-fast 60fps internal calculation loop.
+ */
 export function useTelemetry() {
   const [telemetry, setTelemetry] = useState<PlaygroundTelemetry>({
     fps: 0,

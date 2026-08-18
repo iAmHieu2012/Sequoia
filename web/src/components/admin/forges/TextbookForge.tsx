@@ -18,6 +18,11 @@ interface TextbookForgeProps {
   };
 }
 
+/**
+ * TextbookForge Component
+ * Form for creating and editing Textbooks in the Modules section.
+ * Allows assigning authors, cover images, and PDF source URLs.
+ */
 export default function TextbookForge({ onClose, onSave, initialData }: TextbookForgeProps) {
   const [entityId, setEntityId] = useState(initialData?.id || '');
   const [title, setTitle] = useState(initialData?.title || '');

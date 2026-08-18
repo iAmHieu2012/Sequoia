@@ -2,8 +2,14 @@ import { useRef, useState, DragEvent } from 'react';
 import { Upload } from 'lucide-react';
 
 interface ImageDropzoneProps {
+  /** Callback fired when a valid image or video file is selected or dropped */
   onUpload: (file: File) => void;
 }
+
+/**
+ * A drag-and-drop zone that allows users to upload custom images and videos.
+ * Handles drag events and click-to-upload via a hidden file input.
+ */
 
 export default function ImageDropzone({ onUpload }: ImageDropzoneProps) {
   const [isDragging, setIsDragging] = useState(false);

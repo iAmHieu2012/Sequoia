@@ -4,22 +4,44 @@ import { getParser, getRenderer } from "@/lib/inference/registry";
 import { AiModel, ModelMetadata, PlaygroundParams } from '@/types/playground';
 
 interface UseInferenceProps {
+  /** Reference to the video or image HTML element acting as the input source */
   videoRef: RefObject<HTMLVideoElement | HTMLImageElement | null>;
+  /** Reference to the overlay canvas where results (boxes, masks) are drawn */
   canvasRef: RefObject<HTMLCanvasElement | null>;
+  /** Reference to the loaded and compiled LiteRT WebAssembly model */
   compiledModelRef: RefObject<CompiledModel | null>;
+  /** The current active AI model data */
   model: AiModel | null;
+  /** The metadata containing model specs (input size, normalization, etc) */
   metadata: ModelMetadata | null;
+  /** True if the camera is currently active */
   cameraActive: boolean;
+  /** True if the model is still running its boot sequence */
   booting: boolean;
+  /** True when the model is fully compiled and ready to accept tensors */
   compiledModelReady: boolean;
+  /** Reference to the dynamic parameters (Confidence, IOU, etc) */
   paramsRef: RefObject<PlaygroundParams>;
+  /** Callback fired every frame with the inference time (ms) */
   onFrame: (inferenceTimeMs: number) => void;
+  /** Callback fired every frame with the number of detections/objects found */
   onDetectionCount: (count: number) => void;
+  /** State setter to push system logs to the playground terminal */
   setLogs: Dispatch<SetStateAction<string[]>>;
+  /** URL of the uploaded static file (if any) */
   fileUrl?: string | null;
+  /** Type of the uploaded file */
   fileType?: 'image' | 'video' | null;
 }
 
+/**
+ * The core Inference Engine hook. 
+ * Responsibilities:
+ * 1. Captures frames from the Video/Image source.
+ * 2. Pre-processes the frame (Resizing, Normalization, RGB/BGR swap) into a Float32 Tensor.
+ * 3. Executes the LiteRT WebAssembly compiled model.
+ * 4. Passes raw output tensors to the Parser (to extract boxes/masks) and Renderer (to draw on Canvas).
+ */
 export function useInference({
   videoRef,
   canvasRef,
@@ -40,6 +62,7 @@ export function useInference({
   
   const workerCtxRef = useRef<CanvasRenderingContext2D | null>(null);
   const floatBufferRef = useRef<Float32Array | null>(null);
+  const firstFrameLoggedRef = useRef(false);
 
   // Use refs for values accessed inside the render loop to avoid stale closures
   const modelRef = useRef<AiModel | null>(null);
@@ -51,8 +74,20 @@ export function useInference({
   // Keep refs in sync with state
   useEffect(() => { modelRef.current = model; }, [model]);
   useEffect(() => { metadataRef.current = metadata; }, [metadata]);
-  useEffect(() => { cameraActiveRef.current = cameraActive; }, [cameraActive]);
-  useEffect(() => { fileUrlRef.current = fileUrl || null; }, [fileUrl]);
+  useEffect(() => { 
+    cameraActiveRef.current = cameraActive; 
+    firstFrameLoggedRef.current = false;
+    if (cameraActive) setLogs(prev => [...prev, "> SWITCHED TO CAMERA STREAM. WARMING UP..."]);
+  }, [cameraActive, setLogs]);
+  
+  useEffect(() => { 
+    fileUrlRef.current = fileUrl || null; 
+    if (fileUrl) {
+      firstFrameLoggedRef.current = false;
+      setLogs(prev => [...prev, "> LOADED STATIC MEDIA. WARMING UP..."]);
+    }
+  }, [fileUrl, setLogs]);
+  
   useEffect(() => { fileTypeRef.current = fileType || null; }, [fileType]);
 
   const processFrame = useCallback(async () => {
@@ -97,6 +132,8 @@ export function useInference({
       offscreen.width = width;
       offscreen.height = height;
       workerCtxRef.current = offscreen.getContext('2d', { willReadFrequently: true });
+      setLogs(prev => [...prev, `> ALLOCATED TENSOR BUFFER [${width}x${height}x3]...`]);
+      firstFrameLoggedRef.current = false; // Reset first frame tracker when buffer changes
     }
     
     const ctx = workerCtxRef.current;
@@ -158,6 +195,11 @@ export function useInference({
     try {
       const outputs = await compiledModel.run([inputTensor]);
       
+      if (!firstFrameLoggedRef.current) {
+        setLogs(prev => [...prev, "> INFERENCE PIPELINE ACTIVE. STREAMING TENSORS..."]);
+        firstFrameLoggedRef.current = true;
+      }
+
       try {
         if (!canvasRef.current || !outputs || outputs.length === 0) return;
         
@@ -247,6 +289,10 @@ export function useInference({
       }
     } catch (error) {
       console.error("Inference Error:", error);
+      setLogs(prev => {
+        if (prev[prev.length - 1] === "> CRITICAL: TENSOR PROCESSING FAILED.") return prev;
+        return [...prev, "> CRITICAL: TENSOR PROCESSING FAILED."];
+      });
     } finally {
       inputTensor.delete();
     }

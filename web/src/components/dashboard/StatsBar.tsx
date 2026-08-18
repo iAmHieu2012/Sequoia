@@ -17,13 +17,22 @@ interface ProgressSummary {
 }
 
 interface StatsBarProps {
+  /** The authenticated user object */
   user: User | null;
+  /** Summary of progress across textbooks, topics, and standalone nodes */
   progressSummary: ProgressSummary | null;
+  /** Total count of rogue (standalone) anomalies/articles */
   rogueArticlesLength: number;
+  /** Total count of active textbooks/codexes */
   textbooksLength: number;
+  /** Detailed user progress including current streak */
   userProgress: UserProgress | null;
 }
 
+/**
+ * Renders the top statistics bar displaying user progress, decoded signals,
+ * anomalies detected, active codexes, and learning streaks.
+ */
 export default function StatsBar({
   user,
   progressSummary,

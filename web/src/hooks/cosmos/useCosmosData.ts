@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { CosmosService } from '@/services/cosmos.service';
+import { UserService } from '@/services/user.service';
 
 export interface CosmosNode {
   article_id: string;
@@ -25,6 +27,12 @@ export interface UserProgress {
   active_dates?: string[];
 }
 
+/**
+ * Custom hook to fetch and cache Cosmos Map spatial data and User Progress.
+ * @param mapId The ID of the map to load
+ * @param refreshKey A trigger value to force a refetch
+ * @param skipProgressFetch If true, ignores fetching the user's progress
+ */
 export default function useCosmosData(mapId?: string, refreshKey?: number, skipProgressFetch: boolean = false) {
   const { user } = useAuth();
   const [mapCache, setMapCache] = useState<{ id: string | undefined, data: CosmosMap | null }>({ id: undefined, data: null });
@@ -38,14 +46,8 @@ export default function useCosmosData(mapId?: string, refreshKey?: number, skipP
     
     let isMounted = true;
     const fetchMap = async () => {
-      try {
-        const res = await fetch(`/api/v1/cosmos/maps/${mapId}`);
-        const data = await res.json();
-        if (isMounted) setMapCache({ id: mapId, data: data.data || null });
-      } catch (error: unknown) {
-        console.error(error);
-        if (isMounted) setMapCache({ id: mapId, data: null });
-      }
+      const data = await CosmosService.getMapData(mapId);
+      if (isMounted) setMapCache({ id: mapId, data });
     };
     fetchMap();
     return () => { isMounted = false; };
@@ -56,16 +58,9 @@ export default function useCosmosData(mapId?: string, refreshKey?: number, skipP
     
     let isMounted = true;
     const fetchProgress = async () => {
-      try {
-        const localDate = new Date().toLocaleDateString('en-CA');
-        const res = await fetch(`/api/v1/users/progress?localDate=${localDate}`);
-        const data = await res.json();
-        if (isMounted) setProgressCache({ userId: user.id, data: data.data || null });
-      } catch (error: unknown) {
-        console.error(error);
-        console.error('User not authenticated or no progress yet');
-        if (isMounted) setProgressCache({ userId: user.id, data: null });
-      }
+      const localDate = new Date().toLocaleDateString('en-CA');
+      const data = await UserService.getUserProgress(localDate);
+      if (isMounted) setProgressCache({ userId: user.id, data });
     };
     fetchProgress();
     return () => { isMounted = false; };

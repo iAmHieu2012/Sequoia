@@ -15,6 +15,11 @@ export interface EntityForgeProps {
   initialData?: Record<string, unknown> | null;
 }
 
+/**
+ * EntityForge Component
+ * Acts as a Factory/Router to render the appropriate creation/editing Form (Forge)
+ * depending on the active tab (Article, Topic, Model, or Textbook).
+ */
 export default function EntityForge({ activeTab, onClose, onSave, initialData }: EntityForgeProps) {
   switch (activeTab) {
     case 'stars':

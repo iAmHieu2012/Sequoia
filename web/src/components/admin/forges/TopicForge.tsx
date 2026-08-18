@@ -15,6 +15,11 @@ interface TopicForgeProps {
   };
 }
 
+/**
+ * TopicForge Component
+ * Form for creating and editing Nebulas (Topics).
+ * Manages core topic metadata and sort ordering.
+ */
 export default function TopicForge({ onClose, onSave, initialData }: TopicForgeProps) {
   const [name, setName] = useState(initialData?.name || '');
   const [description, setDescription] = useState(initialData?.description || '');

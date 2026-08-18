@@ -4,15 +4,29 @@ import InputSourceSelector from './InputSourceSelector';
 import { ParameterDefinition, ParamValue } from '@/types/playground';
 
 interface ParameterPanelProps {
+  /** Array of parameter definitions parsed directly from the model's metadata */
   paramDefs: ParameterDefinition[];
+  /** The current key-value state of all parameters */
   playgroundParams: Record<string, ParamValue>;
+  /** Callback to update a specific parameter by key */
   updateParam: (key: string, value: ParamValue) => void;
+  /** Callback to reset all parameters to their default values */
   resetParams: () => void;
+  /** True if the camera feed is currently active */
   cameraActive: boolean;
+  /** True if the AI model is still initializing */
   booting: boolean;
+  /** Callback to toggle between camera and image upload modes */
   setCameraActive: (active: boolean) => void;
+  /** Modes supported by the active model (e.g., ['camera', 'image']) */
   supportedModes?: ('camera' | 'image')[];
 }
+
+/**
+ * A dynamic control panel that generates UI sliders and toggles based on 
+ * the AI model's metadata. Allows users to tweak inference parameters 
+ * (like Confidence Threshold, IOU, etc.) in real-time.
+ */
 
 export default function ParameterPanel({
   paramDefs,

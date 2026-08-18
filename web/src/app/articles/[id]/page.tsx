@@ -8,16 +8,20 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { cache } from "react";
 
-interface Article {
-  id: string;
-  title: string;
-  content: string;
-  summary: string;
-  tags: string[];
-}
-
+import { Article as GlobalArticle } from "@/types/dashboard";
 import { supabaseAdmin } from "@/utils/supabase/admin";
 
+/**
+ * Extended Article type for the detail view, including the full Markdown content.
+ */
+interface Article extends GlobalArticle {
+  content: string;
+}
+
+/**
+ * Cached function to fetch a specific article and its content from Supabase.
+ * Uses React cache to prevent duplicate database calls during a single request lifecycle.
+ */
 const getArticle = cache(async (id: string): Promise<Article | null> => {
   try {
     const { data, error } = await supabaseAdmin
@@ -61,13 +65,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   
   if (!article) {
     return {
-      title: 'Signal Lost | Sequoia',
+      title: 'Signal Lost',
       description: 'Error 404: Datapad transmission could not be intercepted.'
     };
   }
 
   return {
-    title: `${article.title} | Sequoia`,
+    title: article.title,
     description: article.summary,
     openGraph: {
       title: article.title,
@@ -78,6 +82,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
+/**
+ * The Article Detail Page (Server Component).
+ * Fetches and renders a specific article's content in Markdown format.
+ * Includes tracking logic for completion status.
+ */
 export default async function ArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const article = await getArticle(id);
@@ -132,7 +141,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
           <header className="mb-10 border-b border-panel-border pb-8">
             <div className="flex items-center justify-between mb-6">
               <div className="flex flex-wrap gap-2">
-                {article.tags.map(tag => (
+                {(article.tags || []).map(tag => (
                   <span key={tag} className="px-3 py-1 bg-system/5 border border-system/20 text-system font-mono text-[10px] tracking-widest uppercase">
                     #{tag}
                   </span>

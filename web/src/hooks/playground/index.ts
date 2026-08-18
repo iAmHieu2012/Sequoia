@@ -10,6 +10,13 @@ import { useTelemetry } from './useTelemetry';
 
 import { useImageUpload } from './useImageUpload';
 
+/**
+ * The core orchestration hook for the Playground.
+ * Acts as a Facade, combining multiple sub-hooks (camera, model loader, inference, etc.)
+ * into a single unified interface for the PlaygroundClient component.
+ * 
+ * @param modelId The ID of the model to load from Supabase
+ */
 export function usePlayground(modelId: string) {
   const router = useRouter();
   const [logs, setLogs] = useState<string[]>([]);

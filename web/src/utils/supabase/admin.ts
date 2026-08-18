@@ -1,8 +1,11 @@
 import { createClient } from '@supabase/supabase-js'
 
-// CẢNH BÁO: Client này sẽ bypass toàn bộ RLS (Row Level Security).
-// CHỈ ĐƯỢC DÙNG trong Server Actions hoặc Route Handlers cho các tác vụ Admin.
-// TUYỆT ĐỐI KHÔNG export hoặc import file này ở Client Components!
+/**
+ * Supabase Admin Client setup.
+ * WARNING: This client bypasses RLS (Row Level Security).
+ * ONLY USE in Server Actions or Route Handlers for Admin-level tasks.
+ * NEVER export or import this file in Client Components.
+ */
 export const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,

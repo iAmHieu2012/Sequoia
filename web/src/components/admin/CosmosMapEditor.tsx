@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import useCosmosData, { CosmosNode } from "@/hooks/cosmos/useCosmosData";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 import { Save } from "lucide-react";
+import { AdminService } from "@/services/admin.service";
 import styles from '../dashboard/CosmosMapPreview.module.css';
 
 const CANVAS_SIZE = 10000;
@@ -24,6 +25,11 @@ interface CosmosMapEditorProps {
   hideSaveButton?: boolean;
 }
 
+/**
+ * CosmosMapEditor Component
+ * An interactive, cyberpunk-themed 2D map editor for placing and linking celestial nodes (Articles/Anomalies).
+ * Supports pan and zoom, drag-and-drop repositioning, and Shift+Click to draw connecting beams.
+ */
 export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, mapId, activeNodeId, className = "", refreshKey, draftNode, onDraftNodeDrag, onDraftNodeConnectionsChange, hideSaveButton = false }: CosmosMapEditorProps) {
   const { user } = useAuth();
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -155,13 +161,8 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
     if (!mapId || localNodes.length === 0 || !user) return;
     setIsSaving(true);
     try {
-      const res = await fetch(`/api/v1/admin/cosmos/maps/${mapId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nodes: localNodes })
-      });
-      if (res.ok) alert("Map saved successfully!");
-      else alert("Failed to save map.");
+      await AdminService.saveCosmosMap(mapId, localNodes);
+      alert("Map saved successfully!");
     } catch (error) {
       console.error(error);
       alert("Error saving map.");

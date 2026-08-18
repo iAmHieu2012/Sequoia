@@ -6,9 +6,14 @@ interface PanZoomOptions {
   initialScale?: number;
   minScale?: number;
   maxScale?: number;
+  /** Callback fired via requestAnimationFrame when map is dragged/zoomed */
   onUpdate?: (x: number, y: number, s: number, isTransitioning: boolean) => void;
 }
 
+/**
+ * High-performance hook for panning and zooming a 2D canvas area.
+ * Returns handlers to attach to a viewport div and a `flyTo` function.
+ */
 export default function usePanZoom(
   viewportRef: React.RefObject<HTMLDivElement | null>,
   options: PanZoomOptions = {}

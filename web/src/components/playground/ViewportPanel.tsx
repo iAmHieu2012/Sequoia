@@ -5,16 +5,31 @@ import CyberBrackets from '@/components/ui/CyberBrackets';
 import ImageDropzone from './ImageDropzone';
 
 interface ViewportPanelProps {
+  /** Reference to the video element (for camera feed) or image element (for uploaded images) */
   videoRef: RefObject<HTMLVideoElement | HTMLImageElement | null>;
+  /** Reference to the overlay canvas used to draw bounding boxes and masks */
   canvasRef: RefObject<HTMLCanvasElement | null>;
+  /** True if the user's webcam is currently active */
   cameraActive: boolean;
+  /** True if the AI model is currently compiling/booting */
   booting: boolean;
+  /** Callback to toggle the camera on/off */
   setCameraActive: (active: boolean) => void;
+  /** Blob URL of the currently uploaded file (if any) */
   fileUrl?: string | null;
+  /** Type of the uploaded file */
   fileType?: 'image' | 'video' | null;
+  /** Callback triggered when a user drops or selects a file to upload */
   handleUpload?: (file: File) => void;
+  /** Callback to clear the currently uploaded file */
   clearUpload?: () => void;
 }
+
+/**
+ * The main visual interface of the Playground.
+ * Renders the camera feed, uploaded images/videos, and the canvas overlay 
+ * containing the AI's detection results. Includes screenshot functionality.
+ */
 
 export default function ViewportPanel({ 
   videoRef, canvasRef, cameraActive, booting, setCameraActive,
@@ -99,6 +114,7 @@ export default function ViewportPanel({
               className="absolute w-full h-full object-contain"
               playsInline
               muted
+              onError={() => setCameraActive(false)}
             />
             <canvas 
               ref={canvasRef}

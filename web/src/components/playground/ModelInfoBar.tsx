@@ -3,11 +3,18 @@ import CyberBrackets from "@/components/ui/CyberBrackets";
 import { AiModel } from "@/types/playground";
 
 interface ModelInfoBarProps {
+  /** The currently active AI Model being run in the playground */
   model: AiModel;
+  /** True if the inference engine is still initializing/compiling the model */
   booting: boolean;
+  /** Callback to exit the playground and return to the dashboard */
   handleEscape: () => void;
 }
 
+/**
+ * Top navigation bar for the Playground. 
+ * Displays the current active model, its task type, and the engine status.
+ */
 export default function ModelInfoBar({ model, booting, handleEscape }: ModelInfoBarProps) {
   return (
     <header className="flex-shrink-0 relative z-10 flex items-center justify-between px-6 py-4 border-b border-panel-border bg-black/80 backdrop-blur-md">

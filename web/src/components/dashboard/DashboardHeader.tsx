@@ -7,6 +7,10 @@ import CyberBrackets from "@/components/ui/CyberBrackets";
 import { useAuth } from "@/contexts/AuthContext";
 import CommandCenterPanel from "./CommandCenterPanel";
 
+/**
+ * Global header for the dashboard interface.
+ * Displays the system status, local time, and handles the Command Center panel toggle.
+ */
 export default function DashboardHeader() {
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
