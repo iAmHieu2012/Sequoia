@@ -1,20 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
-import * as dotenv from 'dotenv';
-import path from 'path';
-
-dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-  console.error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local");
-  process.exit(1);
-}
-
-const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: { autoRefreshToken: false, persistSession: false }
-});
+import { supabase } from './seed_client';
 
 async function seedModelsOnly() {
   console.log('Seeding Models Only...');
@@ -28,6 +12,10 @@ async function seedModelsOnly() {
     { id: "efficientnet-b0", name: "EfficientNet B0", description: "EfficientNet B0 architecture optimized for computer vision.", task_type: "image-classification", file_url: "https://huggingface.co/litert-community/efficientnet_b0/resolve/main/efficientnet_b0.tflite", metadata_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/efficientnet-b0/metadata.json", file_size_bytes: 21319488, version: "1.0", format: "tflite" },
     { id: "vit-tiny", name: "ViT Tiny", description: "Vision Transformer (Tiny) architecture.", task_type: "image-classification", file_url: "https://huggingface.co/litert-community/vit_tiny_patch16_224/resolve/main/model.tflite", metadata_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/vit-tiny/metadata.json", file_size_bytes: 22978000, version: "1.0", format: "tflite" },
     { id: "vit-base-augreg", name: "ViT Base", description: "Vision Transformer (Base) architecture.", task_type: "image-classification", file_url: "https://huggingface.co/litert-community/vit_base_patch16_224.augreg_in1k/resolve/main/vit_base_patch16_224_fp32.tflite", metadata_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/vit-base-augreg/metadata.json", file_size_bytes: 346216112, version: "1.0", format: "tflite" },
+    { id: "yolov8n-detect", name: "YOLOv8 Nano (Detect)", description: "Real-time object detection model optimized for edge devices.", task_type: "object-detection", file_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-detect/model.tflite", metadata_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-detect/metadata.json", file_size_bytes: 12841243, version: "1.0", format: "litert" },
+    { id: "yolov8n-cls", name: "YOLOv8 Nano (Classify)", description: "Image classification model for edge devices.", task_type: "image-classification", file_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-cls/model.tflite", metadata_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-cls/metadata.json", file_size_bytes: 10917171, version: "1.0", format: "litert" },
+    { id: "yolov8n-pose", name: "YOLOv8 Nano (Pose)", description: "Real-time human pose estimation model.", task_type: "pose-estimation", file_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-pose/model.tflite", metadata_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-pose/metadata.json", file_size_bytes: 13510234, version: "1.0", format: "litert" },
+    { id: "yolov8n-seg", name: "YOLOv8 Nano (Seg)", description: "Real-time instance segmentation model.", task_type: "instance-segmentation", file_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-seg/model.tflite", metadata_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolov8n-seg/metadata.json", file_size_bytes: 13876205, version: "1.0", format: "litert" },
     { id: "yolox-nano-litert", name: "YOLOX Nano", description: "A lightweight and high-performance anchor-free object detector, optimized for real-time edge devices.", task_type: "object-detection", file_url: "https://huggingface.co/litert-community/yolox-nano-litert/resolve/main/yolox_nano.tflite", metadata_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/yolox-nano-litert/metadata.json", file_size_bytes: 2236912, version: "1.0", format: "tflite" },
     { id: "mediapipe-selfie-segmentation", name: "Selfie Segmentation (Multiclass)", description: "MediaPipe Selfie Segmentation model. Segments the person into multi-class parts.", task_type: "image-segmentation", file_url: "https://huggingface.co/litert-community/MediaPipe-Selfie-Segmentation/resolve/main/selfie_multiclass.tflite", metadata_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/mediapipe-selfie-segmentation/metadata.json", file_size_bytes: 16371837, version: "1.0", format: "tflite" },
     { id: "deeplabv3-resnet50", name: "DeepLabV3 ResNet-50", description: "DeepLabV3 model with a ResNet-50 backbone for semantic segmentation (21 classes).", task_type: "image-segmentation", file_url: "https://huggingface.co/litert-community/deeplabv3_resnet50/resolve/main/deeplabv3_resnet50.tflite", metadata_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-models@main/deeplabv3-resnet50/metadata.json", file_size_bytes: 158472352, version: "1.0", format: "tflite" },

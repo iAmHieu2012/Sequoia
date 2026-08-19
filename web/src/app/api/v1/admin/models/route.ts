@@ -12,10 +12,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const docId = body.id || body.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-    const now = new Date().toISOString();
-    
-    const { data: existing } = await supabaseAdmin.from('models').select('created_at').eq('id', docId).single();
-    
+
     const model = {
       id: docId,
       name: body.name,
@@ -26,8 +23,6 @@ export async function POST(request: NextRequest) {
       version: body.version,
       format: body.format,
       file_size_bytes: body.file_size_bytes,
-      created_at: existing?.created_at ?? now,
-      updated_at: now
     };
 
     const { error: insertError } = await supabaseAdmin.from('models').upsert(model);

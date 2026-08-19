@@ -49,21 +49,10 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
     const { data: article } = await supabaseAdmin.from('articles').select('topic_id').eq('id', docId).single();
     const topicId = article?.topic_id;
 
-    // Explicitly delete content first (matches Ktor and ensures no orphaned rows if missing CASCADE)
-    await supabaseAdmin.from('article_contents').delete().eq('id', docId);
-
     const { error } = await supabaseAdmin.from('articles').delete().eq('id', docId);
     if (error) throw error;
-    
-    // Decrement topic article_count
-    if (topicId) {
-      const { data: topic } = await supabaseAdmin.from('topics').select('article_count').eq('id', topicId).single();
-      if (topic) {
-        await supabaseAdmin.from('topics').update({ article_count: Math.max(0, (topic.article_count || 0) - 1) }).eq('id', topicId);
-      }
-    }
 
-    // Remove from cosmos_maps nodes
+    // Remove from cosmos_maps nodes (kept in API — requires JSONB array manipulation with UI data)
     const mapId = topicId || 'standalone-articles';
     const { data: mapData } = await supabaseAdmin.from('cosmos_maps').select('nodes').eq('id', mapId).single();
     if (mapData && mapData.nodes) {
@@ -74,22 +63,6 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
           connections: Array.isArray(n.connections) ? n.connections.filter((id: string) => id !== docId) : []
         }));
       await supabaseAdmin.from('cosmos_maps').update({ nodes: updatedNodes }).eq('id', mapId);
-    }
-    
-    // Clean up ghost IDs in user_progress
-    const { data: usersProgress } = await supabaseAdmin
-      .from('user_progress')
-      .select('id, completed_article_ids')
-      .contains('completed_article_ids', [docId]);
-
-    if (usersProgress && usersProgress.length > 0) {
-      for (const up of usersProgress) {
-        const cleanedIds = (up.completed_article_ids || []).filter((id: string) => id !== docId);
-        await supabaseAdmin
-          .from('user_progress')
-          .update({ completed_article_ids: cleanedIds })
-          .eq('id', up.id);
-      }
     }
 
     return NextResponse.json({ success: true });

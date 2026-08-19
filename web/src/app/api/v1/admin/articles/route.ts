@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     const docId = body.id || body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     const now = new Date().toISOString();
     
-    // 1. Fetch old article to check if it's an update and if topic changed
+    // Fetch old article to check if it's an update and if topic changed (needed for cosmos map sync)
     const { data: oldArticle } = await supabaseAdmin.from('articles').select('topic_id').eq('id', docId).single();
     const isNew = !oldArticle;
     const oldTopicId = oldArticle?.topic_id;
@@ -27,8 +27,6 @@ export async function POST(request: NextRequest) {
       summary: body.summary,
       tags: body.tags?.map((t: string) => t.trim()) || [],
       is_published: body.is_published ?? false,
-      created_at: oldArticle ? undefined : now,
-      updated_at: now,
       published_at: oldArticle ? undefined : now
     };
 
@@ -38,27 +36,6 @@ export async function POST(request: NextRequest) {
     // Always insert content row even if empty
     const content = body.content || "";
     await supabaseAdmin.from('article_contents').upsert({ id: docId, content: content });
-
-    // 2. Handle Topic article_count changes (Replacing old SQL Trigger)
-    if (isNew && newTopicId) {
-      const { data: topic } = await supabaseAdmin.from('topics').select('article_count').eq('id', newTopicId).single();
-      if (topic) {
-        await supabaseAdmin.from('topics').update({ article_count: (topic.article_count || 0) + 1 }).eq('id', newTopicId);
-      }
-    } else if (!isNew && oldTopicId !== newTopicId) {
-      if (oldTopicId) {
-        const { data: oldTopic } = await supabaseAdmin.from('topics').select('article_count').eq('id', oldTopicId).single();
-        if (oldTopic) {
-          await supabaseAdmin.from('topics').update({ article_count: Math.max(0, (oldTopic.article_count || 0) - 1) }).eq('id', oldTopicId);
-        }
-      }
-      if (newTopicId) {
-        const { data: newTopic } = await supabaseAdmin.from('topics').select('article_count').eq('id', newTopicId).single();
-        if (newTopic) {
-          await supabaseAdmin.from('topics').update({ article_count: (newTopic.article_count || 0) + 1 }).eq('id', newTopicId);
-        }
-      }
-    }
 
     // 3. Handle Cosmos Map Node Sync (Replacing old SQL Trigger and incorporating UI coords)
     const newNodeData = {
