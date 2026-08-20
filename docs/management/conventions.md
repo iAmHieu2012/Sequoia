@@ -27,10 +27,10 @@ Toàn bộ commit message trong dự án phải tuân theo chuẩn [Conventional
 
 **Ví dụ:**
 
-- `feat(core): add endpoint to fetch textbook list`
+- `feat(api): add endpoint to fetch textbook list`
 - `fix(android): fix crash on camera permission denial`
 - `docs(api): update api-contract for upload flow`
-- `chore: bump Kotlin version to 1.9.20`
+- `chore: bump Next.js version to 16.x`
 
 ## 2. Quy ước đặt tên nhánh (Branch Naming)
 
@@ -48,7 +48,7 @@ Khi làm việc với các tính năng mới hoặc sửa lỗi, hãy tạo nhá
 
 Code tự nó phải rõ ràng (Self-documenting code), chỉ comment **TẠI SAO (Why)** chứ không comment **CÁI GÌ (What)** (trừ khi logic quá phức tạp). Toàn bộ KDoc và JSDoc **BẮT BUỘC phải viết bằng Tiếng Anh**. Tuy nhiên, đối với các public API, class và interface, bắt buộc phải dùng KDoc (Kotlin) và JSDoc (Web).
 
-### 3.1. KDoc (cho Ktor và Android)
+### 3.1. KDoc (cho Android)
 
 Bắt buộc sử dụng KDoc cho:
 
@@ -77,29 +77,30 @@ class LiteRTInferenceManager(
 }
 ```
 
-### 3.2. JSDoc (cho Web - Next.js/React)
+### 3.2. JSDoc/TSDoc (cho Web - Next.js/React/TypeScript)
 
-Bắt buộc sử dụng JSDoc cho:
+Bắt buộc sử dụng JSDoc/TSDoc cho:
 
 - Các React Hooks tùy chỉnh (Custom hooks).
 - Các hàm Utility phức tạp.
-- Định nghĩa Props của Component (nếu không dùng TypeScript cứng).
+- Các Service class (AdminService, UploadService).
+- Các Supabase utility functions (createClient, supabaseAdmin).
 
-**Ví dụ JSDoc:**
+**Ví dụ TSDoc:**
 
-```javascript
+```typescript
 /**
  * Custom hook to load and manage the state of the LiteRT model in the browser.
  *
- * @param {string} modelUrl - URL of the model file fetched from R2.
- * @returns {{ model: any, isLoading: boolean, error: Error | null }} The model state.
+ * @param modelUrl - URL of the model file fetched from CDN.
+ * @returns The model state including model instance, loading state, and error.
  */
-export function useLiteRTModel(modelUrl) {
+export function useLiteRTModel(modelUrl: string) {
     // ...
 }
 ```
 
 ## 4. Quy ước Formatting Code
 
-- **Kotlin (Ktor/Android):** Tuân thủ tiêu chuẩn định dạng của IntelliJ IDEA/Android Studio. Nên bật tính năng "Optimize imports on the fly" và "Reformat code" trước khi commit.
-- **Web (React/Next.js):** Sử dụng **Prettier** kết hợp với **ESLint**. Khuyến nghị thiết lập Prettier chạy tự động khi lưu file (Format on save).
+- **Kotlin (Android):** Tuân thủ tiêu chuẩn định dạng của IntelliJ IDEA/Android Studio. Nên bật tính năng "Optimize imports on the fly" và "Reformat code" trước khi commit.
+- **Web (React/Next.js/TypeScript):** Sử dụng **ESLint** (đã cấu hình sẵn với `eslint-config-next`). Khuyến nghị thiết lập format on save.

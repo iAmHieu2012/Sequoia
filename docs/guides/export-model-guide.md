@@ -1,15 +1,17 @@
 # Hướng dẫn chuyển đổi mô hình AI (YOLO → LiteRT)
 
-Tài liệu này hướng dẫn các bước để xuất một mô hình YOLO sang định dạng LiteRT, kiểm tra cục bộ và tải lên Cloudflare R2 để hệ thống Sequoia có thể sử dụng cho Model Playground.
+Tài liệu này hướng dẫn các bước để xuất một mô hình YOLO sang định dạng LiteRT, kiểm tra cục bộ và đẩy lên repository GitHub `sequoia-models` để hệ thống Sequoia có thể sử dụng cho Model Playground.
 
 ## 1. Yêu cầu môi trường
 
-- Python 3.9+
-- Các thư viện cần thiết cài đặt qua pip:
+* Python 3.9+
+* Các thư viện cần thiết cài đặt qua pip:
+```bash
+pip install ultralytics tensorflow ai-edge-litert
 
-  ```bash
-  pip install ultralytics tensorflow ai-edge-litert
-  ```
+```
+
+
 
 ## 2. Bước 1: Export YOLO sang TFLite/LiteRT
 
@@ -24,6 +26,7 @@ model = YOLO('yolov8n.pt')
 # Xuất sang định dạng tflite
 # Tham số int8=True để áp dụng Quantization giúp giảm dung lượng model
 model.export(format='tflite', int8=True)
+
 ```
 
 Sau khi chạy, bạn sẽ thu được một file dạng `yolov8n_saved_model/yolov8n_int8.tflite`.
@@ -59,44 +62,81 @@ interpreter.invoke()
 # Lấy output
 output_data = interpreter.get_tensor(output_details[0]['index'])
 print("Kết quả inference (shape):", output_data.shape)
+
 ```
 
-## 4. Bước 3: Upload lên Cloudflare R2
+## 4. Bước 3: Lưu trữ mô hình vào repo `sequoia-models`
 
-Sau khi có file `.tflite` hợp lệ, cần tải lên R2 để client (Web/Android) có thể tải về.
+Hệ thống quản lý model thông qua repository `sequoia-models` trên GitHub. Mỗi mô hình sẽ nằm trong một thư mục riêng biệt.
 
-1. Đăng nhập **Cloudflare Dashboard**.
-2. Mở mục **R2 Object Storage** và chọn bucket của dự án.
-3. Upload file `yolov8n_int8.tflite` vào thư mục `models/yolov8/`.
-4. Đảm bảo R2 bucket đã cấu hình public access hoặc có domain riêng để cho phép tải trực tiếp file (Ví dụ: `https://cdn.sequoia.app/models/yolov8/yolov8n_int8.tflite`).
+1. Clone repository `sequoia-models` về máy cục bộ.
+2. Tạo một thư mục mới mang tên mô hình (ví dụ: `yolov8n-detect`).
+3. Copy file `.tflite` vừa xuất ở Bước 1 vào thư mục này.
+4. Tạo thêm một file `metadata.json` để chứa thông tin, nhãn (labels), và cấu hình của mô hình.
 
-## 5. Bước 4: Cập nhật Firestore
+Cấu trúc thư mục của repo `sequoia-models` sẽ trông như sau:
 
-Để client biết thông tin và đường dẫn tải mô hình, tạo/cập nhật một document trong collection `models` trên Firestore:
+```text
+sequoia-models/
+├── yolov8n-detect/
+│   ├── yolov8n_int8.tflite
+│   └── metadata.json
+├── another-model-name/
+│   ├── model.tflite
+│   └── metadata.json
+└── ...
 
-```json
-{
-  "id": "yolo-v8-nano",
-  "name": "YOLOv8 Nano",
-  "description": "Mô hình nhận diện vật thể nhẹ và nhanh nhất của YOLOv8.",
-  "taskType": "object-detection",
-  "fileUrl": "https://cdn.sequoia.app/models/yolov8/yolov8n_int8.tflite",
-  "fileSizeBytes": 3200000,
-  "version": "1.0",
-  "format": "litert",
-  "metadataUrl": "https://cdn.jsdelivr.net/gh/USERNAME/sequoia-models/yolov8n/metadata.json",
-  "createdAt": "2023-10-25T10:00:00Z"
-}
 ```
+
+5. Thực hiện commit và push lên GitHub:
+```bash
+git add yolov8n-detect/
+git commit -m "Add YOLOv8n object detection model"
+git push origin main
+
+```
+
+
+
+## 5. Bước 4: Cập nhật Supabase PostgreSQL
+
+Để client (Web/App) biết thông tin và đường dẫn tải mô hình, bạn cần cập nhật bảng `models` trên Supabase. Chúng ta sẽ sử dụng CDN jsDelivr (hoặc raw github url) để trỏ trực tiếp tới file trong repo `sequoia-models`.
+
+```sql
+INSERT INTO models (id, name, description, task_type, file_url, file_size_bytes, version, format, metadata_url)
+VALUES (
+  'yolov8n-detect',
+  'YOLOv8 Nano',
+  'Mô hình nhận diện vật thể nhẹ và nhanh nhất của YOLOv8.',
+  'object-detection',
+  'https://cdn.jsdelivr.net/gh/USERNAME/sequoia-models/yolov8n-detect/yolov8n_int8.tflite',
+  3200000,
+  '1.0',
+  'litert',
+  'https://cdn.jsdelivr.net/gh/USERNAME/sequoia-models/yolov8n-detect/metadata.json'
+)
+ON CONFLICT (id) DO UPDATE SET
+  file_url = EXCLUDED.file_url,
+  metadata_url = EXCLUDED.metadata_url,
+  file_size_bytes = EXCLUDED.file_size_bytes,
+  version = EXCLUDED.version;
+
+```
+
+*(Lưu ý: Thay `USERNAME` bằng tên tài khoản/tổ chức GitHub của bạn)*
+
+Hoặc sử dụng Supabase Dashboard (Table Editor) để thao tác trực quan.
 
 ## 6. Lưu ý quan trọng
 
-- **Quantization (Lượng tử hóa):** Nên sử dụng INT8 Quantization (`int8=True`) thay vì Float16 hoặc Float32. INT8 làm giảm độ chính xác một chút nhưng giảm 4 lần dung lượng model và tăng tốc đáng kể, rất cần thiết cho ứng dụng Web.
-- **Kích thước mô hình:** Cố gắng giữ file `.tflite` dưới 10MB để thời gian tải trang không bị ảnh hưởng.
-- **Compatibility (Tương thích):**
-  - Web: Sử dụng LiteRT Web API (WASM/WebGL).
-  - Android: LiteRT API hỗ trợ Neural Networks API (NNAPI) hoặc GPU delegate để tận dụng phần cứng.
-- **Ủy quyền phần cứng (Delegates):** Mặc định chạy trên CPU. Trên Android, nên kích hoạt GPU Delegate nếu có.
+* **Quantization (Lượng tử hóa):** Nên sử dụng INT8 Quantization (`int8=True`) thay vì Float16 hoặc Float32. INT8 làm giảm độ chính xác một chút nhưng giảm 4 lần dung lượng model và tăng tốc đáng kể, rất cần thiết cho ứng dụng Web.
+* **Kích thước giới hạn:** Vì lưu trên GitHub và fetch qua CDN miễn phí (như jsDelivr), hãy cố gắng giữ file `.tflite` dưới 20MB. (jsDelivr có giới hạn file size, thường là 20-50MB tuỳ chính sách).
+* **Compatibility (Tương thích):**
+* Web: Sử dụng LiteRT Web API (WASM/WebGL).
+* Android: LiteRT API hỗ trợ Neural Networks API (NNAPI) hoặc GPU delegate để tận dụng phần cứng.
+
+
+* **Ủy quyền phần cứng (Delegates):** Mặc định chạy trên CPU. Trên Android, nên kích hoạt GPU Delegate nếu có.
 
 ## 7. Troubleshooting (Xử lý sự cố)
 
@@ -105,4 +145,4 @@ Sau khi có file `.tflite` hợp lệ, cần tải lên R2 để client (Web/And
 | `Unsupported ops` khi export | Mô hình dùng toán tử chưa được TFLite hỗ trợ. Cập nhật thư viện `ultralytics` và `tensorflow` mới nhất. |
 | Kết quả suy luận (Inference) toàn 0 hoặc nhiễu | Sai bước tiền xử lý ảnh. Kiểm tra lại việc chuẩn hóa `/ 255.0` hoặc thứ tự kênh màu RGB/BGR. |
 | Model chạy chậm trên Web | Quên áp dụng Quantization INT8. Xuất lại model với tham số `int8=True`. |
-| Lỗi CORS khi tải model từ R2 | Cloudflare R2 bucket chưa cấu hình CORS cho domain của ứng dụng Web. Bổ sung CORS rule trên R2. |
+| Lỗi CORS khi tải model từ GitHub | Tránh sử dụng link `raw.githubusercontent.com` trực tiếp trên web vì đôi khi gặp lỗi CORS. Hãy luôn sử dụng link CDN trung gian như `[https://cdn.jsdelivr.net/gh/](https://cdn.jsdelivr.net/gh/)...` |

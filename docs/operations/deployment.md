@@ -2,50 +2,33 @@
 
 Tài liệu này cung cấp hướng dẫn tổng quan về cách triển khai các thành phần của hệ thống Sequoia.
 
-## 1. Deploy Ktor Backend
+## 1. Deploy Web App (Next.js Full-stack)
+
+Next.js đóng vai trò cả Frontend lẫn Backend (API Routes), nên chỉ cần deploy một ứng dụng duy nhất.
 
 ### Lựa chọn nền tảng
 
-- **Đề xuất cho Solo Dev:** **Railway** hoặc **Render**. Miễn phí/Rẻ, setup nhanh gọn qua GitHub, tự động build Docker.
-- *Lựa chọn khác:* Cloud Run (linh hoạt, scale tốt, tính tiền theo request nhưng setup phức tạp hơn), VPS (cần tự quản lý Docker, Nginx).
-
-### Dockerfile mẫu cho Ktor
-
-```dockerfile
-# Build stage
-FROM gradle:8-jdk21 AS build
-COPY --chown=gradle:gradle . /home/gradle/src
-WORKDIR /home/gradle/src
-RUN gradle installDist --no-daemon
-
-# Run stage
-FROM eclipse-temurin:21-jre-jammy
-EXPOSE 8080
-RUN mkdir /app
-COPY --from=build /home/gradle/src/build/install/core /app/
-COPY --from=build /home/gradle/src/firebase-key.json /app/firebase-key.json
-WORKDIR /app
-ENTRYPOINT ["/app/bin/core"]
-```
+- **Đề xuất:** **Vercel** — tương thích hoàn hảo với Next.js, zero-config, tự động build và deploy từ GitHub.
+- *Lựa chọn khác:* Cloudflare Pages, Railway, hoặc self-host với Docker.
 
 ### Biến môi trường cần thiết (Environment Variables)
 
-- `FIREBASE_PROJECT_ID`: ID dự án Firebase
-- `FIREBASE_CLIENT_EMAIL`: Email của Service Account
-- `FIREBASE_PRIVATE_KEY`: Private Key của Service Account (chứa quyền Admin)
-- `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`: Thông tin xác thực Cloudflare R2 để tạo presigned URL.
+- `NEXT_PUBLIC_SUPABASE_URL`: URL của Supabase project.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Public anon key của Supabase.
+- `SUPABASE_SERVICE_ROLE_KEY`: Service role key (chỉ dùng phía server, bypass RLS).
+- `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`: Cloud name cho Cloudinary image upload.
+- `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET`: Upload preset cho Cloudinary.
 
-## 2. Deploy Web App
+### Build & Deploy
 
-- **Nền tảng:** Đề xuất **Vercel** (vì tương thích hoàn hảo nếu dùng Next.js) hoặc **Cloudflare Pages** (nhanh, rẻ).
-- **Cách deploy:** Kết nối trực tiếp repository trên GitHub.
-- **Build Command:** `npm run build` hoặc `yarn build`
-- **Output Directory:** `out` (đối với Next.js static export) hoặc `.next`.
-- **Environment Variables:**
-  - `NEXT_PUBLIC_API_BASE_URL`: URL của backend Ktor.
-  - `NEXT_PUBLIC_FIREBASE_API_KEY`, `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`, v.v... (Cấu hình public của Firebase).
+```bash
+npm run build    # Build Next.js app
+npm run start    # Start production server
+```
 
-## 3. Publish Android App
+Trên Vercel: kết nối trực tiếp repository GitHub, mọi push vào `main` sẽ tự động deploy.
+
+## 2. Publish Android App
 
 Luồng đẩy lên Google Play Console:
 
@@ -61,54 +44,52 @@ Luồng đẩy lên Google Play Console:
 5. Tải `.aab` lên nhánh **Internal Testing** để test nội bộ.
 6. Đẩy lên **Production** sau khi đã duyệt thành công.
 
-## 4. Cấu hình Firebase Production
+## 3. Cấu hình Supabase Production
 
-1. Tạo dự án mới trên Firebase Console dành riêng cho Production (tách biệt hoàn toàn với Dev).
-2. Kích hoạt **Authentication** (Email/Password & Google Sign-In).
-3. Kích hoạt **Firestore Database**.
-4. Cập nhật và triển khai **Firestore Security Rules** theo file `security-rules.md`.
-5. Tạo **Service Account**, tải file JSON key về và thiết lập vào biến môi trường cho Ktor Backend.
+1. Tạo project mới trên [Supabase Dashboard](https://supabase.com) dành riêng cho Production (tách biệt hoàn toàn với Dev).
+2. Chạy file SQL migration `00_reset_and_init.sql` trên SQL Editor để tạo schema, triggers, và RLS policies.
+3. Kích hoạt **Authentication** (Email/Password & Google Sign-In) trong mục Auth > Providers.
+4. Cấu hình `is_admin` custom claim cho tài khoản admin thông qua `app_metadata`.
+5. Lưu `SUPABASE_URL`, `SUPABASE_ANON_KEY`, và `SUPABASE_SERVICE_ROLE_KEY` vào biến môi trường của Vercel.
 
-## 5. Cấu hình Cloudflare R2
+## 4. Host Model Files trên Public CDN
 
-1. Tạo **Bucket mới** trên Cloudflare Dashboard.
-2. Cấu hình **Public Access** (Public Bucket URL) để Web/Android tải mô hình và ảnh không cần authentication.
-3. Thiết lập **CORS rules** để Web App (cùng domain) có thể lấy file mà không bị trình duyệt chặn.
-4. Tạo **R2 API Token** với quyền Write để Ktor tạo presigned URL cho luồng upload. Cài thông tin token vào Ktor.
+Model files `.tflite` được host miễn phí trên **jsDelivr** (thông qua GitHub Releases) hoặc **Hugging Face Hub**.
 
-## 6. CI/CD với GitHub Actions
+1. Upload model file vào GitHub repository hoặc Hugging Face model repo.
+2. Lấy public URL và cập nhật vào bảng `models` trên Supabase.
+3. Client (Web/Android) tải model trực tiếp từ CDN, không cần proxy qua API.
+
+## 5. CI/CD với GitHub Actions
 
 Mẫu luồng công việc (Workflow) tự động hóa:
 
 - **Trigger:** Khi có push/PR vào nhánh `main`.
-- **Bước 1 (Lint/Test):** Chạy code formatter, tĩnh, unit test cho cả Backend và Web.
-- **Bước 2 (Build Web):** Build ứng dụng Web.
-- **Bước 3 (Build Backend):** Build file JAR của Ktor.
-- **Bước 4 (Deploy Web):** Push lên Vercel/Cloudflare.
-- **Bước 5 (Deploy Backend):** Kích hoạt webhook hoặc push image Docker lên nền tảng host (Railway/Render).
+- **Bước 1 (Lint/Test):** Chạy `npx tsc --noEmit && npm run lint`.
+- **Bước 2 (Build):** Build ứng dụng Next.js.
+- **Bước 3 (Deploy):** Vercel tự động deploy khi push vào `main` (hoặc dùng Vercel CLI).
 
 > Lưu ý: Cấu hình đầy đủ các biến mật bằng **GitHub Secrets**.
 
-## 7. Checklist Go-Live (Kiểm tra trước khi ra mắt)
+## 6. Checklist Go-Live (Kiểm tra trước khi ra mắt)
 
-1. [ ] Môi trường DB (Firebase) và Storage (R2) của Production độc lập với Dev.
-2. [ ] Backend Ktor đã trỏ sang Firebase Production và R2 Production.
-3. [ ] Các biến môi trường nhạy cảm không bị lộ trong repository.
-4. [ ] Firestore Security Rules đã được apply.
-5. [ ] Các Endpoint tạo Presigned URL hoạt động đúng chuẩn và đã có rate limiting.
-6. [ ] Cấu hình CORS của Cloudflare R2 cho phép tải mô hình trực tiếp từ domain Web.
-7. [ ] Models YOLO LiteRT (file .tflite) đã upload lên R2 và cập nhật đường dẫn vào Firestore.
-8. [ ] Tính năng đăng ký/đăng nhập hoạt động trơn tru.
-9. [ ] Ứng dụng Web load trang nhanh, SEO Meta tags đầy đủ.
-10. [ ] Ứng dụng Android chạy không bị crash, giao diện responsive.
-11. [ ] Đã cấp quyền camera mượt mà trên cả Web và Android.
-12. [ ] Domain chính thức đã được trỏ tới Web App.
-13. [ ] Admin Tool (có thể là code local/UI) đã set được custom claim `isAdmin` cho tài khoản của bạn.
-14. [ ] Chứng chỉ SSL HTTPS hoạt động cho cả API Backend và Web.
-15. [ ] Logs và Monitoring đã được bật.
+1. [ ] Supabase Production project tách biệt hoàn toàn với Dev.
+2. [ ] RLS policies đã được apply trên tất cả bảng.
+3. [ ] Các biến môi trường nhạy cảm (`SUPABASE_SERVICE_ROLE_KEY`) không bị lộ trong repository hoặc client code.
+4. [ ] Tất cả triggers (updated_at, article_count, cosmos_map sync, cleanup progress) hoạt động đúng.
+5. [ ] Models LiteRT (file .tflite) đã upload lên CDN và cập nhật đường dẫn vào bảng `models`.
+7. [ ] Tính năng đăng ký/đăng nhập qua Supabase Auth hoạt động trơn tru.
+8. [ ] Ứng dụng Web load trang nhanh, SEO Meta tags đầy đủ.
+9. [ ] Ứng dụng Android chạy không bị crash, giao diện responsive.
+10. [ ] Đã cấp quyền camera mượt mà trên cả Web và Android.
+11. [ ] Domain chính thức đã được trỏ tới Web App trên Vercel.
+12. [ ] Admin đã được set `is_admin: true` trong `app_metadata` trên Supabase Auth.
+13. [ ] Chứng chỉ SSL HTTPS hoạt động (Vercel tự cung cấp).
+14. [ ] Seed data đã được chạy trên Production.
 
-## 8. Monitoring (Theo dõi sau triển khai)
+## 7. Monitoring (Theo dõi sau triển khai)
 
-- **Firebase Crashlytics:** Cài vào Android App để nhận báo cáo crash.
-- **Sentry:** Tích hợp vào Web và Ktor Backend để quản lý lỗi/exception.
-- **Cloudflare Analytics:** Giám sát lưu lượng tải file (mô hình/hình ảnh) trên R2 để dự báo chi phí và tối ưu băng thông.
+- **Vercel Analytics:** Giám sát hiệu năng Web (Core Web Vitals, response time).
+- **Sentry:** Tích hợp vào Web để quản lý lỗi/exception runtime.
+- **Supabase Dashboard:** Theo dõi database usage, auth sessions, và API requests.
+- **CDN Analytics:** jsDelivr cung cấp thống kê download miễn phí tại jsdelivr.com/statistics.

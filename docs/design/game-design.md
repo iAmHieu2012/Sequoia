@@ -6,9 +6,9 @@ Tài liệu đặc tả kiến trúc và luồng dữ liệu cho Game Domain ("T
 
 Hệ thống Gamification được thiết kế dưới dạng một Interactive 2D Canvas (Bản đồ không gian), đóng vai trò là giao diện điều hướng chính (Navigation UI) thay thế cho dạng danh sách dọc truyền thống.
 
-- **Vùng không gian (Sectors)**: Ánh xạ 1-1 với collection `textbooks`.
+- **Vùng không gian (Sectors)**: Ánh xạ 1-1 với bảng `textbooks`.
 
-- **Thiên thể (Celestial Objects)**: Ánh xạ 1-1 với collection `articles`.
+- **Thiên thể (Celestial Objects)**: Ánh xạ 1-1 với bảng `articles`.
 - **Khám phá tự do (Open Exploration)**: Không có trạng thái Locked. Mọi node đều có thể truy cập bất kỳ lúc nào để tra cứu.
 
 ## 2. Cấu trúc Dữ liệu UI (Celestial Types)
@@ -25,11 +25,11 @@ Hệ thống Gamification được thiết kế dưới dạng một Interactive
 
 Luồng tương tác vòng lặp của người dùng trên bản đồ:
 
-1. **Khởi tạo dữ liệu**: Client tải Data Class `CosmosMap` (chứa array tọa độ các Node) và `UserProgress` (trạng thái mở khóa hiện tại với mảng các ID đã học).
+1. **Khởi tạo dữ liệu**: Client tải `cosmos_maps` (chứa mảng JSONB tọa độ các Node) và `user_progress` (trạng thái mở khóa hiện tại với mảng các ID đã học) từ Supabase PostgreSQL.
 2. **Hiển thị Tín hiệu**: Render SVG/CSS. Các Node chưa khám phá (unread) hiển thị bình thường. Các Node decoded phát sáng rực rỡ.
 3. **Thao tác Khám phá**: Người dùng chọn một Node bất kỳ. Giao diện chuyển sang màn hình bài học định dạng Terminal (Datapad UI).
-4. **Xác thực (Verification)**: Hoàn thành bài đọc hoặc chạy Model Playground đạt Threshold. Client gửi request POST `/cosmos/progress/{textbookId}/decode`.
-5. **Cập nhật (Illumination)**: Ktor Backend cập nhật Firestore. Client nhận response trạng thái `decoded`, kích hoạt hiệu ứng CSS mở đường nối (Light Beams) tới các Node liền kề.
+4. **Xác thực (Verification)**: Hoàn thành bài đọc hoặc chạy Model Playground đạt Threshold. Client gửi request POST tới Next.js API Route cập nhật tiến trình.
+5. **Cập nhật (Illumination)**: Next.js API cập nhật PostgreSQL. Client nhận response trạng thái `decoded`, kích hoạt hiệu ứng CSS mở đường nối (Light Beams) tới các Node liền kề.
 
 ## 4. Thiết kế Giao diện (UI/UX Specifications)
 
@@ -39,5 +39,5 @@ Luồng tương tác vòng lặp của người dùng trên bản đồ:
 
 ## 5. Ràng buộc Kỹ thuật
 
-- Việc tính toán tọa độ (x, y) của tất cả các Node phải được cố định tĩnh (Seeding) và lưu thẳng vào Firestore collection `cosmos_maps`. Không sử dụng thuật toán Force-Directed Graph tính toán tự động trên Client để tránh sai lệch bố cục.
+- Việc tính toán tọa độ (x, y) của tất cả các Node phải được cố định tĩnh (Seeding) và lưu thẳng vào cột JSONB `nodes` của bảng `cosmos_maps` trong PostgreSQL. Không sử dụng thuật toán Force-Directed Graph tính toán tự động trên Client để tránh sai lệch bố cục.
 - Cấu trúc Navigation phải lưu lại trạng thái (Pan, Zoom state) của Canvas vào Global Context hoặc Session Storage để khi người dùng quay lại từ bài học, bản đồ không bị Reset về gốc.

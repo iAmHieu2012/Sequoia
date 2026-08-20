@@ -1,230 +1,241 @@
-# Thiết kế Firestore — Data Model
+# Thiết kế Dữ liệu — Data Model (Supabase PostgreSQL)
 
-> Tài liệu mô tả chi tiết cấu trúc dữ liệu Firestore cho nền tảng Sequoia.
+> Tài liệu mô tả chi tiết cấu trúc dữ liệu PostgreSQL cho nền tảng Sequoia.
 > Bao gồm kiến trúc tách biệt giữa Core Education Domain (dữ liệu học thuật) và Presentation Domain (The Neural Cosmos).
-> Cập nhật lần cuối: 2026-07-24
+> Cập nhật lần cuối: 2026-08-19
 
 ---
 
 ## 1. Tổng quan Kiến trúc Dữ liệu
 
-Hệ thống được thiết kế theo nguyên tắc **Separation of Concerns (Tách biệt mối quan tâm)** và **Cost Optimization (Tối ưu chi phí đọc/ghi trên Firestore)**:
+Hệ thống được thiết kế theo nguyên tắc **Separation of Concerns (Tách biệt mối quan tâm)** và **Query Optimization (Tối ưu truy vấn)**:
 
-1. **Core Education Domain:** Chứa dữ liệu cốt lõi (Sách, Chương, Bài học, Model). Hoàn toàn tinh khiết, không chứa bất kỳ dữ liệu nào liên quan đến UI/UX hay Theme.
-2. **Cosmos Game Domain (Presentation):** Chứa cấu hình hiển thị bản đồ và tiến trình học tập dưới dạng game hóa (Gamification). Sử dụng kỹ thuật **Denormalization (Chuẩn hóa ngược)** và **Aggregation (Gộp dữ liệu)** để đảm bảo mỗi lần tải bản đồ chỉ tốn tối đa **2 reads**, tiết kiệm tối đa chi phí.
+1. **Core Education Domain:** Chứa dữ liệu cốt lõi (Sách, Chủ đề, Bài viết, Model). Hoàn toàn tinh khiết, không chứa bất kỳ dữ liệu nào liên quan đến UI/UX hay Theme.
+2. **Cosmos Game Domain (Presentation):** Chứa cấu hình hiển thị bản đồ và tiến trình học tập dưới dạng game hóa (Gamification). Sử dụng kỹ thuật **Denormalization (Chuẩn hóa ngược)** qua cột `JSONB nodes` để đảm bảo mỗi lần tải bản đồ chỉ tốn **2 queries** (1 cho map, 1 cho progress).
 
 ```mermaid
 erDiagram
     users {
-        string id PK
-        string uid
-        string email
-        string displayName
-        string photoUrl
-        number createdAt
-        number updatedAt
+        TEXT id PK
+        TEXT uid UK
+        TEXT email
+        TEXT display_name
+        TEXT photo_url
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
     }
 
     textbooks {
-        string id PK
-        string title
-        string description
-        string pdfUrl
-        string coverImageUrl
+        TEXT id PK
+        TEXT title
+        TEXT description
+        TEXT[] authors
+        TEXT cover_image_url
+        TEXT pdf_url
+        INTEGER sort_order
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
     }
 
     topics {
-        string id PK
-        string name
-        string description
-        string iconUrl
-        number sortOrder
-        number articleCount
-        number createdAt
+        TEXT id PK
+        TEXT name
+        TEXT description
+        INTEGER article_count
+        INTEGER sort_order
+        TIMESTAMPTZ created_at
     }
 
     articles {
-        string id PK
-        string title
-        string summary
-        string topicId FK
-        array tags
-        boolean isPublished
-        number createdAt
-        number updatedAt
-        number publishedAt
+        TEXT id PK
+        TEXT title
+        TEXT summary
+        TEXT topic_id FK
+        TEXT[] tags
+        BOOLEAN is_published
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
+        TIMESTAMPTZ published_at
     }
 
     article_contents {
-        string id PK
-        string content
+        TEXT id PK_FK
+        TEXT content
     }
 
     models {
-        string id PK
-        string name
-        string description
-        string taskType
-        string fileUrl
-        number fileSizeBytes
-        string version
-        string format
-        string metadataUrl
-        number createdAt
-        number updatedAt
+        TEXT id PK
+        TEXT name
+        TEXT description
+        TEXT task_type
+        TEXT file_url
+        TEXT metadata_url
+        BIGINT file_size_bytes
+        TEXT version
+        TEXT format
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
     }
 
     cosmos_maps {
-        string id PK
-        string mapType
-        string theme
-        array nodes
+        TEXT id PK
+        TEXT map_type
+        TEXT theme
+        JSONB nodes
+        TIMESTAMPTZ created_at
     }
 
     user_progress {
-        string id PK
-        string userId FK
-        string mapId FK
-        map progressMap
+        TEXT id PK_FK
+        INTEGER current_streak
+        INTEGER longest_streak
+        DATE[] active_dates
+        TEXT[] completed_article_ids
+        TIMESTAMPTZ last_active
     }
 
     topics ||--o{ articles : "chứa"
-    articles ||--|| article_contents : "có nội dung"
+    articles ||--|| article_contents : "ON DELETE CASCADE"
     cosmos_maps ||--|| topics : "map UI cho"
-    user_progress }o--|| users : "tiến độ của"
+    user_progress }o--|| users : "ON DELETE CASCADE"
 ```
 
 ---
 
 ## 2. Core Education Domain
 
-Các Collection này giữ nguyên tính trừu tượng của một CMS giáo dục.
+Các bảng này giữ nguyên tính trừu tượng của một CMS giáo dục.
 
 ### 2.1. `users`
-| Field | Type | Required | Description |
+| Column | Type | Constraint | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | ✅ | Document ID |
-| `uid` | `string` | ✅ | Firebase Auth UID |
-| `email` | `string` | ✅ | Email đăng ký |
-| `displayName` | `string` | ✅ | Tên hiển thị |
-| `photoUrl` | `string` | ❌ | URL ảnh đại diện |
-| `createdAt` | `number` | ✅ | Thời điểm tạo |
-| `updatedAt` | `number` | ✅ | Thời điểm cập nhật cuối |
+| `id` | `TEXT` | PRIMARY KEY | Trùng với Supabase Auth UID |
+| `uid` | `TEXT` | UNIQUE NOT NULL | Supabase Auth UID |
+| `email` | `TEXT` | | Email đăng ký |
+| `display_name` | `TEXT` | | Tên hiển thị |
+| `photo_url` | `TEXT` | | URL ảnh đại diện |
+| `created_at` | `TIMESTAMPTZ` | DEFAULT now() | Thời điểm tạo |
+| `updated_at` | `TIMESTAMPTZ` | DEFAULT now() | Tự động cập nhật bởi trigger `set_updated_at()` |
 
 ### 2.2. `textbooks` (Kho lưu trữ PDF)
-| Field | Type | Required | Description |
+| Column | Type | Constraint | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | ✅ | Document ID |
-| `title` | `string` | ✅ | Tên tài liệu/giáo trình |
-| `description` | `string` | ✅ | Mô tả ngắn |
-| `pdfUrl` | `string` | ✅ | URL tải file PDF |
-| `coverImageUrl` | `string` | ✅ | Ảnh bìa |
+| `id` | `TEXT` | PRIMARY KEY | ID duy nhất |
+| `title` | `TEXT` | NOT NULL | Tên tài liệu/giáo trình |
+| `description` | `TEXT` | | Mô tả ngắn |
+| `authors` | `TEXT[]` | DEFAULT '{}' | Danh sách tác giả |
+| `cover_image_url` | `TEXT` | | Ảnh bìa |
+| `pdf_url` | `TEXT` | | URL tải file PDF |
+| `sort_order` | `INTEGER` | DEFAULT 0 | Thứ tự sắp xếp |
+| `created_at` | `TIMESTAMPTZ` | DEFAULT now() | Thời điểm tạo |
+| `updated_at` | `TIMESTAMPTZ` | DEFAULT now() | Trigger `set_updated_at()` |
 
 ### 2.3. `topics` (Chủ đề học tập)
-| Field | Type | Required | Description |
+| Column | Type | Constraint | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | ✅ | Document ID |
-| `name` | `string` | ✅ | Tên chủ đề |
-| `description` | `string` | ✅ | Mô tả ngắn |
-| `iconUrl` | `string` | ❌ | Ảnh đại diện/Icon |
-| `sortOrder` | `number` | ✅ | Thứ tự sắp xếp |
-| `articleCount` | `number` | ✅ | Số bài viết trong chủ đề |
-| `createdAt` | `number` | ✅ | Thời điểm tạo |
+| `id` | `TEXT` | PRIMARY KEY | ID duy nhất |
+| `name` | `TEXT` | NOT NULL | Tên chủ đề |
+| `description` | `TEXT` | | Mô tả ngắn |
+| `article_count` | `INTEGER` | DEFAULT 0 | Tự động cập nhật bởi trigger `trg_update_topic_article_count` |
+| `sort_order` | `INTEGER` | DEFAULT 0 | Thứ tự sắp xếp |
+| `created_at` | `TIMESTAMPTZ` | DEFAULT now() | Thời điểm tạo |
 
 ### 2.4. `articles` (Thông tin bài viết - Metadata)
-| Field | Type | Required | Description |
+| Column | Type | Constraint | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | ✅ | Document ID |
-| `title` | `string` | ✅ | Tiêu đề |
-| `summary` | `string` | ✅ | Tóm tắt ngắn gọn |
-| `topicId` | `string` | ❌ | Ref đến `topics` (null nếu là bài viết tự do) |
-| `tags` | `array<string>`| ✅ | Các thẻ phân loại bài viết |
-| `isPublished` | `boolean` | ✅ | Cờ trạng thái xuất bản |
-| `createdAt` | `number` | ✅ | Thời điểm tạo |
-| `updatedAt` | `number` | ✅ | Thời điểm cập nhật cuối |
-| `publishedAt` | `number` | ✅ | Thời điểm xuất bản |
+| `id` | `TEXT` | PRIMARY KEY | ID duy nhất |
+| `title` | `TEXT` | NOT NULL | Tiêu đề |
+| `summary` | `TEXT` | | Tóm tắt ngắn gọn |
+| `topic_id` | `TEXT` | FK → topics(id) ON DELETE SET NULL | Ref đến `topics` (null nếu là bài viết tự do) |
+| `tags` | `TEXT[]` | DEFAULT '{}' | Các thẻ phân loại bài viết |
+| `is_published` | `BOOLEAN` | DEFAULT false | Cờ trạng thái xuất bản |
+| `created_at` | `TIMESTAMPTZ` | DEFAULT now() | Thời điểm tạo |
+| `updated_at` | `TIMESTAMPTZ` | DEFAULT now() | Trigger `set_updated_at()` |
+| `published_at` | `TIMESTAMPTZ` | | Thời điểm xuất bản (set bởi API) |
 
 ### 2.5. `article_contents` (Nội dung chi tiết)
-*Lưu ý: Document ID của bảng này bắt buộc phải trùng khớp 1:1 với Document ID của bảng `articles` để dễ query.*
+*Lưu ý: Primary Key của bảng này bắt buộc trùng khớp 1:1 với PK của bảng `articles`, với ràng buộc `ON DELETE CASCADE`.*
 
-| Field | Type | Required | Description |
+| Column | Type | Constraint | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | ✅ | Trùng khớp với ID của bài viết (`articles.id`) |
-| `content` | `string` | ✅ | Nội dung Markdown |
+| `id` | `TEXT` | PK, FK → articles(id) ON DELETE CASCADE | Trùng khớp với ID bài viết |
+| `content` | `TEXT` | NOT NULL | Nội dung Markdown |
 
 ### 2.6. `models` (Mô hình AI)
-| Field | Type | Required | Description |
+| Column | Type | Constraint | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | ✅ | Document ID |
-| `name` | `string` | ✅ | Tên model |
-| `description` | `string` | ✅ | Mô tả mô hình |
-| `taskType` | `string` | ✅ | Loại tác vụ (vd: object-detection) |
-| `fileUrl` | `string` | ✅ | R2 public URL tải file `.tflite` |
-| `fileSizeBytes` | `number` | ✅ | Dung lượng file byte |
-| `version` | `string` | ✅ | Phiên bản |
-| `format` | `string` | ✅ | Định dạng (vd: litert) |
-| `metadataUrl` | `string` | ✅ | URL trỏ tới file metadata.json trên CDN |
-| `createdAt` | `number` | ✅ | Thời điểm tạo |
-| `updatedAt` | `number` | ✅ | Thời điểm cập nhật cuối |
+| `id` | `TEXT` | PRIMARY KEY | ID duy nhất |
+| `name` | `TEXT` | NOT NULL | Tên model |
+| `description` | `TEXT` | | Mô tả mô hình |
+| `task_type` | `TEXT` | | Loại tác vụ (vd: object-detection) |
+| `file_url` | `TEXT` | | URL tải file `.tflite` |
+| `metadata_url` | `TEXT` | | URL trỏ tới file metadata.json trên CDN |
+| `file_size_bytes` | `BIGINT` | DEFAULT 0 | Dung lượng file byte |
+| `version` | `TEXT` | DEFAULT '1.0' | Phiên bản |
+| `format` | `TEXT` | DEFAULT 'litert' | Định dạng (vd: litert, tflite) |
+| `created_at` | `TIMESTAMPTZ` | DEFAULT now() | Thời điểm tạo |
+| `updated_at` | `TIMESTAMPTZ` | DEFAULT now() | Trigger `set_updated_at()` |
 
 ---
 
 ## 3. Cosmos Game Domain (Presentation)
 
-Đây là tầng UI/UX. Chữ tín "Rẻ & Nhanh" đặt lên hàng đầu. Một bản đồ có 100 ngôi sao cũng chỉ tốn **1 read** thay vì 100 reads.
+Đây là tầng UI/UX. Mỗi bản đồ có 100 ngôi sao cũng chỉ tốn **1 query** thay vì 100 queries nhờ cột JSONB.
 
 ### 3.1. `cosmos_maps` (Cấu hình bản đồ không gian)
-Document ID bắt buộc trùng với `topicId` (đối với Chủ đề). Riêng với loại `rogue-anomalies`, bản đồ chứa các bài viết tự do (`topicId = null`) nên ID của bản đồ là độc lập (ví dụ: `"standalone-articles"`). Ktor tự động đồng bộ (sync) dữ liệu từ `articles` sang đây khi có thay đổi.
+ID bắt buộc trùng với `topic_id` (đối với Chủ đề). Riêng với loại `rogue-anomalies`, bản đồ chứa các bài viết tự do (`topic_id = null`) nên ID là độc lập (ví dụ: `"standalone-articles"`). Trigger `trg_sync_topic_to_cosmos_map` tự tạo map khi có topic mới.
 
-| Field | Type | Required | Description |
+| Column | Type | Constraint | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | ✅ | Map 1:1 với `topics` (trừ `rogue-anomalies`) |
-| `mapType` | `string` | ✅ | Loại bản đồ: `"topic"`, `"rogue-anomalies"` |
-| `theme` | `string` | ✅ | Theme đang dùng, vd: `"cosmos"`, `"nebula"` |
-| `nodes` | `array<map>` | ✅ | Mảng chứa toàn bộ các ngôi sao (bài học) trên bản đồ |
-| `nodes[].articleId` | `string` | ✅ | ID bài viết tương ứng |
-| `nodes[].title` | `string` | ✅ | Tiêu đề (Denormalized từ `articles` để tránh read phụ) |
-| `nodes[].celestialType` | `string` | ✅ | Loại sao: `"star"`, `"binary_star"`, `"anomaly"`, `"nebula"`, `"black_hole"` |
-| `nodes[].x` | `number` | ✅ | Tọa độ X trên bản đồ |
-| `nodes[].y` | `number` | ✅ | Tọa độ Y trên bản đồ |
-| `nodes[].connections` | `array<string>`| ✅ | Mảng các `articleId` mà sao này nối tới (để vẽ tia sáng) |
+| `id` | `TEXT` | PRIMARY KEY | Map 1:1 với `topics` (trừ `rogue-anomalies`) |
+| `map_type` | `TEXT` | NOT NULL | Loại bản đồ: `"topic"`, `"rogue-anomalies"` |
+| `theme` | `TEXT` | DEFAULT 'nebula' | Theme đang dùng |
+| `nodes` | `JSONB` | DEFAULT '[]' | Mảng chứa toàn bộ các ngôi sao trên bản đồ |
+| `created_at` | `TIMESTAMPTZ` | DEFAULT now() | Thời điểm tạo |
+
+**Cấu trúc JSONB `nodes`:**
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `article_id` | `string` | ID bài viết tương ứng |
+| `title` | `string` | Tiêu đề (Denormalized để tránh JOIN) |
+| `celestial_type` | `string` | Loại sao: `"star"`, `"binary_star"`, `"anomaly"`, `"nebula"`, `"black_hole"` |
+| `x` | `number` | Tọa độ X trên bản đồ |
+| `y` | `number` | Tọa độ Y trên bản đồ |
+| `connections` | `string[]` | Mảng các `article_id` mà sao này nối tới (để vẽ tia sáng) |
 
 ### 3.2. `user_progress` (Tiến trình giải mã)
-Document ID là `{userId}`. Gộp toàn bộ tiến trình của 1 user trên hệ thống vào 1 document duy nhất để tiết kiệm số lần đọc Firestore.
+ID là `user_id` (FK → users.id ON DELETE CASCADE). Gộp toàn bộ tiến trình của 1 user vào 1 row duy nhất.
 
-| Field | Type | Required | Description |
+| Column | Type | Constraint | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | ✅ | `userId` |
-| `userId` | `string` | ✅ | ID người dùng |
-| `completedArticleIds`| `array<string>`| ✅ | Danh sách ID các bài viết đã hoàn thành |
-| `currentStreak` | `number` | ✅ | Số ngày chuỗi liên tiếp hiện tại |
-| `longestStreak` | `number` | ✅ | Kỷ lục chuỗi dài nhất |
-| `activeDates` | `array<string>`| ✅ | Mảng các ngày đã hoạt động (Format: YYYY-MM-DD theo local timezone) |
-| `lastActive` | `number` | ✅ | Timestamp (Long) lần cuối hoạt động |
-
-### ProgressSummary (Response Model)
-
-Đây là response model (không lưu trên Firestore), được tính toán realtime từ `user_progress` + `articles`.
-
-| Field | Type | Description |
-|-------|------|-------------|
-| topics | Map<String, CategoryProgress> | Tiến độ theo từng topic ID |
-| standalone | Map<String, String> | Trạng thái từng standalone article (`decoded`/`unread`) |
-
-### CategoryProgress (Response Model)
-
-| Field | Type | Description |
-|-------|------|-------------|
-| total | Int | Tổng số articles trong category |
-| completed | Int | Số articles đã hoàn thành (decoded) |
-
+| `id` | `TEXT` | PK, FK → users(id) ON DELETE CASCADE | User ID |
+| `current_streak` | `INTEGER` | DEFAULT 0 | Số ngày chuỗi liên tiếp hiện tại |
+| `longest_streak` | `INTEGER` | DEFAULT 0 | Kỷ lục chuỗi dài nhất |
+| `active_dates` | `DATE[]` | DEFAULT '{}' | Mảng các ngày đã hoạt động (YYYY-MM-DD) |
+| `completed_article_ids` | `TEXT[]` | DEFAULT '{}' | Danh sách ID bài viết đã hoàn thành |
+| `last_active` | `TIMESTAMPTZ` | DEFAULT now() | Lần cuối hoạt động |
 
 ---
 
-## 4. Phân tích chi phí (Read Cost)
+## 4. Database Triggers
+
+Các trigger tự động duy trì tính toàn vẹn dữ liệu:
+
+| Trigger | Bảng | Thời điểm | Chức năng |
+| --- | --- | --- | --- |
+| `set_*_updated_at` | users, articles, textbooks, models | BEFORE UPDATE | Tự động set `updated_at = now()` |
+| `on_auth_user_created` | auth.users | AFTER INSERT | Tự tạo row `users` + `user_progress` khi signup |
+| `trg_update_topic_article_count` | articles | AFTER INSERT/DELETE/UPDATE OF topic_id | Đếm lại `COUNT(*)` và cập nhật `topics.article_count` |
+| `trg_sync_topic_to_cosmos_map` | topics | AFTER INSERT | Tự tạo row `cosmos_maps` rỗng cho topic mới |
+| `trg_cleanup_article_from_progress` | articles | AFTER DELETE | Xóa article_id khỏi mảng `completed_article_ids` trong `user_progress` |
+
+---
+
+## 5. Phân tích chi phí truy vấn
 
 Khi người dùng mở ứng dụng và tải một Bản đồ Sao:
-1. Fetch `cosmos_maps/{mapId}` -> **1 Read**. (Lấy toàn bộ cấu trúc bản đồ, vị trí, tên bài học).
-2. Fetch `user_progress/{userId}` -> **1 Read**. (Lấy mảng ID đã học để tính toán trạng thái sương mù/mở khóa của bản đồ).
+1. `SELECT * FROM cosmos_maps WHERE id = $1` → **1 Query**. (Lấy toàn bộ cấu trúc bản đồ, vị trí, tên bài học từ JSONB).
+2. `SELECT * FROM user_progress WHERE id = $1` → **1 Query**. (Lấy mảng ID đã học để tính toán trạng thái).
 
-**Tổng chi phí: Tối đa 2 Reads / user / map load.** Bất kể bản đồ lớn cỡ nào. Kiến trúc này giải quyết triệt để vấn đề N+1 Query.
+**Tổng chi phí: 2 Queries / user / map load.** Bất kể bản đồ lớn cỡ nào. Kiến trúc JSONB giải quyết triệt để vấn đề N+1 Query.
