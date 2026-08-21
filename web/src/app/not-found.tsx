@@ -18,7 +18,7 @@ export default function NotFound() {
         
         <Link href="/dashboard" className="inline-flex items-center text-[10px] font-mono tracking-widest uppercase border border-coral/50 text-coral px-6 py-3 hover:bg-coral/20 hover:text-white transition-all duration-300 relative group overflow-hidden">
           <div className="absolute left-0 top-0 w-1 h-full bg-coral scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--color-coral)]" />
-          <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-coral/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
+          <div className="absolute inset-0 translate-x-[-150%] group-hover:translate-x-[150%] bg-linear-to-r from-transparent via-coral/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
           <span className="relative z-10 flex items-center gap-2 group-hover:drop-shadow-[0_0_8px_var(--color-coral)]">
             <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
             Abort_Intercept

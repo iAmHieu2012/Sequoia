@@ -50,9 +50,9 @@ export default function DashboardHeader({ error }: { error?: string | null }) {
             </span>
           </div>
 
-          <div className="w-[1px] h-8 bg-panel-border" />
+          <div className="w-px h-8 bg-panel-border" />
 
-          <div className="flex flex-col min-w-[140px]">
+          <div className="flex flex-col min-w-35">
             <span className="text-[9px] font-mono text-text-dim mb-1">LOCAL_TIME</span>
             <span className="text-xs font-mono text-system flex items-center gap-2 font-bold tracking-wider uppercase">
               <span className="w-1.5 h-1.5 bg-system shadow-[0_0_8px_var(--color-system)] animate-pulse" />

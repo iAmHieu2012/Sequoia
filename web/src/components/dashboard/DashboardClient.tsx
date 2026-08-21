@@ -86,7 +86,7 @@ export default function DashboardClient() {
                Critical System Failure
              </h2>
              
-             <div className="w-full h-[1px] bg-coral/20 my-4" />
+             <div className="w-full h-px bg-coral/20 my-4" />
              
              <div className="text-coral/90 font-mono text-sm leading-relaxed max-w-lg mb-8 bg-coral/10 p-4 border border-coral/20 text-left overflow-y-auto max-h-[30vh]">
                <span className="opacity-70 animate-pulse mr-2">{">>"}</span>
@@ -145,7 +145,7 @@ export default function DashboardClient() {
           </div>
 
           {/* === COMMAND ZONE (RIGHT) === */}
-          <div className={`flex-shrink-0 flex flex-col gap-4 min-h-0 transition-all duration-500 ${isAssistantOpen ? 'w-full lg:w-full' : 'w-full lg:w-[350px]'}`}>
+          <div className={`shrink-0 flex flex-col gap-4 min-h-0 transition-all duration-500 ${isAssistantOpen ? 'w-full lg:w-full' : 'w-full lg:w-87.5'}`}>
             <div className={`flex flex-col transition-all duration-500 overflow-hidden ${isAssistantOpen ? 'h-0 opacity-0' : 'flex-1 min-h-0 opacity-100'}`}>
               <InferenceLabs 
                 models={models}

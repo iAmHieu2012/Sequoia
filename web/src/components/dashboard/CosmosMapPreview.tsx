@@ -87,15 +87,15 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
     >
       <div
         ref={canvasRef}
-        className={`${styles.mapCanvas} origin-top-left absolute will-change-transform z-[2]`}
+        className={`${styles.mapCanvas} origin-top-left absolute will-change-transform z-2`}
         style={{
           width: CANVAS_SIZE,
           height: CANVAS_SIZE,
         }}
       >
-        <div className={`${styles.contentLayer} absolute inset-0 z-[5]`}>
+        <div className={`${styles.contentLayer} absolute inset-0 z-5`}>
 
-          <svg className={`${styles.lightBeams} absolute inset-0 w-full h-full overflow-visible z-[2]`}>
+          <svg className={`${styles.lightBeams} absolute inset-0 w-full h-full overflow-visible z-2`}>
             {mapData &&
               mapData.nodes.flatMap(node =>
                 node.connections.map(connId => {
@@ -166,14 +166,14 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
       </div>
 
       {/* Zoom HUD */}
-      <div className="absolute bottom-6 right-6 font-mono text-[10px] flex flex-col items-end gap-2 pointer-events-none z-[1000]">
+      <div className="absolute bottom-6 right-6 font-mono text-[10px] flex flex-col items-end gap-2 pointer-events-none z-1000">
         <div className="relative bg-black/80 border border-cyan/30 px-4 py-2 flex flex-col items-end backdrop-blur-sm">
           <CyberBrackets color="border-cyan/30" />
           <div className="flex items-center gap-3 text-cyan mb-1">
             <span className="tracking-widest opacity-60">SYS_ZOOM</span>
             <span ref={hudScaleRef} className="font-bold text-sm">0.20x</span>
           </div>
-          <div className="w-full h-[1px] bg-cyan/20 mb-2" />
+          <div className="w-full h-px bg-cyan/20 mb-2" />
           <div className="flex items-center gap-2">
             <div className="text-[8px] text-text-dim tracking-widest uppercase">Target_Lock</div>
             <div ref={hudTargetRef} className="text-white font-bold">0, 0</div>
@@ -189,7 +189,7 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
         >
           <CyberBrackets color="border-cyan/30 group-hover:border-cyan transition-colors duration-300" />
           <div className="absolute left-0 top-0 w-1 h-full bg-cyan scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--color-cyan)]" />
-          <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-cyan/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
+          <div className="absolute inset-0 translate-x-[-150%] group-hover:translate-x-[150%] bg-linear-to-r from-transparent via-cyan/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
           
           <span className="relative z-10 flex items-center gap-2 font-bold text-cyan group-hover:drop-shadow-[0_0_8px_var(--color-cyan)] group-hover:text-cyan transition-all duration-300">
             <div className="w-1.5 h-1.5 bg-cyan shadow-[0_0_8px_var(--color-cyan)] animate-pulse transition-colors duration-300" />
