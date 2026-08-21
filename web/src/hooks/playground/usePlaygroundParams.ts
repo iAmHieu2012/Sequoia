@@ -1,4 +1,3 @@
-"use client";
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { ModelMetadata, PlaygroundParams, ParamValue } from '@/types/playground';

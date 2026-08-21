@@ -33,10 +33,11 @@ export interface UserProgress {
  * @param refreshKey A trigger value to force a refetch
  * @param skipProgressFetch If true, ignores fetching the user's progress
  */
-export default function useCosmosData(mapId?: string, refreshKey?: number, skipProgressFetch: boolean = false) {
+export function useCosmosData(mapId?: string, refreshKey?: number, skipProgressFetch: boolean = false) {
   const { user } = useAuth();
   const [mapCache, setMapCache] = useState<{ id: string | undefined, data: CosmosMap | null }>({ id: undefined, data: null });
   const [progressCache, setProgressCache] = useState<{ userId: string | undefined, data: UserProgress | null }>({ userId: undefined, data: null });
+  const [error, setError] = useState<string | null>(null);
 
   const mapData = mapCache.id === mapId ? mapCache.data : null;
   const userProgress = progressCache.userId === user?.id ? progressCache.data : null;
@@ -46,8 +47,13 @@ export default function useCosmosData(mapId?: string, refreshKey?: number, skipP
     
     let isMounted = true;
     const fetchMap = async () => {
-      const data = await CosmosService.getMapData(mapId);
-      if (isMounted) setMapCache({ id: mapId, data });
+      try {
+        const data = await CosmosService.getMapData(mapId);
+        if (isMounted) setMapCache({ id: mapId, data });
+      } catch (err) {
+        if (isMounted) setError('Failed to fetch cosmos map data');
+        console.error(err);
+      }
     };
     fetchMap();
     return () => { isMounted = false; };
@@ -58,9 +64,14 @@ export default function useCosmosData(mapId?: string, refreshKey?: number, skipP
     
     let isMounted = true;
     const fetchProgress = async () => {
-      const localDate = new Date().toLocaleDateString('en-CA');
-      const data = await UserService.getUserProgress(localDate);
-      if (isMounted) setProgressCache({ userId: user.id, data });
+      try {
+        const localDate = new Date().toLocaleDateString('en-CA');
+        const data = await UserService.getUserProgress(localDate);
+        if (isMounted) setProgressCache({ userId: user.id, data });
+      } catch (err) {
+        if (isMounted) setError('Failed to fetch user progress');
+        console.error(err);
+      }
     };
     fetchProgress();
     return () => { isMounted = false; };
@@ -72,5 +83,5 @@ export default function useCosmosData(mapId?: string, refreshKey?: number, skipP
     return arr?.includes(article_id) || false;
   }, [userProgress]);
 
-  return { mapData, userProgress, getNodeStatus };
+  return { mapData, userProgress, getNodeStatus, error };
 }

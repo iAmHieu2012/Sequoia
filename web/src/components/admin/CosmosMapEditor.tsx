@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import usePanZoom from "@/hooks/cosmos/usePanZoom";
+import { usePanZoom } from "@/hooks/cosmos/usePanZoom";
 import { useAuth } from "@/contexts/AuthContext";
-import useCosmosData, { CosmosNode } from "@/hooks/cosmos/useCosmosData";
+import { useCosmosData, CosmosNode } from "@/hooks/cosmos/useCosmosData";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 import { Save } from "lucide-react";
 import { AdminService } from "@/services/admin.service";

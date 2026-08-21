@@ -14,7 +14,7 @@ interface PanZoomOptions {
  * High-performance hook for panning and zooming a 2D canvas area.
  * Returns handlers to attach to a viewport div and a `flyTo` function.
  */
-export default function usePanZoom(
+export function usePanZoom(
   viewportRef: React.RefObject<HTMLDivElement | null>,
   options: PanZoomOptions = {}
 ) {

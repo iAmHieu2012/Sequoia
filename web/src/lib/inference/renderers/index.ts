@@ -1,11 +1,3 @@
-export type { TaskRenderer } from './types';
-export { DetectionRenderer } from './detection';
-export { ClassificationRenderer } from './classification';
-export { FaceLandmarkRenderer } from './faceLandmark';
-export { SemanticSegmentationRenderer } from './semanticSegmentation';
-export { ImageToImageRenderer } from './imageToImage';
-export { OcrRenderer } from './ocr';
-
 import { TaskRenderer } from './types';
 import { DetectionRenderer } from './detection';
 import { PoseRenderer } from './pose';
@@ -15,6 +7,18 @@ import { FaceLandmarkRenderer } from './faceLandmark';
 import { SemanticSegmentationRenderer } from './semanticSegmentation';
 import { ImageToImageRenderer } from './imageToImage';
 import { OcrRenderer } from './ocr';
+
+export type { TaskRenderer };
+export { 
+  DetectionRenderer, 
+  PoseRenderer, 
+  SegmentationRenderer, 
+  ClassificationRenderer, 
+  FaceLandmarkRenderer, 
+  SemanticSegmentationRenderer, 
+  ImageToImageRenderer, 
+  OcrRenderer 
+};
 
 const renderers: Record<string, () => TaskRenderer> = {
   'object-detection': () => new DetectionRenderer(),

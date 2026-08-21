@@ -11,15 +11,10 @@ export const UserService = {
    * @returns A promise resolving to the user's progress data, or null.
    */
   getUserProgress: async (localDate: string): Promise<UserProgress | null> => {
-    try {
-      const res = await fetch(`/api/v1/users/progress?localDate=${localDate}`);
-      if (!res.ok) throw new Error('Failed to fetch user progress');
-      const json = await res.json();
-      return json.data || null;
-    } catch (error) {
-      console.error('UserService Error:', error);
-      return null;
-    }
+    const res = await fetch(`/api/v1/users/progress?localDate=${localDate}`);
+    if (!res.ok) throw new Error('Failed to fetch user progress');
+    const json = await res.json();
+    return json.data || null;
   },
 
   /**
@@ -27,14 +22,9 @@ export const UserService = {
    * @returns A promise resolving to the ProgressSummary object, or null.
    */
   getUserProgressSummary: async (): Promise<ProgressSummary | null> => {
-    try {
-      const res = await fetch('/api/v1/users/progress/summary');
-      if (!res.ok) throw new Error('Failed to fetch progress summary');
-      const json = await res.json();
-      return json.data || null;
-    } catch (error) {
-      console.error('UserService Error:', error);
-      return null;
-    }
+    const res = await fetch('/api/v1/users/progress/summary');
+    if (!res.ok) throw new Error('Failed to fetch progress summary');
+    const json = await res.json();
+    return json.data || null;
   }
 };

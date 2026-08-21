@@ -20,6 +20,7 @@ export function useDashboardData(activeTab: string) {
   const [textbooks, setTextbooks] = useState<Textbook[]>([]);
   const [models, setModels] = useState<AiModel[]>([]);
   
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingModels, setLoadingModels] = useState(true);
   const [progressCache, setProgressCache] = useState<{ userId: string | undefined, data: ProgressSummary | null }>({ userId: undefined, data: null });
@@ -43,6 +44,7 @@ export function useDashboardData(activeTab: string) {
         }
       } catch (error) {
         console.error('Failed to fetch dashboard core data:', error);
+        if (isMounted) setError('Failed to fetch dashboard core data');
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -64,7 +66,10 @@ export function useDashboardData(activeTab: string) {
         })
         .catch(error => {
           console.error('Failed to fetch AI models:', error);
-          if (isMounted) setLoadingModels(false);
+          if (isMounted) {
+             setError('Failed to fetch AI models');
+             setLoadingModels(false);
+          }
         });
     }
     return () => { isMounted = false; };
@@ -76,8 +81,13 @@ export function useDashboardData(activeTab: string) {
     
     let isMounted = true;
     const fetchProgress = async () => {
-      const data = await UserService.getUserProgressSummary();
-      if (isMounted) setProgressCache({ userId: user.id, data });
+      try {
+        const data = await UserService.getUserProgressSummary();
+        if (isMounted) setProgressCache({ userId: user.id, data });
+      } catch (err) {
+        console.error('Failed to fetch user progress:', err);
+        if (isMounted) setError('Failed to fetch user progress summary');
+      }
     };
 
     fetchProgress();
@@ -91,6 +101,7 @@ export function useDashboardData(activeTab: string) {
     models,
     progressSummary,
     loading,
-    loadingModels
+    loadingModels,
+    error
   };
 }

@@ -1,12 +1,3 @@
-export type { OutputParser } from './types';
-export { YoloParser } from './yolo';
-export { YoloxParser } from './yolox';
-export { ClassificationParser } from './classification';
-export { ImageTensorParser } from './imageTensor';
-export { SegmentationMaskParser } from './segmentationMask';
-export { SsdParser } from './ssd';
-export { MoveNetParser } from './movenet';
-
 import { OutputParser } from './types';
 import { YoloParser } from './yolo';
 import { YoloxParser } from './yolox';
@@ -16,6 +7,18 @@ import { SegmentationMaskParser } from './segmentationMask';
 import { SsdParser } from './ssd';
 import { MoveNetParser } from './movenet';
 import { RtmPoseParser } from './rtmpose';
+
+export type { OutputParser };
+export { 
+  YoloParser, 
+  YoloxParser, 
+  ClassificationParser, 
+  ImageTensorParser, 
+  SegmentationMaskParser, 
+  SsdParser, 
+  MoveNetParser,
+  RtmPoseParser
+};
 
 const parsers: Record<string, () => OutputParser> = {
   'yolo_v8': () => new YoloParser(),

@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import usePanZoom from "@/hooks/cosmos/usePanZoom";
-import useCosmosData from "@/hooks/cosmos/useCosmosData";
+import { usePanZoom } from "@/hooks/cosmos/usePanZoom";
+import { useCosmosData } from "@/hooks/cosmos/useCosmosData";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 import styles from './CosmosMapPreview.module.css';
 

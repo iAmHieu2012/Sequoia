@@ -10,14 +10,9 @@ export const CosmosService = {
    * @returns A promise that resolves to a CosmosMap object or null if failed.
    */
   getMapData: async (mapId: string): Promise<CosmosMap | null> => {
-    try {
-      const res = await fetch(`/api/v1/cosmos/maps/${mapId}`);
-      if (!res.ok) throw new Error(`Failed to fetch map data for ${mapId}`);
-      const json = await res.json();
-      return json.data || null;
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
+    const res = await fetch(`/api/v1/cosmos/maps/${mapId}`);
+    if (!res.ok) throw new Error(`Failed to fetch map data for ${mapId}`);
+    const json = await res.json();
+    return json.data || null;
   }
 };

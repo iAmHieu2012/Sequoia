@@ -11,7 +11,7 @@ import CommandCenterPanel from "./CommandCenterPanel";
  * Global header for the dashboard interface.
  * Displays the system status, local time, and handles the Command Center panel toggle.
  */
-export default function DashboardHeader() {
+export default function DashboardHeader({ error }: { error?: string | null }) {
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
   const { user } = useAuth();
@@ -39,13 +39,26 @@ export default function DashboardHeader() {
         </div>
       </div>
       <div className="flex items-center gap-3">
-        <div className="bg-black/80 border border-system/30 px-4 py-2 relative hidden md:block w-[180px]">
-          <CyberBrackets />
-          <span className="block text-[9px] font-mono text-text-dim mb-1">LOCAL_TIME</span>
-          <span className="text-xs font-mono text-system flex items-center gap-2 font-bold tracking-wider uppercase">
-            <span className="w-1.5 h-1.5 bg-system shadow-[0_0_8px_var(--color-system)] animate-pulse" />
-            {currentTime ? currentTime.toLocaleString('en-US', { hour12: false, month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'SYNCING...'}
-          </span>
+        <div className={`bg-black/80 border px-4 py-2 relative hidden md:flex items-center gap-6 ${error ? 'border-coral shadow-[0_0_15px_var(--color-coral)]' : 'border-system/30'}`}>
+          <CyberBrackets color={error ? 'border-coral/50' : 'border-system/30'} />
+          
+          <div className="flex flex-col">
+            <span className="text-[9px] font-mono text-text-dim mb-1">SYS_STATUS</span>
+            <span className={`text-xs font-mono flex items-center gap-2 font-bold tracking-wider uppercase ${error ? 'text-coral' : 'text-system'}`}>
+              <span className={`w-1.5 h-1.5 shadow-[0_0_8px_currentColor] animate-pulse ${error ? 'bg-coral' : 'bg-system'}`} />
+              {error ? 'SYSTEM FAULT' : 'OPTIMAL'}
+            </span>
+          </div>
+
+          <div className="w-[1px] h-8 bg-panel-border" />
+
+          <div className="flex flex-col min-w-[140px]">
+            <span className="text-[9px] font-mono text-text-dim mb-1">LOCAL_TIME</span>
+            <span className="text-xs font-mono text-system flex items-center gap-2 font-bold tracking-wider uppercase">
+              <span className="w-1.5 h-1.5 bg-system shadow-[0_0_8px_var(--color-system)] animate-pulse" />
+              {currentTime ? currentTime.toLocaleString('en-US', { hour12: false, month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'SYNCING...'}
+            </span>
+          </div>
         </div>
 
         <div className="bg-black/80 border border-panel-border px-4 py-2 flex items-center gap-4">
