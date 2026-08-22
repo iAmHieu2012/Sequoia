@@ -49,7 +49,7 @@ export default function AuthClient() {
   };
 
   return (
-    <div className="h-[100dvh] w-full bg-space-bg flex flex-col items-center justify-center p-2 sm:p-4 relative overflow-hidden text-text-main font-sans select-none fixed inset-0">
+    <div className="min-h-[100dvh] w-full bg-space-bg flex flex-col items-center justify-center p-4 py-8 relative overflow-hidden text-text-main font-sans select-none">
       {/* Cyber Grid Background */}
       <div className="fixed inset-0 pointer-events-none z-0" style={{
         backgroundImage: 'linear-gradient(color-mix(in srgb, var(--color-system) 3%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--color-system) 3%, transparent) 1px, transparent 1px)',
@@ -59,35 +59,33 @@ export default function AuthClient() {
       {/* Center Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] md:w-[40vw] md:h-[40vw] rounded-full bg-system/5 blur-[100px] pointer-events-none" />
 
-      {/* Header Logo */}
-      <div className="relative z-10 flex items-center gap-2 sm:gap-3 mb-4 sm:mb-8 [@media(max-height:750px)]:mb-4">
-        <Image src="/bot-idle.gif" alt="Sequoia Bot" width={40} height={40} unoptimized className="w-10 h-10 object-contain" />
-        <div>
-          <div className="flex items-center gap-2 mb-1 text-system">
-            <span className="font-mono text-[10px] tracking-[0.3em]">SYS.AUTH.PROTOCOL</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-heading font-black text-white tracking-[0.15em] m-0 leading-none drop-shadow-[0_0_15px_var(--color-system)]">
-            SEQUOIA
-          </h1>
-        </div>
-      </div>
-
-      <div className="relative z-10 w-full max-w-md">
+      <div className="relative z-10 w-full max-w-sm md:max-w-4xl">
         
         {/* Main Panel */}
         <div className="bg-black/60 border border-panel-border p-5 sm:p-8 [@media(max-height:750px)]:p-4 relative group transition-all duration-300">
           <CyberBrackets color="border-system/40" />
           
-          <div className="text-center mb-4 sm:mb-8 [@media(max-height:750px)]:mb-4">
-            <h2 className="text-lg sm:text-xl [@media(max-height:750px)]:text-lg font-heading font-bold text-white tracking-widest uppercase mb-1 sm:mb-2">
-              {isLogin ? "IDENTITY_VERIFICATION" : "INITIALIZE_USER_NODE"}
-            </h2>
-            <p className="text-text-dim text-[9px] sm:text-xs font-mono tracking-wider">
-              {isLogin ? "ENTER CREDENTIALS TO ACCESS SYSTEM" : "CREATE NEW IDENTIFIER"}
+          <div className="flex flex-col items-center justify-center text-center mb-6 sm:mb-8 [@media(max-height:750px)]:mb-4">
+            <div className="flex items-center gap-2 sm:gap-3 mb-3">
+              <Image src="/bot-idle.gif" alt="Sequoia Bot" width={40} height={40} unoptimized className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
+              <div className="text-left">
+                <div className="flex items-center gap-2 mb-0.5 text-system">
+                  <span className="font-mono text-[8px] sm:text-[10px] tracking-[0.3em] uppercase">
+                    {isLogin ? "SYS.AUTH.PROTOCOL" : "SYS.NODE.INITIALIZATION"}
+                  </span>
+                </div>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-heading font-black text-white tracking-[0.15em] m-0 leading-none drop-shadow-[0_0_15px_var(--color-system)]">
+                  SEQUOIA
+                </h1>
+              </div>
+            </div>
+            
+            <p className="text-text-dim text-[9px] sm:text-[10px] font-mono tracking-widest uppercase mt-2">
+              {isLogin ? "IDENTITY VERIFICATION REQUIRED" : "CREATE NEW USER IDENTIFIER"}
             </p>
           </div>
 
-          <div className="space-y-3 mb-4">
+          <div className="space-y-3 mb-6">
             {error && (
               <div className="bg-red/10 border border-red/50 text-red p-3 text-xs font-mono flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 animate-pulse shrink-0" />
@@ -102,66 +100,75 @@ export default function AuthClient() {
             )}
           </div>
 
-          {isLogin ? (
-            <LoginForm 
-              email={email}
-              setEmail={setEmail}
-              password={password}
-              setPassword={setPassword}
-              loading={loading}
-              onSubmit={handleSubmit}
-              onResetPassword={() => handleResetPassword(email)}
-            />
-          ) : (
-            <RegisterForm 
-              email={email}
-              setEmail={setEmail}
-              password={password}
-              setPassword={setPassword}
-              name={name}
-              setName={setName}
-              loading={loading}
-              onSubmit={handleSubmit}
-            />
-          )}
-
-          <div className="mt-4 sm:mt-8 [@media(max-height:750px)]:mt-4">
-            <div className="relative flex items-center justify-center">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-panel-border border-dashed"></div>
-              </div>
-              <div className="relative bg-space-bg px-4 text-[10px] font-mono tracking-widest text-text-dim uppercase">
-                EXTERNAL_AUTH
-              </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-0 min-h-[320px] lg:min-h-[260px] [@media(max-height:550px)]:min-h-0">
+            
+            {/* Left Column: Form */}
+            <div className="lg:pr-8 lg:border-r lg:border-panel-border lg:border-dashed flex flex-col justify-center">
+              {isLogin ? (
+                <LoginForm 
+                  email={email}
+                  setEmail={setEmail}
+                  password={password}
+                  setPassword={setPassword}
+                  loading={loading}
+                  onSubmit={handleSubmit}
+                  onResetPassword={() => handleResetPassword(email)}
+                />
+              ) : (
+                <RegisterForm 
+                  email={email}
+                  setEmail={setEmail}
+                  password={password}
+                  setPassword={setPassword}
+                  name={name}
+                  setName={setName}
+                  loading={loading}
+                  onSubmit={handleSubmit}
+                />
+              )}
             </div>
 
-            <div className="mt-4 sm:mt-6">
-              <button
-                onClick={handleGoogleSignIn}
-                type="button"
-                className="w-full flex justify-center items-center py-2.5 [@media(max-height:750px)]:py-1.5 px-4 border border-panel-border hover:border-white/30 bg-black/40 text-xs font-mono font-bold tracking-widest text-white/70 hover:text-white transition-all duration-300 relative group overflow-hidden"
-              >
-                <div className="absolute left-0 top-0 w-1 h-full bg-white scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out" />
-                <svg className="h-4 w-4 mr-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                </svg>
-                {loading ? "PROCESSING..." : "CONNECT_GOOGLE"}
-              </button>
+            {/* Right Column: Google & Toggle */}
+            <div className="lg:pl-8 flex flex-col justify-center">
+              
+              <div className="relative flex items-center justify-center mb-6 lg:mb-8">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-panel-border border-dashed"></div>
+                </div>
+                <div className="relative bg-space-bg lg:bg-black/60 px-4 text-[10px] font-mono tracking-widest text-text-dim uppercase">
+                  EXTERNAL_AUTH
+                </div>
+              </div>
+
+              <div className="mb-8">
+                <button
+                  onClick={handleGoogleSignIn}
+                  type="button"
+                  className="w-full flex justify-center items-center py-3 px-4 border border-panel-border hover:border-white/30 bg-black/40 text-xs font-mono font-bold tracking-widest text-white/70 hover:text-white transition-all duration-300 relative group overflow-hidden"
+                >
+                  <div className="absolute left-0 top-0 w-1 h-full bg-white scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out" />
+                  <svg className="h-4 w-4 mr-3 relative z-10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                  </svg>
+                  <span className="relative z-10">{loading ? "PROCESSING..." : "CONNECT_GOOGLE"}</span>
+                </button>
+              </div>
+              
+              <div className="text-center text-[9px] sm:text-[10px] font-mono tracking-widest text-text-dim uppercase flex flex-col items-center justify-center gap-3">
+                <span className="opacity-70">{isLogin ? "NO_IDENTIFIER_FOUND?" : "IDENTIFIER_EXISTS?"}</span>
+                <button
+                  onClick={toggleAuthMode}
+                  className="text-system hover:text-system/80 transition-colors w-full py-2.5 border border-system/20 bg-system/5 hover:bg-system/10"
+                >
+                  [{isLogin ? 'INIT_REGISTRATION' : 'START_AUTH'}]
+                </button>
+              </div>
             </div>
           </div>
-          
-          <div className="mt-4 sm:mt-8 [@media(max-height:750px)]:mt-4 text-center text-[9px] sm:text-[10px] font-mono tracking-widest text-text-dim uppercase flex items-center justify-center gap-2">
-            {isLogin ? "NO_IDENTIFIER_FOUND?" : "IDENTIFIER_EXISTS?"}
-            <button
-              onClick={toggleAuthMode}
-              className="text-system hover:text-system/80 transition-colors"
-            >
-              [{isLogin ? 'INIT_REGISTRATION' : 'START_AUTH'}]
-            </button>
-          </div>
+
         </div>
 
       </div>

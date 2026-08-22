@@ -134,6 +134,67 @@ export function usePanZoom(
     isDragging.current = false;
   };
 
+  const initialPinchDist = useRef(0);
+  const initialScaleRef = useRef(1);
+  const pinchCenterX = useRef(0);
+  const pinchCenterY = useRef(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      isDragging.current = true;
+      startX.current = e.touches[0].clientX - translateX.current;
+      startY.current = e.touches[0].clientY - translateY.current;
+    } else if (e.touches.length === 2) {
+      isDragging.current = false;
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      initialPinchDist.current = Math.hypot(dx, dy);
+      initialScaleRef.current = scale.current;
+      
+      if (viewportRef.current) {
+        const rect = viewportRef.current.getBoundingClientRect();
+        pinchCenterX.current = ((e.touches[0].clientX + e.touches[1].clientX) / 2) - rect.left;
+        pinchCenterY.current = ((e.touches[0].clientY + e.touches[1].clientY) / 2) - rect.top;
+      }
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 1 && isDragging.current) {
+      const rawX = e.touches[0].clientX - startX.current;
+      const rawY = e.touches[0].clientY - startY.current;
+      const clamped = clampTranslate(rawX, rawY, scale.current);
+      translateX.current = clamped.x;
+      translateY.current = clamped.y;
+      notifyUpdate();
+    } else if (e.touches.length === 2 && initialPinchDist.current > 0) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const currentDist = Math.hypot(dx, dy);
+      
+      const computedMinScale = getMinScale();
+      const pinchRatio = currentDist / initialPinchDist.current;
+      let newScale = initialScaleRef.current * pinchRatio;
+      newScale = Math.max(computedMinScale, Math.min(newScale, maxScale));
+
+      // Zoom towards the center of the pinch
+      const rawX = pinchCenterX.current - (pinchCenterX.current - translateX.current) * (newScale / scale.current);
+      const rawY = pinchCenterY.current - (pinchCenterY.current - translateY.current) * (newScale / scale.current);
+      
+      const clamped = clampTranslate(rawX, rawY, newScale);
+      
+      scale.current = newScale;
+      translateX.current = clamped.x;
+      translateY.current = clamped.y;
+      notifyUpdate();
+    }
+  };
+
+  const handleTouchEnd = () => {
+    isDragging.current = false;
+    initialPinchDist.current = 0;
+  };
+
   return {
     flyTo,
     handlers: {
@@ -141,6 +202,10 @@ export function usePanZoom(
       onMouseMove: handleMouseMove,
       onMouseUp: handleMouseUp,
       onMouseLeave: handleMouseUp,
+      onTouchStart: handleTouchStart,
+      onTouchMove: handleTouchMove,
+      onTouchEnd: handleTouchEnd,
+      onTouchCancel: handleTouchEnd,
     },
   };
 }
