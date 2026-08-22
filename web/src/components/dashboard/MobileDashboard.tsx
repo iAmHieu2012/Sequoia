@@ -1,0 +1,80 @@
+"use client";
+
+import { useState } from "react";
+import { useDashboardContext } from "@/contexts/DashboardContext";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import StatsBar from "@/components/dashboard/StatsBar";
+import { Activity, Compass, FlaskConical, TerminalSquare } from "lucide-react";
+import CyberBrackets from "@/components/ui/CyberBrackets";
+
+import { useAuth } from "@/contexts/AuthContext";
+
+type MobileTab = "stats" | "explore" | "labs" | "ai";
+
+export default function MobileDashboard() {
+  const [activeTab, setActiveTab] = useState<MobileTab>("stats");
+  const { user } = useAuth();
+  
+  const { 
+    progressSummary, rogueArticles, textbooks, userProgress, dashboardError, cosmosError 
+  } = useDashboardContext();
+
+  return (
+    <div className="h-screen w-screen bg-space-bg text-text-main overflow-hidden flex flex-col-reverse landscape:flex-row">
+      
+      {/* NAVIGATION BAR: Bottom in Portrait, Left in Landscape */}
+      <nav className="shrink-0 bg-black/90 border-t landscape:border-t-0 landscape:border-r border-panel-border flex landscape:flex-col justify-around landscape:justify-center p-1 landscape:p-2 gap-1 landscape:w-20 z-50">
+        <NavButton icon={<Activity className="w-5 h-5" />} label="STATS" active={activeTab === "stats"} onClick={() => setActiveTab("stats")} />
+        <NavButton icon={<Compass className="w-5 h-5" />} label="EXPLORE" active={activeTab === "explore"} onClick={() => setActiveTab("explore")} />
+        <NavButton icon={<FlaskConical className="w-5 h-5" />} label="LABS" active={activeTab === "labs"} onClick={() => setActiveTab("labs")} />
+        <NavButton icon={<TerminalSquare className="w-5 h-5" />} label="AI" active={activeTab === "ai"} onClick={() => setActiveTab("ai")} />
+      </nav>
+
+      {/* MAIN CONTENT AREA */}
+      <div className="flex-1 flex flex-col min-h-0 min-w-0">
+        <DashboardHeader error={dashboardError || cosmosError} />
+        
+        <div className="flex-1 overflow-y-auto min-h-0 p-4">
+          {activeTab === "stats" && (
+            <div className="flex flex-col gap-4 animate-in fade-in duration-300">
+              <div className="[&>div]:!grid-cols-1 sm:[&>div]:!grid-cols-2 [&>div>div:nth-child(5)]:!order-first [&>div>div:nth-child(5)]:sm:!col-span-2 gap-4">
+                <StatsBar 
+                  user={user}
+                  progressSummary={progressSummary}
+                  rogueArticlesLength={rogueArticles.length}
+                  textbooksLength={textbooks.length}
+                  userProgress={userProgress}
+                />
+              </div>
+            </div>
+          )}
+          {activeTab === "explore" && <div className="flex items-center justify-center h-full text-text-dim font-mono text-xs uppercase tracking-widest">[ EXPLORE_MODULE: OFFLINE ]</div>}
+          {activeTab === "labs" && <div className="flex items-center justify-center h-full text-text-dim font-mono text-xs uppercase tracking-widest">[ LABS_MODULE: OFFLINE ]</div>}
+          {activeTab === "ai" && <div className="flex items-center justify-center h-full text-text-dim font-mono text-xs uppercase tracking-widest">[ AI_MODULE: OFFLINE ]</div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NavButton({ icon, label, active, onClick }: { icon: React.ReactNode, label: string, active: boolean, onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex flex-col items-center justify-center p-1.5 transition-all duration-300 relative group
+        ${active ? 'text-system' : 'text-text-dim hover:text-white'}
+      `}
+    >
+      <div className={`relative z-10 mb-0.5 transition-transform duration-300 ${active ? 'scale-110 drop-shadow-[0_0_8px_var(--color-system)]' : 'group-hover:scale-110'}`}>
+        {icon}
+      </div>
+      <span className="text-[8px] font-mono tracking-widest uppercase">{label}</span>
+      
+      {active && (
+        <div className="absolute inset-0 bg-system/10 border border-system/30 z-0">
+          <CyberBrackets color="border-system/50" />
+        </div>
+      )}
+    </button>
+  );
+}
