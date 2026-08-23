@@ -22,18 +22,19 @@ export const ForgeTextarea = ({ className, ...props }: React.TextareaHTMLAttribu
 
 export const ForgeHeader = ({ title, onSave, onClose, children }: { title: string, onSave: () => void, onClose: () => void, children?: React.ReactNode }) => (
   <header className="flex-shrink-0 relative z-50 flex items-center justify-between px-6 py-4 border-b border-white/20 bg-black/80 backdrop-blur-md -mx-6 -mt-6 mb-4">
-    <div className="flex items-center gap-6">
-      <button onClick={onClose} className="inline-flex items-center text-[10px] font-mono tracking-widest uppercase bg-white/5 text-white px-4 py-2 hover:bg-white/20 hover:text-white transition-all duration-300 relative group overflow-hidden">
+    <div className="flex items-center gap-2 lg:gap-6">
+      <button onClick={onClose} className="inline-flex items-center text-[10px] font-mono tracking-widest uppercase bg-white/5 text-white px-3 lg:px-4 py-2 hover:bg-white/20 hover:text-white transition-all duration-300 relative group overflow-hidden">
         <CyberBrackets color="border-white/30 group-hover:border-white transition-colors duration-300" />
         <div className="absolute left-0 top-0 w-1 h-full bg-white scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
         <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
         <span className="relative z-10 flex items-center gap-1 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">
           <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
-          [ ESC ] CANCEL_EDIT
+          <span className="hidden lg:inline">[ ESC ] CANCEL_EDIT</span>
+          <span className="lg:hidden">ESC</span>
         </span>
       </button>
 
-      <div className="flex-col hidden sm:flex">
+      <div className="flex-col hidden lg:flex">
         <span className="text-[9px] font-mono text-white/50 tracking-widest uppercase">SYS_FORGE</span>
         <span className="text-sm font-heading font-bold text-white tracking-widest uppercase flex items-center gap-2">
           <Terminal className="w-4 h-4 text-white" />
@@ -42,20 +43,21 @@ export const ForgeHeader = ({ title, onSave, onClose, children }: { title: strin
       </div>
       
       {children && (
-        <div className="flex items-center gap-2 ml-4">
+        <div className="flex items-center gap-2 ml-2 lg:ml-4">
           {children}
         </div>
       )}
     </div>
     
-    <div className="flex items-center gap-6">
+    <div className="flex items-center gap-2 lg:gap-6">
       <button 
         onClick={onSave} 
-        className="group relative px-6 py-2 border border-white/50 hover:border-white transition-colors bg-white/5 flex items-center gap-2 text-xs tracking-widest uppercase overflow-hidden"
+        className="group relative px-4 lg:px-6 py-2 border border-white/50 hover:border-white transition-colors bg-white/5 flex items-center gap-2 text-xs tracking-widest uppercase overflow-hidden"
       >
         <div className="absolute inset-0 bg-white translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300 ease-out" />
         <span className="relative z-10 group-hover:text-black font-bold flex items-center gap-2">
-          <Save className="w-4 h-4 group-hover:animate-bounce" /> COMMIT_DATA
+          <Save className="w-4 h-4 group-hover:animate-bounce" /> 
+          <span className="hidden lg:inline">COMMIT_DATA</span>
         </span>
       </button>
     </div>

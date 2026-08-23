@@ -369,7 +369,7 @@ export default function GenesisClient() {
                             </p>
                           </div>
                           
-                          <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                             <button onClick={(e) => { e.stopPropagation(); handleEdit('stars', article, e); }} className="p-2 text-white/50 hover:text-white hover:bg-white/10 transition-colors border border-transparent hover:border-white/30">
                               <Edit2 className="w-3 h-3" />
                             </button>
@@ -397,7 +397,7 @@ export default function GenesisClient() {
                     <div className="relative z-10">
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-[9px] font-mono text-white/50 tracking-widest">[ NEBULA ]</span>
-                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                           <button onClick={(e) => { e.stopPropagation(); handleEdit('nebulas', topic, e); }} className="p-1 text-white/50 hover:text-white"><Edit2 className="w-3 h-3" /></button>
                           <button onClick={(e) => { e.stopPropagation(); handleDelete('nebulas', topic, e); }} className="p-1 text-white/50 hover:text-white"><Trash2 className="w-3 h-3" /></button>
                         </div>
@@ -452,7 +452,7 @@ export default function GenesisClient() {
                       &gt; {article.summary || "no data summary found"}
                     </p>
                   </div>
-                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                     <button onClick={(e) => { e.stopPropagation(); handleEdit('anomalies', article, e); }} className="p-2 text-white/50 hover:text-white"><Edit2 className="w-3 h-3" /></button>
                     <button onClick={(e) => { e.stopPropagation(); handleDelete('anomalies', article, e); }} className="p-2 text-white/50 hover:text-white"><Trash2 className="w-3 h-3" /></button>
                   </div>
@@ -490,7 +490,7 @@ export default function GenesisClient() {
                     <div className="text-[9px] font-mono text-white/50 mb-1 tracking-widest uppercase">[ AI_MODEL ] • {model.format} {model.version ? `v${model.version}` : ''}</div>
                     <h3 className={`font-heading font-bold text-white transition-all duration-300 ${isSelected ? 'text-xl drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]' : 'text-sm group-hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]'}`}>{model.name}</h3>
                   </div>
-                  <div className="relative flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="relative flex gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                     <button onClick={(e) => { e.stopPropagation(); handleEdit('models', model, e); }} className="p-2 text-white/50 hover:text-white"><Edit2 className="w-3 h-3" /></button>
                     <button onClick={(e) => { e.stopPropagation(); handleDelete('models', model, e); }} className="p-2 text-white/50 hover:text-white"><Trash2 className="w-3 h-3" /></button>
                   </div>
@@ -549,7 +549,7 @@ export default function GenesisClient() {
                     <div className="text-[9px] font-mono text-white/50 mb-1">[ CODEX_MODULE ]</div>
                     <h3 className={`font-heading font-bold text-white transition-all duration-300 ${isSelected ? 'text-xl drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]' : 'text-sm group-hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]'}`}>{book.title}</h3>
                   </div>
-                  <div className="relative flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="relative flex gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                     <button onClick={(e) => { e.stopPropagation(); handleEdit('textbooks', book, e); }} className="p-2 text-white/50 hover:text-white"><Edit2 className="w-3 h-3" /></button>
                     <button onClick={(e) => { e.stopPropagation(); handleDelete('textbooks', book, e); }} className="p-2 text-white/50 hover:text-white"><Trash2 className="w-3 h-3" /></button>
                   </div>

@@ -116,7 +116,8 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
                 articleSubTab === tab.id ? 'bg-white text-black font-bold shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'text-white/50 hover:text-white hover:bg-white/10'
               }`}
             >
-              <tab.icon className="w-3 h-3" /> {tab.label}
+              <tab.icon className="w-3 h-3" />
+              <span className="hidden lg:inline">{tab.label}</span>
             </button>
           ))}
         </div>
@@ -127,16 +128,16 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
 
         {articleSubTab === 'general' && (
           <div className="w-full max-w-3xl mx-auto flex flex-col gap-6 relative z-10 animate-in fade-in duration-300 h-full overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-white/20">
-            <div className="flex gap-4">
+            <div className="flex flex-col lg:flex-row gap-4">
               <div className="flex-1">
                 <ForgeLabel>TITLE_IDENTIFIER</ForgeLabel>
                 <ForgeInput value={title} onChange={e => setTitle(e.target.value)} placeholder="Enter article title..." />
               </div>
-              <div className="w-1/3">
+              <div className="w-full lg:w-1/3">
                 <ForgeLabel>TOPIC_SECTOR</ForgeLabel>
                 <ForgeInput value={category} onChange={e => setCategory(e.target.value)} placeholder="e.g. computer-vision" />
               </div>
-              <div className="w-1/4">
+              <div className="w-full lg:w-1/4">
                 <ForgeLabel>STATUS</ForgeLabel>
                 <button 
                   onClick={() => setIsPublished(!isPublished)}
@@ -160,8 +161,8 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
         )}
 
         {articleSubTab === 'map' && (
-          <div className="w-full h-full flex gap-6 relative z-10 animate-in fade-in duration-300 min-h-0">
-            <div className="w-1/3 flex flex-col gap-6 bg-black/60 p-6 border border-white/20 h-fit">
+          <div className="w-full h-full flex flex-col lg:flex-row gap-6 relative z-10 animate-in fade-in duration-300 min-h-0">
+            <div className="w-full lg:w-1/3 flex flex-col gap-6 bg-black/60 p-6 border border-white/20 h-fit">
               <div className="flex gap-4">
                 <div className="flex-1">
                   <ForgeLabel>MAP_X_COORDINATE</ForgeLabel>
@@ -252,7 +253,7 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
               </div>
             </div>
 
-            <div className="flex-1 flex gap-4 min-h-0">
+            <div className="flex-1 flex flex-col lg:flex-row gap-4 min-h-0">
               {(viewMode === 'edit' || viewMode === 'split') && (
                 <textarea
                   ref={textareaRef}
