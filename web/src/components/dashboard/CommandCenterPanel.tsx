@@ -124,9 +124,9 @@ export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPan
         </header>
 
         {/* Main Content Grid or Document Viewer */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 relative z-10 flex flex-col justify-center">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 relative z-10 flex flex-col">
           {activeView === 'main' ? (
-            <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 font-mono animate-in fade-in duration-500">
+            <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono animate-in fade-in duration-500">
           
             {/* Column 1: User Profile & Logout */}
             <div className="flex flex-col gap-6">
@@ -137,7 +137,7 @@ export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPan
                   <div className="flex items-start gap-4">
                     <div className="w-16 h-16 bg-system/10 border border-system flex items-center justify-center shrink-0 shadow-[0_0_10px_var(--color-system)]">
                       {user?.user_metadata?.avatar_url ? (
-                        <Image src={user.user_metadata.avatar_url} alt="Avatar" width={64} height={64} unoptimized className="object-cover" />
+                        <Image src={user.user_metadata.avatar_url} alt="Avatar" width={64} height={64} unoptimized className="w-full h-full object-cover" />
                       ) : (
                         <User className="w-8 h-8 text-system" />
                       )}

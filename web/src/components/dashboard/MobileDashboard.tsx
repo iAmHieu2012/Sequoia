@@ -5,6 +5,8 @@ import { useDashboardContext } from "@/contexts/DashboardContext";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsBar from "@/components/dashboard/StatsBar";
 import ContentBrowser from "@/components/dashboard/ContentBrowser";
+import InferenceLabs from "@/components/dashboard/InferenceLabs";
+import AiAssistant from "@/components/dashboard/AiAssistant";
 import CosmosMapPreview from "@/components/dashboard/CosmosMapPreview";
 import { Activity, Compass, FlaskConical, TerminalSquare } from "lucide-react";
 import CyberBrackets from "@/components/ui/CyberBrackets";
@@ -23,7 +25,7 @@ export default function MobileDashboard() {
     topics, articles, loading,
     selectedTopic, setSelectedTopic, drilldownLoading, fetchTopicArticles,
     getNodeStatus,
-    progressSummary, rogueArticles, textbooks, userProgress, dashboardError, cosmosError 
+    progressSummary, rogueArticles, textbooks, models, loadingModels, userProgress, dashboardError, cosmosError 
   } = useDashboardContext();
 
   return (
@@ -93,8 +95,16 @@ export default function MobileDashboard() {
             </div>
           )}
           
-          {mobileTab === "labs" && <div className="flex items-center justify-center h-full text-text-dim font-mono text-xs uppercase tracking-widest">[ LABS_MODULE: OFFLINE ]</div>}
-          {mobileTab === "ai" && <div className="flex items-center justify-center h-full text-text-dim font-mono text-xs uppercase tracking-widest">[ AI_MODULE: OFFLINE ]</div>}
+          {mobileTab === "labs" && (
+            <div className="flex-1 min-h-0 flex flex-col animate-in fade-in duration-300">
+              <InferenceLabs models={models} loadingModels={loadingModels} />
+            </div>
+          )}
+          {mobileTab === "ai" && (
+            <div className="flex-1 min-h-0 flex flex-col animate-in fade-in duration-300 pb-4">
+              <AiAssistant isOpen={true} setIsOpen={(open) => { if (!open) setMobileTab("explore"); }} />
+            </div>
+          )}
         </div>
       </div>
     </div>

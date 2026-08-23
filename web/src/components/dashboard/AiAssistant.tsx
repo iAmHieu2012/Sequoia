@@ -89,7 +89,7 @@ export default function AiAssistant({ isOpen, setIsOpen }: AiAssistantProps) {
       )}
       
       <div 
-        className={`flex flex-shrink-0 border-b border-panel-border relative z-10 transition-colors ${isOpen ? 'cursor-pointer hover:bg-system/5' : ''}`}
+        className={`hidden lg:flex flex-shrink-0 border-b border-panel-border relative z-10 transition-colors ${isOpen ? 'cursor-pointer hover:bg-system/5' : ''}`}
         onClick={(e) => {
           if (isOpen) {
             e.stopPropagation();
@@ -170,10 +170,13 @@ export default function AiAssistant({ isOpen, setIsOpen }: AiAssistantProps) {
               <div className="flex justify-between items-end mb-3 px-1">
                 <div className="flex flex-col">
                   <span className="text-[9px] font-mono text-system/50 tracking-widest mb-1">SYS_STATUS</span>
-                  <span className="text-[10px] font-mono text-system tracking-widest flex items-center gap-2">
-                    AWAITING_INPUT
-                    <span className="w-1.5 h-1.5 bg-system shadow-[0_0_8px_var(--color-system)] animate-pulse" />
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <Image src={botState} alt="AI Bot" width={20} height={20} unoptimized className="object-contain" />
+                    <span className="text-[10px] font-mono text-system tracking-widest flex items-center gap-2">
+                      {isLoading ? 'PROCESSING' : 'AWAITING_INPUT'}
+                      <span className="w-1.5 h-1.5 bg-system shadow-[0_0_8px_var(--color-system)] animate-pulse" />
+                    </span>
+                  </div>
                 </div>
                 
                 <div className="relative group flex items-center">
