@@ -7,7 +7,8 @@ import { useCosmosData } from "@/hooks/cosmos/useCosmosData";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 import styles from './CosmosMapPreview.module.css';
 
-const CANVAS_SIZE = 10000;
+const CANVAS_SIZE = 20000;
+const OFFSET = CANVAS_SIZE / 2;
 
 interface CosmosMapPreviewProps {
   /** Target X coordinate to fly to initially */
@@ -49,22 +50,46 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
       if (hudScaleRef.current) {
         hudScaleRef.current.textContent = `${s.toFixed(2)}x`;
       }
-      if (hudTargetRef.current) {
-        hudTargetRef.current.textContent = `${Math.round(-x)}, ${Math.round(-y)}`;
+      if (hudTargetRef.current && viewportRef.current) {
+        const w = viewportRef.current.clientWidth;
+        const h = viewportRef.current.clientHeight;
+        const canvasX = (w / 2 - x) / s;
+        const canvasY = (h / 2 - y) / s;
+        hudTargetRef.current.textContent = `${Math.round(canvasX - OFFSET)}, ${Math.round(canvasY - OFFSET)}`;
       }
     }
   });
   const { mapData, getNodeStatus } = useCosmosData(mapId);
 
   useEffect(() => {
-    if (activeNodeId && mapData) {
-      const activeNode = mapData.nodes.find(n => n.article_id === activeNodeId);
-      if (activeNode) {
-        flyTo(activeNode.x, activeNode.y, targetScale);
-        return;
+    const doFlyTo = () => {
+      const OFFSET = CANVAS_SIZE / 2;
+      if (activeNodeId && mapData) {
+        const activeNode = mapData.nodes.find(n => n.article_id === activeNodeId);
+        if (activeNode) {
+          flyTo(activeNode.x + OFFSET, activeNode.y + OFFSET, targetScale);
+          return;
+        }
       }
-    }
-    flyTo(targetX, targetY, targetScale);
+      
+      let cx = targetX;
+      let cy = targetY;
+      
+      if (!activeNodeId && mapData && mapData.nodes.length > 0) {
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        mapData.nodes.forEach(n => {
+          if (n.x < minX) minX = n.x;
+          if (n.x > maxX) maxX = n.x;
+          if (n.y < minY) minY = n.y;
+          if (n.y > maxY) maxY = n.y;
+        });
+        cx = (minX + maxX) / 2;
+        cy = (minY + maxY) / 2;
+      }
+      
+      flyTo(cx + OFFSET, cy + OFFSET, targetScale);
+    };
+    doFlyTo();
   }, [targetX, targetY, targetScale, flyTo, activeNodeId, mapData]);
 
   return (
@@ -102,7 +127,7 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
                   const target = mapData.nodes.find(n => n.article_id === connId);
                   if (!target) return null;
                   const beamType = node.celestial_type === 'anomaly' ? styles.anomaly : styles.beamIlluminated;
-                  return <line key={`${node.article_id}-${connId}`} x1={node.x} y1={node.y} x2={target.x} y2={target.y} className={`${styles.beam} ${beamType}`} />;
+                  return <line key={`${node.article_id}-${connId}`} x1={node.x + OFFSET} y1={node.y + OFFSET} x2={target.x + OFFSET} y2={target.y + OFFSET} className={`${styles.beam} ${beamType}`} />;
                 })
               )
             }
@@ -119,7 +144,7 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
                 <div
                   key={node.article_id}
                   className={`${styles.celestialObject} ${statusClass}`}
-                  style={{ left: node.x, top: node.y }}
+                  style={{ left: node.x + OFFSET, top: node.y + OFFSET }}
                   onClick={() => router.push(`/articles/${node.article_id}`)}
                 >
                   {isAnomaly ? (

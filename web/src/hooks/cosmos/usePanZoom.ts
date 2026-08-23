@@ -1,6 +1,6 @@
 import { useRef, useCallback, useEffect } from 'react';
 
-const CANVAS_SIZE = 10000;
+const CANVAS_SIZE = 20000;
 
 interface PanZoomOptions {
   initialScale?: number;

@@ -53,7 +53,7 @@ const DashboardContext = createContext<DashboardContextType | undefined>(undefin
 export function DashboardProvider({ children }: { children: ReactNode }) {
   const [activeTab, setActiveTab] = useState<TabId>("nebulas");
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
-  const [mapTarget, setMapTarget] = useState<TabTarget>({ x: 7500, y: 2500, scale: 0.2, mapId: undefined, activeNodeId: undefined });
+  const [mapTarget, setMapTarget] = useState<TabTarget>({ x: 0, y: 0, scale: 0.2, mapId: undefined, activeNodeId: undefined });
   
   const {
     topics,

@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useDashboardContext } from "@/contexts/DashboardContext";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsBar from "@/components/dashboard/StatsBar";
+import ContentBrowser from "@/components/dashboard/ContentBrowser";
+import CosmosMapPreview from "@/components/dashboard/CosmosMapPreview";
 import { Activity, Compass, FlaskConical, TerminalSquare } from "lucide-react";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 
@@ -12,10 +14,15 @@ import { useAuth } from "@/contexts/AuthContext";
 type MobileTab = "stats" | "explore" | "labs" | "ai";
 
 export default function MobileDashboard() {
-  const [activeTab, setActiveTab] = useState<MobileTab>("stats");
+  const [mobileTab, setMobileTab] = useState<MobileTab>("stats");
   const { user } = useAuth();
   
   const { 
+    activeTab, setActiveTab, // Tab state for ContentBrowser
+    mapTarget, setMapTarget,
+    topics, articles, loading,
+    selectedTopic, setSelectedTopic, drilldownLoading, fetchTopicArticles,
+    getNodeStatus,
     progressSummary, rogueArticles, textbooks, userProgress, dashboardError, cosmosError 
   } = useDashboardContext();
 
@@ -24,19 +31,19 @@ export default function MobileDashboard() {
       
       {/* NAVIGATION BAR: Bottom in Portrait, Left in Landscape */}
       <nav className="shrink-0 bg-black/90 border-t landscape:border-t-0 landscape:border-r border-panel-border flex landscape:flex-col justify-around landscape:justify-center p-1 landscape:p-2 gap-1 landscape:w-20 z-50">
-        <NavButton icon={<Activity className="w-5 h-5" />} label="STATS" active={activeTab === "stats"} onClick={() => setActiveTab("stats")} />
-        <NavButton icon={<Compass className="w-5 h-5" />} label="EXPLORE" active={activeTab === "explore"} onClick={() => setActiveTab("explore")} />
-        <NavButton icon={<FlaskConical className="w-5 h-5" />} label="LABS" active={activeTab === "labs"} onClick={() => setActiveTab("labs")} />
-        <NavButton icon={<TerminalSquare className="w-5 h-5" />} label="AI" active={activeTab === "ai"} onClick={() => setActiveTab("ai")} />
+        <NavButton icon={<Activity className="w-5 h-5" />} label="STATS" active={mobileTab === "stats"} onClick={() => setMobileTab("stats")} />
+        <NavButton icon={<Compass className="w-5 h-5" />} label="EXPLORE" active={mobileTab === "explore"} onClick={() => setMobileTab("explore")} />
+        <NavButton icon={<FlaskConical className="w-5 h-5" />} label="LABS" active={mobileTab === "labs"} onClick={() => setMobileTab("labs")} />
+        <NavButton icon={<TerminalSquare className="w-5 h-5" />} label="AI" active={mobileTab === "ai"} onClick={() => setMobileTab("ai")} />
       </nav>
 
       {/* MAIN CONTENT AREA */}
       <div className="flex-1 flex flex-col min-h-0 min-w-0">
         <DashboardHeader error={dashboardError || cosmosError} />
         
-        <div className="flex-1 overflow-y-auto min-h-0 p-4">
-          {activeTab === "stats" && (
-            <div className="flex flex-col gap-4 animate-in fade-in duration-300">
+        <div className="flex-1 min-h-0 p-4 flex flex-col">
+          {mobileTab === "stats" && (
+            <div className="flex flex-col gap-4 animate-in fade-in duration-300 overflow-y-auto flex-1 pb-4">
               <div className="[&>div]:!grid-cols-1 sm:[&>div]:!grid-cols-2 [&>div>div:nth-child(5)]:!order-first [&>div>div:nth-child(5)]:sm:!col-span-2 gap-4">
                 <StatsBar 
                   user={user}
@@ -48,9 +55,46 @@ export default function MobileDashboard() {
               </div>
             </div>
           )}
-          {activeTab === "explore" && <div className="flex items-center justify-center h-full text-text-dim font-mono text-xs uppercase tracking-widest">[ EXPLORE_MODULE: OFFLINE ]</div>}
-          {activeTab === "labs" && <div className="flex items-center justify-center h-full text-text-dim font-mono text-xs uppercase tracking-widest">[ LABS_MODULE: OFFLINE ]</div>}
-          {activeTab === "ai" && <div className="flex items-center justify-center h-full text-text-dim font-mono text-xs uppercase tracking-widest">[ AI_MODULE: OFFLINE ]</div>}
+          
+          {mobileTab === "explore" && (
+            <div className="flex-1 min-h-0 flex flex-col landscape:flex-row gap-4 animate-in fade-in duration-300">
+              {/* Top/Left: Map Preview */}
+              <div className="aspect-square w-full landscape:aspect-auto landscape:h-full landscape:w-1/2 min-h-0 shrink-0">
+                <CosmosMapPreview 
+                  className="h-full w-full"
+                  targetX={mapTarget.x} 
+                  targetY={mapTarget.y} 
+                  targetScale={mapTarget.scale} 
+                  mapId={mapTarget.mapId} 
+                  activeNodeId={mapTarget.activeNodeId} 
+                />
+              </div>
+              
+              {/* Bottom/Right: Content Browser */}
+              <div className="landscape:h-full landscape:w-1/2 min-h-0 flex-1 flex flex-col [&>div]:h-full">
+                <ContentBrowser 
+                  activeTab={activeTab}
+                  setActiveTab={setActiveTab}
+                  topics={topics}
+                  rogueArticles={rogueArticles}
+                  textbooks={textbooks}
+                  articles={articles}
+                  loading={loading}
+                  drilldownLoading={drilldownLoading}
+                  selectedTopic={selectedTopic}
+                  setSelectedTopic={setSelectedTopic}
+                  fetchTopicArticles={fetchTopicArticles}
+                  setMapTarget={setMapTarget}
+                  user={user}
+                  getNodeStatus={getNodeStatus}
+                  progressSummary={progressSummary}
+                />
+              </div>
+            </div>
+          )}
+          
+          {mobileTab === "labs" && <div className="flex items-center justify-center h-full text-text-dim font-mono text-xs uppercase tracking-widest">[ LABS_MODULE: OFFLINE ]</div>}
+          {mobileTab === "ai" && <div className="flex items-center justify-center h-full text-text-dim font-mono text-xs uppercase tracking-widest">[ AI_MODULE: OFFLINE ]</div>}
         </div>
       </div>
     </div>

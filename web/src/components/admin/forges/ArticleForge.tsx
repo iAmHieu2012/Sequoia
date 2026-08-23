@@ -165,11 +165,11 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
               <div className="flex gap-4">
                 <div className="flex-1">
                   <ForgeLabel>MAP_X_COORDINATE</ForgeLabel>
-                  <ForgeInput value={x} onChange={e => setX(e.target.value)} placeholder="7500" />
+                  <ForgeInput value={x} onChange={e => setX(e.target.value)} placeholder="0" />
                 </div>
                 <div className="flex-1">
                   <ForgeLabel>MAP_Y_COORDINATE</ForgeLabel>
-                  <ForgeInput value={y} onChange={e => setY(e.target.value)} placeholder="2500" />
+                  <ForgeInput value={y} onChange={e => setY(e.target.value)} placeholder="0" />
                 </div>
               </div>
               <div>

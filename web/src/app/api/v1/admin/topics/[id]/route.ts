@@ -39,8 +39,8 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
           article_id: a.id,
           title: a.title,
           celestial_type: 'anomaly',
-          x: 7500 + Math.floor(Math.random() * 400 - 200), // Randomize slightly around center
-          y: 2500 + Math.floor(Math.random() * 400 - 200),
+          x: 0 + Math.floor(Math.random() * 400 - 200), // Randomize slightly around center
+          y: 0 + Math.floor(Math.random() * 400 - 200),
           connections: []
         }));
         

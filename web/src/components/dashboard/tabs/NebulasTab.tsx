@@ -50,11 +50,10 @@ export default function NebulasTab({
           articles.map((article) => (
             <div key={article.id} 
                  className="group cursor-pointer border-b border-panel-border px-5 py-4 hover:bg-turquoise/5 transition-all duration-300 relative overflow-hidden"
-                 onMouseEnter={() => setMapTarget((prev) => {
+                 onClick={() => setMapTarget((prev) => {
                    const node = mapData?.nodes?.find(n => n.article_id === article.id);
                    return { ...prev, x: node ? node.x : prev.x, y: node ? node.y : prev.y, scale: 0.6, activeNodeId: article.id };
                  })}
-                 onMouseLeave={() => setMapTarget((prev) => ({ ...prev, activeNodeId: undefined }))}
             >
               <div className="absolute left-0 top-0 w-1 h-full bg-turquoise scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--color-turquoise)]" />
               <div className="relative z-10">
@@ -84,7 +83,7 @@ export default function NebulasTab({
         <div
           key={topic.id}
           className="group cursor-pointer border-b border-panel-border px-5 py-4 hover:bg-turquoise/5 transition-all duration-300 relative overflow-hidden"
-          onMouseEnter={() => setMapTarget((prev) => ({ ...prev, x: 7500, y: 2500, scale: 0.2, mapId: topic.id, activeNodeId: undefined }))}
+          onClick={() => setMapTarget((prev) => ({ ...prev, x: 0, y: 0, scale: 0.2, mapId: topic.id, activeNodeId: undefined }))}
         >
           <div className="absolute left-0 top-0 w-1 h-full bg-turquoise scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--color-turquoise)]" />
           <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-turquoise/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />

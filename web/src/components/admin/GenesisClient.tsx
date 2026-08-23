@@ -43,7 +43,7 @@ export default function GenesisClient() {
   const [drilldownLoading, setDrilldownLoading] = useState(false);
 
   const [hoverTarget, setHoverTarget] = useState<{ x: number, y: number, scale: number, mapId?: string, activeNodeId?: string }>({
-    x: 7500, y: 2500, scale: 0.2
+    x: 0, y: 0, scale: 0.2
   });
 
   const [isForgeOpen, setIsForgeOpen] = useState(false);
@@ -279,15 +279,15 @@ export default function GenesisClient() {
                 onClick={() => {
                   setActiveTab(tab.id as AdminTab);
                   if (tab.id === 'nebulas') {
-                    setHoverTarget({ x: 7500, y: 2500, scale: 0.2, mapId: topics.length > 0 ? topics[0].id : undefined, activeNodeId: undefined });
+                    setHoverTarget({ x: 0, y: 0, scale: 0.2, mapId: topics.length > 0 ? topics[0].id : undefined, activeNodeId: undefined });
                   } else if (tab.id === 'anomalies') {
-                    setHoverTarget({ x: 7500, y: 2500, scale: 0.2, mapId: 'standalone-articles', activeNodeId: undefined });
+                    setHoverTarget({ x: 0, y: 0, scale: 0.2, mapId: 'standalone-articles', activeNodeId: undefined });
                     authFetch("/api/v1/cosmos/maps/standalone-articles")
                       .then(r => r.json())
                       .then(d => setMapNodes(d.data?.nodes || []))
                       .catch(() => setMapNodes([]));
                   } else {
-                    setHoverTarget({ x: 7500, y: 2500, scale: 0.2, mapId: undefined, activeNodeId: undefined });
+                    setHoverTarget({ x: 0, y: 0, scale: 0.2, mapId: undefined, activeNodeId: undefined });
                   }
                   setSelectedTopic(null);
                   setSelectedArticleId(undefined);
@@ -337,8 +337,8 @@ export default function GenesisClient() {
                   {drilldownLoading ? <div className="p-4 text-white/50 animate-pulse text-xs font-mono">LOADING_STARS...</div> :
                     articles.map((article) => {
                       const node = mapNodes.find(n => n.article_id === article.id);
-                      const targetX = node ? node.x : 7500;
-                      const targetY = node ? node.y : 2500;
+                      const targetX = node ? node.x : 0;
+                      const targetY = node ? node.y : 0;
                       
                       return (
                       <div key={article.id} 
@@ -389,7 +389,7 @@ export default function GenesisClient() {
                     key={topic.id}
                     id={`topic-${topic.id}`}
                     className="group cursor-pointer border-b border-white/10 px-5 py-4 hover:bg-white/5 transition-all duration-300 relative overflow-hidden"
-                    onMouseEnter={() => setHoverTarget({ x: 7500, y: 2500, scale: 0.2, mapId: topic.id, activeNodeId: undefined })}
+                    onMouseEnter={() => setHoverTarget({ x: 0, y: 0, scale: 0.2, mapId: topic.id, activeNodeId: undefined })}
                   >
                     <div className="absolute left-0 top-0 w-1 h-full bg-white scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
                     <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
@@ -423,8 +423,8 @@ export default function GenesisClient() {
 
             {!loading && activeTab === "anomalies" && rogueArticles.map(article => {
               const node = mapNodes.find(n => n.article_id === article.id);
-              const targetX = node ? node.x : 7500;
-              const targetY = node ? node.y : 2500;
+              const targetX = node ? node.x : 0;
+              const targetY = node ? node.y : 0;
               
               return (
               <div key={article.id} className={`group cursor-pointer border-b border-white/10 px-5 py-4 hover:bg-white/5 transition-all duration-300 relative overflow-hidden flex flex-col ${selectedArticleId === article.id ? 'bg-white/10' : ''}`}

@@ -42,8 +42,8 @@ export async function POST(request: NextRequest) {
       article_id: docId,
       title: body.title,
       celestial_type: body.celestial_type || (newTopicId ? 'star' : 'anomaly'),
-      x: typeof body.x === 'number' ? body.x : 7500,
-      y: typeof body.y === 'number' ? body.y : 2500,
+      x: typeof body.x === 'number' ? body.x : 0,
+      y: typeof body.y === 'number' ? body.y : 0,
       connections: Array.isArray(body.connections) ? body.connections : []
     };
 

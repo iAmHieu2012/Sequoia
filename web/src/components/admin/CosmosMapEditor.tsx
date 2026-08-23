@@ -9,7 +9,8 @@ import { Save } from "lucide-react";
 import { AdminService } from "@/services/admin.service";
 import styles from '../dashboard/CosmosMapPreview.module.css';
 
-const CANVAS_SIZE = 10000;
+const CANVAS_SIZE = 20000;
+const OFFSET = CANVAS_SIZE / 2;
 
 interface CosmosMapEditorProps {
   targetX: number;
@@ -74,7 +75,7 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
       const h = viewportRef.current.clientHeight;
       const canvasX = (w / 2 - x) / s;
       const canvasY = (h / 2 - y) / s;
-      hudTargetRef.current.textContent = `${Math.round(canvasX)}, ${Math.round(canvasY)}`;
+      hudTargetRef.current.textContent = `${Math.round(canvasX - OFFSET)}, ${Math.round(canvasY - OFFSET)}`;
     }
   }, []);
 
@@ -94,16 +95,16 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
           const dn = draftNodeRef.current;
           let newX = (dn.x || 0) + e.movementX / currentScaleRef.current;
           let newY = (dn.y || 0) + e.movementY / currentScaleRef.current;
-          newX = Math.max(0, Math.min(CANVAS_SIZE, newX));
-          newY = Math.max(0, Math.min(CANVAS_SIZE, newY));
+          newX = Math.max(-OFFSET, Math.min(OFFSET, newX));
+          newY = Math.max(-OFFSET, Math.min(OFFSET, newY));
           onDraftNodeDragRef.current(newX, newY);
         } else {
           setLocalNodes(nodes => nodes.map(n => {
             if (n.article_id === draggingNodeId) {
               let newX = n.x + e.movementX / currentScaleRef.current;
               let newY = n.y + e.movementY / currentScaleRef.current;
-              newX = Math.max(0, Math.min(CANVAS_SIZE, newX));
-              newY = Math.max(0, Math.min(CANVAS_SIZE, newY));
+              newX = Math.max(-OFFSET, Math.min(OFFSET, newX));
+              newY = Math.max(-OFFSET, Math.min(OFFSET, newY));
               return { ...n, x: newX, y: newY };
             }
             return n;
@@ -140,12 +141,27 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
         }
         
         if (activeNode) {
-          flyTo(activeNode.x, activeNode.y, targetScale);
+          flyTo(activeNode.x + OFFSET, activeNode.y + OFFSET, targetScale);
           return;
         }
       }
       
-      flyTo(targetX, targetY, targetScale);
+      let cx = targetX;
+      let cy = targetY;
+      
+      if (!activeNodeId && localNodes.length > 0) {
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        localNodes.forEach(n => {
+          if (n.x < minX) minX = n.x;
+          if (n.x > maxX) maxX = n.x;
+          if (n.y < minY) minY = n.y;
+          if (n.y > maxY) maxY = n.y;
+        });
+        cx = (minX + maxX) / 2;
+        cy = (minY + maxY) / 2;
+      }
+      
+      flyTo(cx + OFFSET, cy + OFFSET, targetScale);
     };
 
     if (viewportRef.current && viewportRef.current.clientWidth === 0) {
@@ -252,14 +268,14 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
                 const target = renderNodes.find(n => n.article_id === connId);
                 if (!target) return null;
                 const beamType = node.celestial_type === 'anomaly' ? styles.anomaly : styles.beamIlluminated;
-                return <line key={`${node.article_id}-${connId}`} x1={node.x} y1={node.y} x2={target.x} y2={target.y} className={`${styles.beam} ${beamType}`} />;
+                return <line key={`${node.article_id}-${connId}`} x1={node.x + OFFSET} y1={node.y + OFFSET} x2={target.x + OFFSET} y2={target.y + OFFSET} className={`${styles.beam} ${beamType}`} />;
               })
             )}
             {/* Draw temporary line when linking */}
             {linkingNodeId && (
               <line 
-                x1={renderNodes.find(n => n.article_id === linkingNodeId)?.x || 0} 
-                y1={renderNodes.find(n => n.article_id === linkingNodeId)?.y || 0} 
+                x1={(renderNodes.find(n => n.article_id === linkingNodeId)?.x || 0) + OFFSET} 
+                y1={(renderNodes.find(n => n.article_id === linkingNodeId)?.y || 0) + OFFSET} 
                 x2={1000} // temporary fallback, actual tracking requires window pointermove logic, which is complex, we just skip dynamic line for simplicity
                 y2={1000} 
                 className={`${styles.beam} ${styles.anomaly} opacity-50`} 
@@ -277,7 +293,7 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
                 <div
                   key={node.article_id}
                   className={`group ${styles.celestialObject} ${statusClass} ${draggingNodeId === node.article_id ? 'opacity-80' : ''}`}
-                  style={{ left: node.x, top: node.y }}
+                  style={{ left: node.x + OFFSET, top: node.y + OFFSET }}
                   onMouseDown={(e) => handleNodeMouseDown(e, node.article_id)}
                 >
                   {draggingNodeId === node.article_id && (
@@ -336,7 +352,7 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
           className="pointer-events-auto bg-black/80 border border-panel-border hover:border-white/50 px-4 py-2 hover:bg-white/5 transition-all duration-300 cursor-pointer uppercase tracking-widest relative group overflow-hidden"
           onClick={(e) => {
             e.stopPropagation();
-            flyTo(5000, 5000, 0.2);
+            flyTo(10000, 10000, 0.2);
           }}
         >
           <CyberBrackets color="border-white/30 group-hover:border-white transition-colors duration-300" />

@@ -92,9 +92,9 @@ export default function ContentBrowser({
       {/* Tab bar */}
       <div className="flex flex-shrink-0 border-b border-panel-border">
         {[
-          { id: "nebulas", label: "NEBULAS", sub: "Topics", accent: "turquoise", defaultTarget: { x: 7500, y: 2500, scale: 0.2, mapId: topics.length > 0 ? topics[0].id : undefined } },
-          { id: "rogue", label: "ROGUE", sub: "Papers", accent: "purple", defaultTarget: { x: 8250, y: 3500, scale: 0.2, mapId: "standalone-articles" } },
-          { id: "modules", label: "MODULES", sub: "Textbooks", accent: "orange", defaultTarget: { x: 7500, y: 2500, scale: 0.2, mapId: undefined } },
+          { id: "nebulas", label: "NEBULAS", sub: "Topics", accent: "turquoise", defaultTarget: { x: 0, y: 0, scale: 0.2, mapId: topics.length > 0 ? topics[0].id : undefined } },
+          { id: "rogue", label: "ROGUE", sub: "Papers", accent: "purple", defaultTarget: { x: 0, y: 0, scale: 0.2, mapId: "standalone-articles" } },
+          { id: "modules", label: "MODULES", sub: "Textbooks", accent: "orange", defaultTarget: { x: 0, y: 0, scale: 0.2, mapId: undefined } },
         ].map(tab => (
           <button
             key={tab.id}
