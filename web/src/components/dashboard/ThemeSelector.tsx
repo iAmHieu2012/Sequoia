@@ -55,7 +55,7 @@ export default function ThemeSelector({ activeTheme, setActiveTheme }: ThemeSele
               <div 
                 className="absolute inset-0 rounded-full animate-[spin_10s_linear_infinite]"
                 style={{
-                  background: "conic-gradient(#ff4242, #ff9900, #ffff42, #42ff42, #00ff99, #42ffff, #4242ff, #9900ff, #ff42ff, #ff4242)",
+                  background: "conic-gradient(#f14949, #f19d49, #f1f149, #49f149, #49f19d, #49f1f1, #4949f1, #9d49f1, #f149f1, #f14949)",
                   boxShadow: "0 0 20px rgba(255,255,255,0.3)"
                 }}
               />

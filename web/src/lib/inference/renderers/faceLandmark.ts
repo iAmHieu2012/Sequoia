@@ -21,7 +21,7 @@ export class FaceLandmarkRenderer implements TaskRenderer {
       }
 
       const kps = b.keypoints;
-      ctx.fillStyle = RENDERER_THEME.colors.darkRed;
+      ctx.fillStyle = RENDERER_THEME.colors.coral;
       for (const kp of kps) {
         if (kp.conf > kpThreshold) {
           ctx.beginPath();

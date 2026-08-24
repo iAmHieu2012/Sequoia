@@ -72,7 +72,7 @@
 }
 
 .decoded .star {
-    background: #49aeae;
+    background: var(--color-teal);
     box-shadow: 0 0 35px color-mix(in srgb, #49aeae 80%, transparent), 0 0 70px color-mix(in srgb, #49aeae 40%, transparent), 0 0 0 3px #49aeae;
 }
 
@@ -91,11 +91,11 @@
 
     0%,
     100% {
-        box-shadow: 0 0 25px #49aeae, 0 0 0 8px rgba(73, 174, 174, 0.15);
+        box-shadow: 0 0 25px var(--color-teal), 0 0 0 8px rgba(73, 174, 174, 0.15);
     }
 
     50% {
-        box-shadow: 0 0 45px #49aeae, 0 0 0 15px rgba(73, 174, 174, 0.3);
+        box-shadow: 0 0 45px var(--color-teal), 0 0 0 15px rgba(73, 174, 174, 0.3);
     }
 }
 
@@ -239,8 +239,8 @@
 }
 
 .decoded .statusDot {
-    background: #49aeae;
-    box-shadow: 0 0 8px #49aeae;
+    background: var(--color-teal);
+    box-shadow: 0 0 8px var(--color-teal);
 }
 
 .anomaly .statusDot {
@@ -260,7 +260,7 @@
 }
 
 .decoded .statusText {
-    color: #49aeae;
+    color: var(--color-teal);
 }
 
 .anomaly .statusText {

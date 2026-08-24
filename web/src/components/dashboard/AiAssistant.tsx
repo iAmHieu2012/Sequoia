@@ -174,7 +174,7 @@ export default function AiAssistant({ isOpen, setIsOpen }: AiAssistantProps) {
                     <Image src={botState} alt="AI Bot" width={20} height={20} unoptimized className="object-contain" />
                     <span className="text-[10px] font-mono text-system tracking-widest flex items-center gap-2">
                       {isLoading ? 'PROCESSING' : 'AWAITING_INPUT'}
-                      <span className="w-1.5 h-1.5 bg-system shadow-[0_0_8px_var(--color-system)] animate-pulse" />
+                      <span className="w-2 h-2 bg-system shadow-[0_0_8px_var(--color-system)] animate-pulse" />
                     </span>
                   </div>
                 </div>

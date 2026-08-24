@@ -4,20 +4,19 @@
  */
 export const RENDERER_THEME = {
   colors: {
-    coral: '#FF5050',
+    coral: '#AE4949',
     teal: '#49AEAE',
     tealTranslucent: 'rgba(73, 174, 174, 0.3)',
-    darkRed: '#AE4949',
     textBg: 'rgba(0, 0, 0, 0.7)',
   },
   
   // Hex/String format for Canvas draw operations
   segmentationColors: [
     '#49AEAE', // Teal
-    '#FF5050', // Coral
-    '#00FF99', // Turquoise
-    '#FF9900', // Orange
-    '#9900FF'  // Purple
+    '#AE4949', // Coral
+    '#49F19D', // Turquoise
+    '#F19D49', // Orange
+    '#9D49F1'  // Purple
   ],
 
   // RGB Array format for direct ImageData pixel manipulation

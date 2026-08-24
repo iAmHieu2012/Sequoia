@@ -50,15 +50,15 @@ export default async function RootLayout({
 
   const THEMES: Record<string, string> = {
     "grey": "#808080",
-    "red": "#ff4242",
-    "orange": "#ff9900",
-    "yellow": "#ffff42",
-    "green": "#42ff42",
-    "turquoise": "#00ff99",
-    "cyan": "#42ffff",
-    "blue": "#4242ff",
-    "purple": "#9900ff",
-    "pink": "#ff42ff"
+    "red": "#f14949",
+    "orange": "#f19d49",
+    "yellow": "#f1f149",
+    "green": "#49f149",
+    "turquoise": "#49f19d",
+    "cyan": "#49f1f1",
+    "blue": "#4949f1",
+    "purple": "#9d49f1",
+    "pink": "#f149f1"
   };
 
   let themeStyle = '';

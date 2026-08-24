@@ -1,15 +1,15 @@
 export const THEMES = [
   { id: "system", name: "DEFAULT_SYSTEM", hex: "#49aeae" },
   { id: "grey", name: "GREY", hex: "#808080" },
-  { id: "red", name: "RED", hex: "#ff4242" },
-  { id: "orange", name: "ORANGE", hex: "#ff9900" },
-  { id: "yellow", name: "YELLOW", hex: "#ffff42" },
-  { id: "green", name: "GREEN", hex: "#42ff42" },
-  { id: "turquoise", name: "TURQUOISE", hex: "#00ff99" },
-  { id: "cyan", name: "CYAN", hex: "#42ffff" },
-  { id: "blue", name: "BLUE", hex: "#4242ff" },
-  { id: "purple", name: "PURPLE", hex: "#9900ff" },
-  { id: "pink", name: "PINK", hex: "#ff42ff" },
+  { id: "red", name: "RED", hex: "#f14949" },
+  { id: "orange", name: "ORANGE", hex: "#f19d49" },
+  { id: "yellow", name: "YELLOW", hex: "#f1f149" },
+  { id: "green", name: "GREEN", hex: "#49f149" },
+  { id: "turquoise", name: "TURQUOISE", hex: "#49f19d" },
+  { id: "cyan", name: "CYAN", hex: "#49f1f1" },
+  { id: "blue", name: "BLUE", hex: "#4949f1" },
+  { id: "purple", name: "PURPLE", hex: "#9d49f1" },
+  { id: "pink", name: "PINK", hex: "#f149f1" },
 ];
 
 export const PRIVACY_CYBERPUNK = `[ SECURITY CLEARANCE: LEVEL 4 ] - NODE DATA ARCHIVAL DIRECTIVE

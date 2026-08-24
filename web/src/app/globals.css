@@ -7,16 +7,17 @@
 
   --color-space-bg: #020202;
   --color-panel-border: rgba(255, 255, 255, 0.08);
-  --color-red: #ff4242;
-  --color-green: #42ff42;
-  --color-blue: #4242ff;
-  --color-yellow: #ffff42;
-  --color-pink: #ff42ff;
-  --color-cyan: #42ffff;
-  --color-coral: #ff5050;
-  --color-orange: #ff9900;
-  --color-turquoise: #00ff99;
-  --color-purple: #9900ff;
+  --color-red: #f14949;
+  --color-green: #49f149;
+  --color-blue: #4949f1;
+  --color-yellow: #f1f149;
+  --color-pink: #f149f1;
+  --color-cyan: #49f1f1;
+  --color-orange: #f19d49;
+  --color-turquoise: #49f19d;
+  --color-purple: #9d49f1;
+  --color-coral: #ae4949;
+  --color-teal: #49aeae;
   --color-grey: #808080;
   
   --color-system: #49aeae; 
