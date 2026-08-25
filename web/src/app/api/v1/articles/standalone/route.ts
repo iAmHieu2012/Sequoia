@@ -8,7 +8,8 @@ export async function GET() {
       .from('articles')
       .select('*')
       .is('topic_id', null)
-      .eq('is_published', true);
+      .eq('is_published', true)
+      .order('published_at', { ascending: false });
 
     if (error) throw error;
     return NextResponse.json({ data: data });

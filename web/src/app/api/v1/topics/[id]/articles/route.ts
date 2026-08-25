@@ -9,7 +9,8 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
       .from('articles')
       .select('*')
       .eq('topic_id', params.id)
-      .eq('is_published', true);
+      .eq('is_published', true)
+      .order('published_at', { ascending: true });
 
     if (error) throw error;
     return NextResponse.json({ data: data });
