@@ -187,9 +187,11 @@ export default function GenesisClient() {
       else if (forgeTab === 'textbooks') await AdminService.saveTextbook(payload);
 
       setIsForgeOpen(false);
-      fetchData();
+      await fetchData(false);
+      if (selectedTopic && forgeTab === 'stars') {
+        await fetchTopicArticles(selectedTopic);
+      }
       setRefreshKey(prev => prev + 1);
-      if (selectedTopic && forgeTab === 'stars') fetchTopicArticles(selectedTopic);
     } catch (error) {
       console.error("Save error:", error);
     }
@@ -205,9 +207,11 @@ export default function GenesisClient() {
       else if (tab === 'models') await AdminService.deleteModel(item.id);
       else if (tab === 'textbooks') await AdminService.deleteTextbook(item.id);
 
-      fetchData();
+      await fetchData(false);
+      if (selectedTopic && (tab === 'stars' || tab === 'anomalies')) {
+        await fetchTopicArticles(selectedTopic);
+      }
       setRefreshKey(prev => prev + 1);
-      if (selectedTopic && (tab === 'stars' || tab === 'anomalies')) fetchTopicArticles(selectedTopic);
     } catch (error) {
       console.error("Delete error:", error);
     }
