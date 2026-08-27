@@ -93,6 +93,10 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           h1: ({ children, ...props }) => <h1 id={getHeadingId(children)} className="text-3xl md:text-4xl font-heading font-black uppercase text-white mt-10 mb-6 drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] scroll-mt-24" {...props}>{children}</h1>,
           h2: ({ children, ...props }) => <h2 id={getHeadingId(children)} className="text-2xl md:text-3xl font-heading font-bold uppercase text-system mt-10 mb-4 border-b border-panel-border pb-2 shadow-[0_1px_0_color-mix(in_srgb,var(--color-system)_30%,transparent)] scroll-mt-24" {...props}>{children}</h2>,
           h3: ({ children, ...props }) => <h3 id={getHeadingId(children)} className="text-xl md:text-2xl font-heading font-bold uppercase text-white mt-8 mb-4 flex items-center gap-2 scroll-mt-24" {...props}><span className="text-system opacity-50">&gt;</span> <span>{children}</span></h3>,
+          h4: ({ children, ...props }) => <h4 id={getHeadingId(children)} className="text-lg md:text-xl font-heading font-bold uppercase text-white mt-6 mb-3 scroll-mt-24" {...props}>{children}</h4>,
+          h5: ({ children, ...props }) => <h5 id={getHeadingId(children)} className="text-base md:text-lg font-heading font-bold uppercase text-white/80 mt-4 mb-2 scroll-mt-24" {...props}>{children}</h5>,
+          h6: ({ children, ...props }) => <h6 id={getHeadingId(children)} className="text-sm md:text-base font-heading font-bold uppercase text-system mt-4 mb-2 scroll-mt-24" {...props}>{children}</h6>,
+          hr: ({ ...props }) => <hr className="my-10 border-t border-system/30 shadow-[0_1px_0_color-mix(in_srgb,var(--color-system)_10%,transparent)]" {...props} />,
           p: ({ node, children, ...rest }) => {
             // React-markdown wraps images in <p> tags. 
             // Rendering <figure> inside <p> causes hydration errors.
@@ -109,15 +113,97 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           ol: ({ ...props }) => <ol className="list-decimal list-outside space-y-2 mb-6 text-text-main pl-6 marker:text-system marker:font-mono" {...props} />,
           li: ({ ...props }) => <li className="text-base text-text-main" {...props} />,
           a: ({ ...props }) => <a className="text-system border-b border-system/30 hover:border-system hover:bg-system/10 transition-colors" {...props} />,
-          blockquote: ({ className, children, ...props }) => (
-             <blockquote {...props} className={`border-l-2 border-system pl-5 italic text-text-dim my-6 bg-system/5 py-3 pr-4 font-mono text-sm relative ${className || ''}`}>
-               <span className="absolute top-0 left-0 w-2 h-2 border-t border-l border-system"></span>
-               <span className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-system"></span>
-               {children}
-             </blockquote>
-          ),
+          table: ({ ...props }) => <div className="w-full overflow-x-auto my-6 border border-system/20"><table className="w-full text-left border-collapse text-base" {...props} /></div>,
+          thead: ({ ...props }) => <thead className="bg-system/10 text-system tracking-wide font-bold" {...props} />,
+          tbody: ({ ...props }) => <tbody className="text-text-main divide-y divide-system/10" {...props} />,
+          tr: ({ ...props }) => <tr className="hover:bg-system/5 transition-colors" {...props} />,
+          th: ({ ...props }) => <th className="p-3 border-b border-system/20 font-bold" {...props} />,
+          td: ({ ...props }) => <td className="p-3" {...props} />,
+          blockquote: ({ className, children, ...props }) => {
+            const childrenArray = React.Children.toArray(children);
+            
+            // Find the wrapper element containing the blockquote's content.
+            // Since <p> is overridden as a custom function component above, its type is no longer the string 'p'.
+            // We locate the first valid element that accepts 'children' props.
+            const firstElement = childrenArray.find(
+              (child) => React.isValidElement(child) && (child.props as { children?: React.ReactNode }).children
+            ) as React.ReactElement<{ children?: React.ReactNode }> | undefined;
+            
+            if (firstElement && firstElement.props.children) {
+              const pChildren = React.Children.toArray(firstElement.props.children);
+              // Find the first valid text node to check for callout syntax
+              const firstTextIndex = pChildren.findIndex(child => typeof child === 'string' && child.trim() !== '');
+              
+              if (firstTextIndex !== -1) {
+                const firstText = pChildren[firstTextIndex] as string;
+                
+                // Match callout syntax e.g., "[!TYPE] Title", allowing leading whitespace
+                const match = firstText.match(/^\s*\[!([a-zA-Z]+)\]([^\n]*)/);
+                if (match) {
+                  const type = match[1].toLowerCase();
+                  const title = match[2].trim();
+                  
+                  // Remove the callout syntax prefix from the text content
+                  const newFirstText = firstText.substring(match[0].length).replace(/^\s+/, '');
+                  
+                  const newPChildren = [...pChildren];
+                  if (newFirstText) {
+                    newPChildren[firstTextIndex] = newFirstText;
+                  } else {
+                    newPChildren.splice(firstTextIndex, 1);
+                  }
+                  
+                  const newFirstElement = React.cloneElement(firstElement, { children: newPChildren });
+                  const elementIndex = childrenArray.indexOf(firstElement);
+                  const newChildrenArray = [...childrenArray];
+                  
+                  const hasContent = newPChildren.length > 0 || childrenArray.length > 1;
+                  if (newPChildren.length > 0) {
+                    newChildrenArray[elementIndex] = newFirstElement;
+                  } else {
+                    newChildrenArray.splice(elementIndex, 1);
+                  }
+                  
+                  return (
+                    <div className="my-8 border border-system/30 bg-black/40 relative shadow-[0_0_15px_rgba(0,0,0,0.3)]">
+                      <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-system"></div>
+                      <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-system"></div>
+                      
+                      <div className="bg-system/10 px-4 py-2 border-b border-system/30 flex items-center gap-3">
+                        <div className="w-2 h-2 bg-system animate-pulse shadow-[0_0_8px_var(--color-system)]"></div>
+                        <span className="font-heading font-bold uppercase tracking-widest text-system text-sm drop-shadow-[0_0_5px_var(--color-system)]">
+                          {title || type}
+                        </span>
+                      </div>
+                      
+                      {hasContent && (
+                        <div className="p-4 text-base text-text-main font-sans">
+                          {newChildrenArray}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+              }
+            }
+
+            return (
+              <blockquote {...props} className={`border-l-2 border-system pl-5 text-text-dim my-6 bg-system/5 py-3 pr-4 text-base relative ${className || ''}`}>
+                <span className="absolute top-0 left-0 w-2 h-2 border-t border-l border-system"></span>
+                <span className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-system"></span>
+                {children}
+              </blockquote>
+            );
+          },
           strong: ({ ...props }) => <strong className="font-bold text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]" {...props} />,
           em: ({ ...props }) => <em className="italic text-text-main font-mono text-sm" {...props} />,
+          del: ({ ...props }) => <del className="line-through text-text-dim decoration-system/50" {...props} />,
+          input: ({ type, ...props }) => {
+            if (type === 'checkbox') {
+              return <input type="checkbox" className="mr-2 accent-system" {...props} />;
+            }
+            return <input type={type} {...props} />;
+          },
           img: ({ alt, src }) => {
             return (
               <figure className="my-10 flex flex-col items-center relative group">
