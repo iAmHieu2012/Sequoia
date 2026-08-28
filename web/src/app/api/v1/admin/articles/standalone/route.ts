@@ -12,7 +12,8 @@ export async function GET() {
     const { data, error } = await supabase
       .from('articles')
       .select('*')
-      .is('topic_id', null);
+      .is('topic_id', null)
+      .order('published_at', { ascending: false });
 
     if (error) throw error;
     return NextResponse.json({ data: data });

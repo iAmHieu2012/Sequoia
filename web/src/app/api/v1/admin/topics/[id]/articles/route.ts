@@ -14,7 +14,8 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
     const { data, error } = await supabaseAdmin
       .from('articles')
       .select('*')
-      .eq('topic_id', params.id);
+      .eq('topic_id', params.id)
+      .order('published_at', { ascending: true });
 
     if (error) throw error;
     return NextResponse.json({ data: data });
