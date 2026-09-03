@@ -98,13 +98,16 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           h6: ({ children, ...props }) => <h6 id={getHeadingId(children)} className="text-sm md:text-base font-heading font-bold uppercase text-system mt-4 mb-2 scroll-mt-24" {...props}>{children}</h6>,
           hr: ({ ...props }) => <hr className="my-10 border-t border-system/30 shadow-[0_1px_0_color-mix(in_srgb,var(--color-system)_10%,transparent)]" {...props} />,
           p: ({ node, children, ...rest }) => {
-            // React-markdown wraps images in <p> tags. 
-            // Rendering <figure> inside <p> causes hydration errors.
-            // We check if the paragraph contains an image, and if so, render a <div> instead.
+            // React-markdown wraps block-level elements (images, math blocks, etc.) in <p> tags.
+            // Rendering block elements like <div> or <figure> inside <p> is invalid HTML and causes hydration errors.
+            // We check if the paragraph contains any block-level child, and if so, render a <div> instead.
             type HastNode = { tagName?: string; children?: HastNode[] };
             const nodeElement = node as HastNode | undefined;
-            const hasImage = nodeElement?.children?.some((child) => child.tagName === 'img');
-            if (hasImage) {
+            const inlineTags = new Set(['a', 'abbr', 'b', 'br', 'cite', 'code', 'em', 'i', 'kbd', 'mark', 'q', 's', 'small', 'span', 'strong', 'sub', 'sup', 'u', 'var', 'wbr']);
+            const hasBlockChild = nodeElement?.children?.some(
+              (child) => child.tagName && !inlineTags.has(child.tagName)
+            );
+            if (hasBlockChild) {
               return <div className="mb-6 w-full" {...rest}>{children}</div>;
             }
             return <p className="text-base font-sans text-text-main leading-relaxed mb-6" {...rest}>{children}</p>;
