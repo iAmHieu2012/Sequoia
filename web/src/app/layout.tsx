@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { Inter, Science_Gothic, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { cookies } from "next/headers";
@@ -8,6 +8,14 @@ const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
+});
+
+const scienceGothic = Science_Gothic({
+  weight: "400",
+  variable: "--font-science-gothic",
+  subsets: ["latin"],
+  display: "swap",
+  adjustFontFallback: false,
 });
 
 const spaceGrotesk = Space_Grotesk({
@@ -82,8 +90,8 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en">
-      <body className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased font-sans bg-space-bg text-text-main`}>
+    <html lang="en" className={`${inter.variable} ${scienceGothic.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
+      <body className="antialiased font-sans bg-space-bg text-text-main">
         {themeStyle && <style dangerouslySetInnerHTML={{ __html: themeStyle }} />}
         <AuthProvider>
           {children}

@@ -182,8 +182,8 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
             
             <div className="flex-1 h-full border border-white/20 bg-black/80 relative">
               <CosmosMapEditor 
-                targetX={!isNaN(parseFloat(x)) ? parseFloat(x) : 5000} 
-                targetY={!isNaN(parseFloat(y)) ? parseFloat(y) : 5000} 
+                targetX={!isNaN(parseFloat(x)) ? parseFloat(x) : 0} 
+                targetY={!isNaN(parseFloat(y)) ? parseFloat(y) : 0} 
                 targetScale={1.0}
                 mapId={category || 'standalone-articles'}
                 activeNodeId={entityId || 'draft-node'}
@@ -192,8 +192,8 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
                 draftNode={{
                   article_id: entityId || 'draft-node',
                   title: title || 'UNTITLED DRAFT',
-                  x: !isNaN(parseFloat(x)) ? parseFloat(x) : 5000,
-                  y: !isNaN(parseFloat(y)) ? parseFloat(y) : 5000,
+                  x: !isNaN(parseFloat(x)) ? parseFloat(x) : 0,
+                  y: !isNaN(parseFloat(y)) ? parseFloat(y) : 0,
                   celestial_type: isAnomaly ? 'anomaly' : 'article',
                   connections: connections.split(',').map(c => c.trim()).filter(Boolean)
                 } as React.ComponentProps<typeof CosmosMapEditor>['draftNode']}

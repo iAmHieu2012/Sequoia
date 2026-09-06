@@ -57,7 +57,7 @@ export default function NebulasTab({
             >
               <div className="absolute left-0 top-0 w-1 h-full bg-turquoise scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--color-turquoise)]" />
               <div className="relative z-10">
-                <h3 className="text-sm font-heading font-bold text-white group-hover:text-turquoise transition-all duration-300 tracking-wide mb-1 uppercase">{article.title.replace(/ /g, "_")}</h3>
+                <h3 className="text-sm font-heading font-bold text-white group-hover:text-turquoise transition-all duration-300 tracking-wide mb-1 uppercase">{article.title}</h3>
                 <p className="text-text-dim text-xs font-mono leading-relaxed normal-case line-clamp-2 mb-4">&gt; {article.summary}</p>
                 <div className="flex items-center justify-between border-t border-panel-border pt-3">
                   <div className="flex gap-4 text-xs font-mono">

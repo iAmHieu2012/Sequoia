@@ -209,7 +209,7 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
           className="pointer-events-auto bg-black/80 border border-panel-border hover:border-cyan/50 px-4 py-2 hover:bg-cyan/5 transition-all duration-300 cursor-pointer uppercase tracking-widest relative group overflow-hidden"
           onClick={(e) => {
             e.stopPropagation();
-            flyTo(5000, 5000, 0.2);
+            flyTo(0, 0, 0.2);
           }}
         >
           <CyberBrackets color="border-cyan/30 group-hover:border-cyan transition-colors duration-300" />

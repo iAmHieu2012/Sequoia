@@ -2,6 +2,7 @@
 @plugin "@tailwindcss/typography";
 @theme {
   --font-sans: var(--font-inter);
+  --font-display: var(--font-science-gothic);
   --font-heading: var(--font-space-grotesk);
   --font-mono: var(--font-jetbrains-mono);
 

@@ -47,7 +47,7 @@ export default function RogueTab({
               <span className="text-[10px] font-mono text-purple tracking-widest">[ ROGUE_ANOMALY ]</span>
             </div>
             <h3 className="text-sm font-heading font-bold text-white group-hover:text-purple group-hover:drop-shadow-[0_0_8px_var(--color-purple)] transition-all duration-300 tracking-wide mb-1 uppercase">
-              {article.title.replace(/ /g, "_")}
+              {article.title}
             </h3>
             <p className="text-text-dim text-xs font-mono leading-relaxed normal-case line-clamp-2 mb-4">
               &gt; {article.summary}

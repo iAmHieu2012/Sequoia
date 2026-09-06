@@ -74,7 +74,7 @@ export default function AuthClient() {
                     {isLogin ? "SYS.AUTH.PROTOCOL" : "SYS.NODE.INITIALIZATION"}
                   </span>
                 </div>
-                <h1 className="text-2xl sm:text-3xl md:text-4xl font-heading font-black text-white tracking-[0.15em] m-0 leading-none drop-shadow-[0_0_15px_var(--color-system)]">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-black text-white tracking-[0.15em] m-0 leading-none drop-shadow-[0_0_15px_var(--color-system)]">
                   SEQUOIA
                 </h1>
               </div>

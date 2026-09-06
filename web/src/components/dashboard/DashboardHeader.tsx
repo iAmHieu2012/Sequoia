@@ -33,7 +33,7 @@ export default function DashboardHeader({ error }: { error?: string | null }) {
           <div className="flex items-center gap-2 mb-1 text-system">
             <span className="font-mono text-[10px] tracking-[0.3em]">SYS.CMD.CENTER // ROOT</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-heading font-black text-white tracking-[0.15em] m-0 leading-none drop-shadow-[0_0_10px_var(--color-system)]">
+          <h1 className="text-2xl md:text-3xl font-display font-black text-white tracking-[0.15em] m-0 leading-none drop-shadow-[0_0_10px_var(--color-system)]">
             SEQUOIA
           </h1>
         </div>

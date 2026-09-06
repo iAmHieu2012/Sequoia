@@ -307,7 +307,7 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
                       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-coral/10 rounded-full animate-ping" />
                       <div className={`${styles.star} bg-coral shadow-[0_0_20px_var(--color-coral)]`} />
                       <div className={`${styles.objectLabel} text-coral text-xl font-bold animate-pulse flex flex-col items-center gap-1`}>
-                        <span>{node.title.replace(/ /g, '_').toUpperCase()}</span>
+                        <span>{node.title.toUpperCase()}</span>
                         <span className="text-[11px] font-mono text-coral/90 opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 px-2 py-0.5 border border-coral/30 rounded">[{Math.round(node.x)}, {Math.round(node.y)}]</span>
                       </div>
                     </>
