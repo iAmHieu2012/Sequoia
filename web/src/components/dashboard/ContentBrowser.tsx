@@ -86,7 +86,7 @@ export default function ContentBrowser({
   }, [currentMapId]);
 
   return (
-    <div className="flex-shrink-0 w-full lg:w-[320px] flex flex-col min-h-0 bg-black/40 border border-panel-border relative">
+    <div className="flex-shrink-0 w-full lg:w-[400px] flex flex-col min-h-0 bg-black/40 border border-panel-border relative">
       <CyberBrackets color="border-white/10" />
 
       {/* Tab bar */}
