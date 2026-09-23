@@ -104,7 +104,8 @@ export default function NebulasTab({
                 <span className="text-text-dim">NODES: <span className="text-white font-bold">{topic.article_count}</span></span>
                 <span className="text-text-dim">STATUS: <span className={`font-bold ${(progressSummary?.topics[topic.id]?.completed ?? 0) === (progressSummary?.topics[topic.id]?.total ?? -1) && (progressSummary?.topics[topic.id]?.total ?? 0) > 0 ? 'text-white' : 'text-text-dim'}`}>{(progressSummary?.topics[topic.id]?.completed ?? 0) === (progressSummary?.topics[topic.id]?.total ?? -1) && (progressSummary?.topics[topic.id]?.total ?? 0) > 0 ? 'EXPLORED' : 'UNEXPLORED'}</span></span>
               </div>
-              <button onClick={(e) => { e.stopPropagation(); fetchTopicArticles(topic); }} className="text-[10px] font-mono font-bold text-turquoise tracking-wider flex items-center gap-1 group-hover:translate-x-1 transition-transform duration-300">
+              <button onClick={(e) => { e.stopPropagation(); fetchTopicArticles(topic); 
+              setMapTarget((prev) => ({ ...prev, x: 0, y: 0, scale: 0.2, mapId: topic.id, activeNodeId: undefined })); }} className="text-[10px] font-mono font-bold text-turquoise tracking-wider flex items-center gap-1 group-hover:translate-x-1 transition-transform duration-300">
                 EXPLORE <Rocket className="w-3 h-3" />
               </button>
             </div>
