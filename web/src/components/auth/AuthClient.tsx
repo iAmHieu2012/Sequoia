@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import CyberBrackets from '@/components/ui/CyberBrackets';
+import CyberGrid from '@/components/ui/CyberGrid';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 import { useAuthActions } from '@/hooks/auth/useAuthActions';
@@ -51,10 +52,7 @@ export default function AuthClient() {
   return (
     <div className="min-h-[100dvh] w-full bg-space-bg flex flex-col items-center justify-center p-4 py-8 relative overflow-hidden text-text-main font-sans select-none">
       {/* Cyber Grid Background */}
-      <div className="fixed inset-0 pointer-events-none z-0" style={{
-        backgroundImage: 'linear-gradient(color-mix(in srgb, var(--color-system) 3%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--color-system) 3%, transparent) 1px, transparent 1px)',
-        backgroundSize: '40px 40px'
-      }} />
+      <CyberGrid />
 
       {/* Center Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] md:w-[40vw] md:h-[40vw] rounded-full bg-system/5 blur-[100px] pointer-events-none" />
@@ -62,7 +60,7 @@ export default function AuthClient() {
       <div className="relative z-10 w-full max-w-sm md:max-w-4xl">
         
         {/* Main Panel */}
-        <div className="bg-black/60 border border-panel-border p-5 sm:p-8 [@media(max-height:750px)]:p-4 relative group transition-all duration-300">
+        <div className="bg-black/60 border border-panel-border p-5 sm:p-8 [@media(max-height:750px)]:p-4 relative transition-all duration-300">
           <CyberBrackets color="border-system/40" />
           
           <div className="flex flex-col items-center justify-center text-center mb-6 sm:mb-8 [@media(max-height:750px)]:mb-4">
@@ -131,13 +129,12 @@ export default function AuthClient() {
             {/* Right Column: Google & Toggle */}
             <div className="lg:pl-8 flex flex-col justify-center">
               
-              <div className="relative flex items-center justify-center mb-6 lg:mb-8">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-panel-border border-dashed"></div>
-                </div>
-                <div className="relative bg-space-bg lg:bg-black/60 px-4 text-[10px] font-mono tracking-widest text-text-dim uppercase">
+              <div className="flex items-center w-full mb-6 lg:mb-8">
+                <div className="flex-1 border-t border-panel-border border-dashed"></div>
+                <span className="px-4 text-[10px] font-mono tracking-widest text-text-dim uppercase">
                   EXTERNAL_AUTH
-                </div>
+                </span>
+                <div className="flex-1 border-t border-panel-border border-dashed"></div>
               </div>
 
               <div className="mb-8">
@@ -158,7 +155,7 @@ export default function AuthClient() {
               </div>
               
               <div className="text-center text-[9px] sm:text-[10px] font-mono tracking-widest text-text-dim uppercase flex flex-col items-center justify-center gap-3">
-                <span className="opacity-70">{isLogin ? "NO_IDENTIFIER_FOUND?" : "IDENTIFIER_EXISTS?"}</span>
+                <span>{isLogin ? "NO_IDENTIFIER_FOUND?" : "IDENTIFIER_EXISTS?"}</span>
                 <button
                   onClick={toggleAuthMode}
                   className="text-system hover:text-system/80 transition-colors w-full py-2.5 border border-system/20 bg-system/5 hover:bg-system/10"

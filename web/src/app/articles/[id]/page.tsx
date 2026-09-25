@@ -1,8 +1,8 @@
-import Link from "next/link";
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
-import { ChevronLeft, TerminalSquare, Lock } from "lucide-react";
+import { TerminalSquare, Lock } from "lucide-react";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 import CyberGrid from "@/components/ui/CyberGrid";
+import UniversalHeader from "@/components/ui/UniversalHeader";
 import ArticleProgressToggle from "@/components/articles/ArticleProgressToggle";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
@@ -100,37 +100,15 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
       <CyberGrid />
 
       {/* Universal Header */}
-      <header className="shrink-0 relative z-50 flex items-center justify-between px-6 py-4 border-b border-panel-border bg-black/80 backdrop-blur-md">
-        <div className="flex items-center gap-6">
-          <Link href="/dashboard" className="inline-flex items-center text-[10px] font-mono tracking-widest uppercase bg-system/5 text-system px-4 py-2 hover:bg-system/20 hover:text-white transition-all duration-300 relative group overflow-hidden">
-            <CyberBrackets color="border-system/30 group-hover:border-system transition-colors duration-300" />
-            <div className="absolute left-0 top-0 w-1 h-full bg-system scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--color-system)]" />
-            <div className="absolute inset-0 translate-x-[-150%] group-hover:translate-x-[150%] bg-linear-to-r from-transparent via-system/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
-            <span className="relative z-10 flex items-center gap-1 group-hover:drop-shadow-[0_0_8px_var(--color-system)]">
-              <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
-              [ ESC ] ABORT_INTERCEPT
-            </span>
-          </Link>
-
-          <div className="flex-col hidden sm:flex">
-            <span className="text-[9px] font-mono text-text-dim tracking-widest uppercase">ACTIVE_DATAPAD</span>
-            <span className="text-sm font-heading font-bold text-white tracking-widest uppercase flex items-center gap-2">
-              <TerminalSquare className="w-4 h-4 text-system" />
-              {article.title}
-            </span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <div className="flex flex-col items-end">
-            <span className="text-[9px] font-mono text-text-dim tracking-widest uppercase">SYS_STATUS</span>
-            <span className="text-xs font-mono text-system tracking-widest uppercase flex items-center gap-2">
-              DATAPAD_SYNCED
-              <span className="w-2 h-2 bg-system shadow-[0_0_8px_var(--color-system)]" />
-            </span>
-          </div>
-        </div>
-      </header>
+      <UniversalHeader
+        backHref="/dashboard"
+        backLabel="ABORT_INTERCEPT"
+        subtitle="ACTIVE_DATAPAD"
+        title={article.title}
+        titleIcon={<TerminalSquare className="w-4 h-4 text-system shrink-0" />}
+        statusLabel="DATAPAD_SYNCED"
+        statusActive={true}
+      />
 
       <main className="flex-1 max-w-4xl mx-auto px-4 py-8 relative z-10 w-full">
         

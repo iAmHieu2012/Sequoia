@@ -26,20 +26,20 @@ export default function DashboardHeader({ error }: { error?: string | null }) {
   // Logout is now handled inside CommandCenterPanel
 
   return (
-    <header className="relative z-50 flex items-center justify-between px-6 py-3 border-b border-panel-border uppercase tracking-wider">
+    <header className="relative z-50 flex items-center justify-between px-4 lg:px-6 py-3 border-b border-panel-border uppercase tracking-wider">
       <div className="flex items-center gap-3">
         <Orbit className="w-5 h-5 text-system animate-[spin_20s_linear_infinite]" />
         <div>
-          <div className="flex items-center gap-2 mb-1 text-system">
+          <div className="flex items-center gap-2 mb-1 text-system hidden lg:flex">
             <span className="font-mono text-[10px] tracking-[0.3em]">SYS.CMD.CENTER // ROOT</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-display font-black text-white tracking-[0.15em] m-0 leading-none drop-shadow-[0_0_10px_var(--color-system)]">
+          <h1 className="text-2xl lg:text-3xl font-display font-black text-white tracking-[0.15em] m-0 leading-none drop-shadow-[0_0_10px_var(--color-system)]">
             SEQUOIA
           </h1>
         </div>
       </div>
       <div className="flex items-center gap-3">
-        <div className={`bg-black/80 border px-4 py-2 relative hidden md:flex items-center gap-6 ${error ? 'border-coral shadow-[0_0_15px_var(--color-coral)]' : 'border-system/30'}`}>
+        <div className={`bg-black/80 border px-4 py-2 relative hidden lg:flex items-center gap-6 ${error ? 'border-coral shadow-[0_0_15px_var(--color-coral)]' : 'border-system/30'}`}>
           <CyberBrackets color={error ? 'border-coral/50' : 'border-system/30'} />
           
           <div className="flex flex-col">
@@ -61,24 +61,27 @@ export default function DashboardHeader({ error }: { error?: string | null }) {
           </div>
         </div>
 
-        <div className="bg-black/80 border border-panel-border px-4 py-2 flex items-center gap-4">
+        <div className="bg-black/80 border border-panel-border px-3 lg:px-4 py-2 flex items-center gap-4">
           
           {user ? (
             <button 
               onClick={() => setIsCommandCenterOpen(true)}
-              className="flex items-center gap-4 hover:bg-white/5 transition-colors p-1 -m-1 rounded group cursor-pointer text-left"
+              className="flex items-center gap-4 hover:bg-white/5 transition-colors p-2 lg:p-1 lg:-m-1 rounded group cursor-pointer text-left"
             >
-              <div className="flex flex-col">
+              <div className="flex-col hidden lg:flex">
                 <span className="text-[9px] font-mono text-text-dim group-hover:text-system transition-colors tracking-widest mb-1 uppercase">ID_ENTITY</span>
                 <span className="text-xs font-heading text-white flex items-center gap-2 font-bold tracking-widest">
                   <UserIcon className="w-3.5 h-3.5 text-system" />
                   {user.user_metadata?.name?.toUpperCase() || user.email?.split('@')[0].toUpperCase() || 'USER_NODE'}
                 </span>
               </div>
+              <div className="lg:hidden flex items-center justify-center">
+                <UserIcon className="w-5 h-5 text-system" />
+              </div>
             </button>
           ) : (
             <div className="flex items-center gap-4">
-              <div className="flex flex-col">
+              <div className="flex-col hidden lg:flex">
                 <span className="text-[9px] font-mono text-text-dim tracking-widest mb-1 uppercase">ID_ENTITY</span>
                 <span className="text-xs font-heading text-white flex items-center gap-2 font-bold tracking-widest">
                   <UserIcon className="w-3.5 h-3.5 text-system" />

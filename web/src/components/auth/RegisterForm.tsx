@@ -32,7 +32,7 @@ export default function RegisterForm({
         <input
           type="text"
           placeholder="DISPLAY_NAME"
-          className="w-full pl-10 pr-4 py-3 [@media(max-height:750px)]:py-2 bg-black/40 border border-panel-border focus:border-system/50 outline-none transition-all placeholder:text-text-dim/50 text-sm font-mono tracking-wider text-white"
+          className="w-full pl-10 pr-4 py-3 [@media(max-height:750px)]:py-2 bg-black/40 border border-panel-border focus:border-system/50 outline-none transition-all placeholder:text-text-dim/70 text-sm font-mono tracking-wider text-white"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
@@ -47,7 +47,7 @@ export default function RegisterForm({
         <input
           type="email"
           placeholder="EMAIL_ADDRESS"
-          className="w-full pl-10 pr-4 py-3 [@media(max-height:750px)]:py-2 bg-black/40 border border-panel-border focus:border-system/50 outline-none transition-all placeholder:text-text-dim/50 text-sm font-mono tracking-wider text-white"
+          className="w-full pl-10 pr-4 py-3 [@media(max-height:750px)]:py-2 bg-black/40 border border-panel-border focus:border-system/50 outline-none transition-all placeholder:text-text-dim/70 text-sm font-mono tracking-wider text-white"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -62,7 +62,7 @@ export default function RegisterForm({
         <input
           type="password"
           placeholder="PASSWORD_KEY"
-          className="w-full pl-10 pr-4 py-3 [@media(max-height:750px)]:py-2 bg-black/40 border border-panel-border focus:border-system/50 outline-none transition-all placeholder:text-text-dim/50 text-sm font-mono tracking-wider text-white"
+          className="w-full pl-10 pr-4 py-3 [@media(max-height:750px)]:py-2 bg-black/40 border border-panel-border focus:border-system/50 outline-none transition-all placeholder:text-text-dim/70 text-sm font-mono tracking-wider text-white"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
