@@ -23,7 +23,7 @@ interface CommandCenterPanelProps {
  */
 export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPanelProps) {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [activeTheme, setActiveTheme] = useState(() => {
     if (typeof document !== 'undefined') {
       const match = document.cookie.match(/(?:^|; )sequoia_theme=([^;]*)/);
@@ -157,7 +157,20 @@ export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPan
                 </div>
               </section>
 
-              <section className="mt-4">
+              <section className="mt-4 flex flex-col gap-3">
+                {isAdmin && (
+                  <button 
+                    onClick={() => {
+                      onClose();
+                      router.push('/genesis');
+                    }}
+                    className="w-full flex items-center justify-center gap-3 p-3 border border-system/30 hover:border-system bg-system/5 hover:bg-system/20 text-system text-xs font-bold tracking-widest uppercase transition-all shadow-[0_0_15px_transparent] hover:shadow-[0_0_15px_var(--color-system)] group"
+                  >
+                    <Terminal className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                    Initiate_Genesis
+                  </button>
+                )}
+
                 <button 
                   onClick={handleLogout}
                   className="w-full flex items-center justify-center gap-3 p-3 border border-coral/30 hover:border-coral bg-coral/5 hover:bg-coral/20 text-coral text-xs font-bold tracking-widest uppercase transition-all shadow-[0_0_15px_transparent] hover:shadow-[0_0_15px_var(--color-coral)]"
