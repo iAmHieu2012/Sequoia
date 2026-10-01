@@ -34,7 +34,7 @@ graph TD
 
 **Tại sao thiết kế như vậy?**
 - Hệ thống CMS vẫn quản lý Chủ đề và Bài viết một cách dễ hiểu.
-- Ứng dụng Frontend (Web/Android) vẽ Vũ trụ cực kỳ mượt mà.
+- Ứng dụng Frontend (Web) vẽ Vũ trụ cực kỳ mượt mà.
 - Database tối ưu tuyệt đối: Tải nguyên 1 bản đồ hàng trăm ngôi sao chỉ tốn đúng **2 queries** nhờ cột JSONB.
 
 ---
@@ -65,7 +65,7 @@ Playground được nhúng trực tiếp vào nội dung bài viết dưới d�
 
 ### 3.4. AI On-device (LiteRT)
 
-Toàn bộ quá trình quét tín hiệu (chạy AI) thực hiện trên CPU/GPU/NPU của thiết bị (Web/Android) thông qua **LiteRT**. Backend tuyệt đối không chạy Inference để giảm chi phí server về 0.
+Toàn bộ quá trình quét tín hiệu (chạy AI) thực hiện trên CPU/GPU/NPU của thiết bị (Web) thông qua **LiteRT**. Backend tuyệt đối không chạy Inference để giảm chi phí server về 0.
 
 ### 3.5. Dark Mode Mặc định
 
@@ -89,8 +89,8 @@ Hỗ trợ render công thức toán học inline (`$...$`) và block (`$$...$$`
 Code blocks hiển thị với syntax highlighting và nút copy để người dùng dễ sử dụng.
 
 **Tiêu chí hoàn thành:**
-- Syntax highlighting cho ít nhất: Python, Kotlin, JavaScript, JSON, YAML, Bash.
-- Nút copy xuất hiện khi hover (Web) hoặc luôn hiển thị (Android).
+- Syntax highlighting cho ít nhất: Python, JavaScript, JSON, YAML, Bash.
+- Nút copy xuất hiện khi hover (Web).
 - Hiển thị tên ngôn ngữ ở góc code block.
 
 ### 3.8. Tìm kiếm full-text (Radar/Quét tín hiệu)
@@ -150,7 +150,7 @@ Hệ thống xác thực người dùng qua Supabase Auth (Email/Password, Googl
 ## 6. Ràng buộc Kỹ thuật
 
 - **Backend:** Next.js App Router (API Routes) đóng vai trò full-stack, quản lý xác thực và logic.
-- **Client:** React/Next.js (Web) và Kotlin/Jetpack Compose (Android).
+- **Client:** React/Next.js (Web).
 - **AI Runtime:** LiteRT (TFLite) chạy on-device. Giới hạn model size < 50MB.
 - **Database & Auth:** Supabase PostgreSQL + Supabase Auth.
 - **Storage:** Public CDN (jsDelivr / Hugging Face) cho models + Cloudinary cho images.
@@ -163,7 +163,7 @@ Hệ thống xác thực người dùng qua Supabase Auth (Email/Password, Googl
 ### 7.1. Metrics Kỹ thuật (Hạ tầng Cosmos)
 - **Chi phí hạ tầng:** Giữ ở mức siêu thấp. PostgreSQL queries cho việc load Galaxy map phải luôn là 2 queries/map/user.
 - **Thời gian tải model:** < 10 giây trên mạng 4G.
-- **Inference FPS:** ≥ 15 FPS trên thiết bị Android tầm trung.
+- **Inference FPS:** ≥ 15 FPS trên trình duyệt.
 - **API Response:** < 300ms (p95) cho content endpoints.
 
 ### 7.2. Metrics Sản phẩm (Gamification)

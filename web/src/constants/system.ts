@@ -17,8 +17,8 @@ export const PRIVACY_CYBERPUNK = `### [ SECURITY CLEARANCE: LEVEL 4 ] - NODE DAT
 **OVERSEER DIRECTIVE:** By synchronizing with Sequoia Nexus, the Entity (Node) automatically accepts the protocol for biometric data extraction and identity signaling to maintain the integrity of The Grid.
 
 #### 1. SIGNAL EXTRACTION (DATA COLLECTION):
-- **Basic Biometric Identification:** The system automatically extracts and seals your Email, Display Name, and Lifeform Identifier (Firebase UID) upon completion of the Initiation sequence.
-- **Neural Footprints:** Every interaction within the Cosmos Space (Viewed Articles, Saved Coordinates, Query History) is tracked and continuously overwritten into the Firestore Data Core to optimize your personalized experience.
+- **Basic Biometric Identification:** The system automatically extracts and seals your Email, Display Name, and Lifeform Identifier (Supabase UID) upon completion of the Initiation sequence.
+- **Neural Footprints:** Every interaction within the Cosmos Space (Viewed Articles, Saved Coordinates, Query History) is tracked and continuously overwritten into the PostgreSQL Data Core to optimize your personalized experience.
 - **Session Protocols:** We archive cryptographic tokens and Browser Fingerprints to intercept and neutralize any hijacking attempts.
 
 #### 2. DATA STANDARDIZATION (DATA UTILIZATION):
@@ -37,7 +37,7 @@ export const PRIVACY_LEGAL = `### PRIVACY POLICY
 **Effective Date:** January 1, 2026
 
 #### 1. INFORMATION WE COLLECT
-- **Personal Information:** When you register for an account, we collect strictly necessary personal details including your Email Address, Display Name, and a unique authentication identifier (Firebase UID).
+- **Personal Information:** When you register for an account, we collect strictly necessary personal details including your Email Address, Display Name, and a unique authentication identifier (Supabase UID).
 - **Usage Data:** We log your interactions within the platform, including saved articles, spatial coordinates in the Cosmos map, UI preferences, and session timestamps.
 - **Technical Data:** For security purposes, we may collect browser type, device identifiers, and encrypted session tokens.
 
@@ -48,7 +48,7 @@ export const PRIVACY_LEGAL = `### PRIVACY POLICY
 
 #### 3. DATA SHARING AND DISCLOSURE
 - **Zero-Sell Policy:** We absolutely do not sell, rent, or trade your personal information to advertisers, data brokers, or any third-party corporations.
-- **Third-Party Infrastructure:** We utilize industry-standard cloud providers (such as Google Firebase) solely for the purpose of hosting and securing your data. These providers are strictly bound by their own enterprise privacy agreements.
+- **Third-Party Infrastructure:** We utilize industry-standard cloud providers (such as Supabase) solely for the purpose of hosting and securing your data. These providers are strictly bound by their own enterprise privacy agreements.
 - **Legal Compliance:** We may disclose information if required to do so by law or in response to valid requests by public authorities.
 
 #### 4. DATA SECURITY
@@ -125,7 +125,7 @@ At its core, the project revolutionizes how we interact with information: transf
 
 #### TECHNICAL ARCHITECTURE (TECH STACK):
 - **Frontend:** Next.js, React, TailwindCSS, and native Canvas API for fluid spatial rendering and cyberpunk UI/UX.
-- **Backend:** Kotlin / Ktor framework handling robust, high-speed API routing and business logic.
-- **Infrastructure:** Firebase Authentication & Firestore ensuring seamless, real-time data synchronization.
+- **Backend:** Next.js App Router (API Routes) handling robust API endpoints and full-stack integration.
+- **Infrastructure:** Supabase Authentication & PostgreSQL ensuring seamless, real-time data synchronization.
 
 Sequoia was built with a profound passion for Sci-Fi/Cyberpunk aesthetics, aiming to deliver a premium, game-like user experience within a functional, modern web application.`;

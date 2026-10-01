@@ -28,7 +28,7 @@ Toàn bộ commit message trong dự án phải tuân theo chuẩn [Conventional
 **Ví dụ:**
 
 - `feat(api): add endpoint to fetch textbook list`
-- `fix(android): fix crash on camera permission denial`
+- `fix(ui): fix crash on camera permission denial`
 - `docs(api): update api-contract for upload flow`
 - `chore: bump Next.js version to 16.x`
 
@@ -46,38 +46,9 @@ Khi làm việc với các tính năng mới hoặc sửa lỗi, hãy tạo nhá
 
 ## 3. Quy ước Comment Code (KDoc & JSDoc)
 
-Code tự nó phải rõ ràng (Self-documenting code), chỉ comment **TẠI SAO (Why)** chứ không comment **CÁI GÌ (What)** (trừ khi logic quá phức tạp). Toàn bộ KDoc và JSDoc **BẮT BUỘC phải viết bằng Tiếng Anh**. Tuy nhiên, đối với các public API, class và interface, bắt buộc phải dùng KDoc (Kotlin) và JSDoc (Web).
+Code tự nó phải rõ ràng (Self-documenting code), chỉ comment **TẠI SAO (Why)** chứ không comment **CÁI GÌ (What)** (trừ khi logic quá phức tạp). Toàn bộ JSDoc **BẮT BUỘC phải viết bằng Tiếng Anh**. Tuy nhiên, đối với các public API, class và interface, bắt buộc phải dùng JSDoc (Web).
 
-### 3.1. KDoc (cho Android)
-
-Bắt buộc sử dụng KDoc cho:
-
-- Các Data Class/Model đại diện cho Entity.
-- Các Interface của Repository/Service.
-- Các hàm Public phức tạp.
-
-**Ví dụ KDoc:**
-
-```kotlin
-/**
- * Manager for the LiteRT inference flow.
- * 
- * This class is responsible for loading the model, initializing the Interpreter,
- * and handling pre-processing/post-processing for the input image.
- *
- * @param modelPath Absolute path to the .tflite file.
- * @param useGpu Option to enable GPU delegate (Android only).
- * @throws IllegalArgumentException if the model file is not found.
- */
-class LiteRTInferenceManager(
-    private val modelPath: String,
-    private val useGpu: Boolean = false
-) {
-    // ...
-}
-```
-
-### 3.2. JSDoc/TSDoc (cho Web - Next.js/React/TypeScript)
+### 3.1. JSDoc/TSDoc (cho Web - Next.js/React/TypeScript)
 
 Bắt buộc sử dụng JSDoc/TSDoc cho:
 
@@ -102,5 +73,4 @@ export function useLiteRTModel(modelUrl: string) {
 
 ## 4. Quy ước Formatting Code
 
-- **Kotlin (Android):** Tuân thủ tiêu chuẩn định dạng của IntelliJ IDEA/Android Studio. Nên bật tính năng "Optimize imports on the fly" và "Reformat code" trước khi commit.
 - **Web (React/Next.js/TypeScript):** Sử dụng **ESLint** (đã cấu hình sẵn với `eslint-config-next`). Khuyến nghị thiết lập format on save.

@@ -1,6 +1,6 @@
 # Master Plan: Chuẩn bị Dự án Sequoia
 
-Tài liệu chuẩn bị dự án dành cho một lập trình viên độc lập, xây dựng hệ thống gồm ứng dụng Android, ứng dụng Web (Next.js full-stack) và tích hợp AI on-device.
+Tài liệu chuẩn bị dự án dành cho một lập trình viên độc lập, xây dựng hệ thống gồm ứng dụng Web (Next.js full-stack) và tích hợp AI on-device.
 
 ---
 
@@ -30,7 +30,7 @@ Nguyên tắc: nội dung ngắn gọn, không đi sâu vào tiểu tiết. Mỗ
 - Admin CMS (Genesis Core): giao diện quản trị riêng để tạo, sửa, xóa bài viết, quản lý chủ đề.
 - Bookmark / đánh dấu bài viết: lưu bài để đọc sau.
 - Tiến độ đọc: theo dõi đang đọc tới đâu, đánh dấu bài đã hoàn thành.
-- Offline support (đặc biệt trên Android): đọc bài viết và chạy model khi không có mạng.
+- Offline support: đọc bài viết và chạy model khi không có mạng.
 
 **Tính năng triển khai sau — ưu tiên xa:**
 
@@ -54,8 +54,8 @@ Luồng duyệt học liệu: Người dùng truy cập ứng dụng và đượ
 
 Chia nhỏ theo mốc thời gian cụ thể. Ví dụ:
 
-- Tuần 1-2: cấu hình Supabase, xây dựng Next.js API Routes, thiết lập dự án Android và Web.
-- Tuần 3: xây dựng giao diện Web và Android, kết nối với API.
+- Tuần 1-2: cấu hình Supabase, xây dựng Next.js API Routes, thiết lập dự án Web.
+- Tuần 3: xây dựng giao diện Web, kết nối với API.
 - Tuần 4: tích hợp LiteRT và mô hình YOLO.
 - Tuần 5: kiểm thử và triển khai.
 
@@ -63,14 +63,12 @@ Chia nhỏ theo mốc thời gian cụ thể. Ví dụ:
 
 ## Giai đoạn 2: Thiết kế kỹ thuật
 
-Nguyên tắc: chuẩn bị đầy đủ để các thành phần Web, Android và AI tương thích với nhau khi tích hợp.
+Nguyên tắc: chuẩn bị đầy đủ để các thành phần Web và AI tương thích với nhau khi tích hợp.
 
 ### Kiến trúc hệ thống
 
 **Phía client:**
-
 - Ứng dụng Web xây dựng bằng Next.js (App Router), tích hợp thư viện LiteRT dành cho web để chạy mô hình AI trực tiếp trên trình duyệt.
-- Ứng dụng Android xây dựng bằng Kotlin và Jetpack Compose, tích hợp thư viện LiteRT dành cho Android.
 
 **Phía backend:** Next.js App Router đóng vai trò full-stack — API Routes (`/api/v1/...`) chứa toàn bộ business logic, xác thực, và CRUD. Điều này đảm bảo Web Frontend và API cùng deploy chung, giảm thiểu overhead vận hành.
 
@@ -82,7 +80,7 @@ Nguyên tắc: chuẩn bị đầy đủ để các thành phần Web, Android v
 
 ### API Contract
 
-Next.js API Routes tuân theo cấu trúc RESTful. Toàn bộ business logic nằm ở server-side API Routes, Android client chỉ gọi API. Cần định nghĩa rõ các endpoint.
+Next.js API Routes tuân theo cấu trúc RESTful. Toàn bộ business logic nằm ở server-side API Routes, Client chỉ gọi API. Cần định nghĩa rõ các endpoint.
 
 ### Thiết kế dữ liệu
 
@@ -107,8 +105,6 @@ Khởi tạo ngay khi tạo repository. Nội dung cần bao gồm hướng dẫ
 Nguyên tắc: duy trì kỷ luật trong quy trình làm việc, kể cả khi phát triển một mình.
 
 ### Quy ước viết code
-
-- Đối với Android: tuân thủ Kotlin Coding Conventions.
 - Đối với Web: sử dụng ESLint (đã cấu hình sẵn với `eslint-config-next`).
 
 ### Quy trình Git

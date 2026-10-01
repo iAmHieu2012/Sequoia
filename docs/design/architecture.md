@@ -11,7 +11,6 @@
 graph TB
     subgraph Clients
         WEB["Web Client<br/>(React/Next.js + LiteRT Web SDK)"]
-        ANDROID["Android Client<br/>(Kotlin/Jetpack Compose + LiteRT Android SDK)"]
     end
 
     subgraph "Next.js Full-stack"
@@ -30,20 +29,16 @@ graph TB
     end
 
     WEB <--> FRONTEND
-    ANDROID <-->|"REST API + JWT"| API
 
     WEB -->|"Login/Register"| AUTH
-    ANDROID -->|"Login/Register"| AUTH
 
     API -->|"Verify Session"| AUTH
     API <-->|"Read/Write Data (service_role)"| POSTGRES
 
     WEB -->|"Download Model (Public)"| CDN
-    ANDROID -->|"Download Model (Public)"| CDN
     WEB -->|"Upload Image"| CLOUDINARY
 
     style WEB fill:#3b82f6,stroke:#1d4ed8,color:#fff
-    style ANDROID fill:#22c55e,stroke:#15803d,color:#fff
     style FRONTEND fill:#8b5cf6,stroke:#6d28d9,color:#fff
     style API fill:#a855f7,stroke:#7c3aed,color:#fff
     style AUTH fill:#f59e0b,stroke:#d97706,color:#fff
@@ -70,8 +65,6 @@ graph TB
 | **Web Frontend** | React / Next.js (App Router) | SSR/CSR cho giao diện web, render bài viết, nhúng playground |
 | **Web AI Runtime** | LiteRT Web SDK (WebAssembly/WebGL) | Chạy model AI trực tiếp trên trình duyệt |
 | **Web API** | Next.js API Routes | RESTful API, business logic, xác thực |
-| **Android App** | Kotlin + Jetpack Compose | Native Android UI với Material Design 3 |
-| **Android AI Runtime** | LiteRT Android SDK (GPU/NPU delegate) | Inference tận dụng phần cứng GPU/NPU |
 | **Database** | PostgreSQL (Supabase) | Relational database với RLS, triggers, JSONB |
 | **Authentication** | Supabase Auth | Quản lý user, hỗ trợ email/password và Google Sign-In |
 | **Model Storage** | Public CDN (jsDelivr / Hugging Face) | Host model files, miễn phí, globally distributed |
@@ -89,17 +82,6 @@ graph TB
 | react-markdown + remark-gfm | Render Markdown content |
 | LiteRT Web SDK | Load và chạy `.tflite` model qua WebAssembly/WebGL |
 | Tailwind CSS | Styling framework |
-
-#### Android Client
-
-| Thư viện / Công cụ | Mục đích |
-| --------------------- | ---------- |
-| Jetpack Compose | Declarative UI framework |
-| Material Design 3 | Design system, hỗ trợ dynamic color và dark mode |
-| CameraX | Truy cập camera cho playground real-time |
-| LiteRT Android SDK | Chạy model `.tflite` với GPU/NPU acceleration |
-| Supabase Kotlin Client | Auth + Database trên Android |
-| Coil | Image loading và caching |
 
 ---
 
@@ -307,19 +289,6 @@ graph TB
 
 ```text
 Sequoia/
-├── android/                    # Android app (Kotlin + Jetpack Compose)
-│   ├── app/
-│   │   ├── src/
-│   │   │   ├── main/
-│   │   │   │   ├── java/.../sequoia/
-│   │   │   │   │   ├── data/          # Repository, data source, API client
-│   │   │   │   │   ├── domain/        # Use cases, domain models
-│   │   │   │   │   ├── ui/            # Compose screens, components
-│   │   │   │   │   ├── ml/            # LiteRT integration, model manager
-│   │   │   │   │   └── di/            # Dependency injection
-│   │   │   │   └── AndroidManifest.xml
-│   │   └── build.gradle.kts
-│
 ├── web/                        # Web client + API (Next.js Full-stack)
 │   ├── src/
 │   │   ├── app/               # Next.js App Router

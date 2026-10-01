@@ -28,22 +28,6 @@ npm run start    # Start production server
 
 Trên Vercel: kết nối trực tiếp repository GitHub, mọi push vào `main` sẽ tự động deploy.
 
-## 2. Publish Android App
-
-Luồng đẩy lên Google Play Console:
-
-1. Đảm bảo cấu hình biến môi trường và Base URL API trỏ về server Production.
-2. Build ứng dụng thành định dạng `.aab` (Android App Bundle).
-
-   ```bash
-   ./gradlew bundleRelease
-   ```
-
-3. Ký ứng dụng bằng Keystore (Signing Key Management). Lưu trữ file `.jks` và mật khẩu thật an toàn.
-4. Tạo App trên Google Play Console, điền đầy đủ metadata, hình ảnh.
-5. Tải `.aab` lên nhánh **Internal Testing** để test nội bộ.
-6. Đẩy lên **Production** sau khi đã duyệt thành công.
-
 ## 3. Cấu hình Supabase Production
 
 1. Tạo project mới trên [Supabase Dashboard](https://supabase.com) dành riêng cho Production (tách biệt hoàn toàn với Dev).
@@ -58,7 +42,7 @@ Model files `.tflite` được host miễn phí trên **jsDelivr** (thông qua G
 
 1. Upload model file vào GitHub repository hoặc Hugging Face model repo.
 2. Lấy public URL và cập nhật vào bảng `models` trên Supabase.
-3. Client (Web/Android) tải model trực tiếp từ CDN, không cần proxy qua API.
+3. Client tải model trực tiếp từ CDN, không cần proxy qua API.
 
 ## 5. CI/CD với GitHub Actions
 
@@ -80,8 +64,7 @@ Mẫu luồng công việc (Workflow) tự động hóa:
 5. [ ] Models LiteRT (file .tflite) đã upload lên CDN và cập nhật đường dẫn vào bảng `models`.
 7. [ ] Tính năng đăng ký/đăng nhập qua Supabase Auth hoạt động trơn tru.
 8. [ ] Ứng dụng Web load trang nhanh, SEO Meta tags đầy đủ.
-9. [ ] Ứng dụng Android chạy không bị crash, giao diện responsive.
-10. [ ] Đã cấp quyền camera mượt mà trên cả Web và Android.
+9. [ ] Đã cấp quyền camera mượt mà trên Web.
 11. [ ] Domain chính thức đã được trỏ tới Web App trên Vercel.
 12. [ ] Admin đã được set `is_admin: true` trong `app_metadata` trên Supabase Auth.
 13. [ ] Chứng chỉ SSL HTTPS hoạt động (Vercel tự cung cấp).

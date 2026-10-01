@@ -6,7 +6,6 @@ Sequoia là nền tảng học thuật AI/ML có cấu trúc giáo trình, cho p
 
 - `docs/`: Chứa tài liệu đặc tả sản phẩm, thiết kế hệ thống, sơ đồ luồng người dùng và hướng dẫn cấu hình.
 - `web/`: Ứng dụng Next.js full-stack (Frontend + API Routes + tích hợp Supabase).
-- `android/`: Ứng dụng di động Native xây dựng bằng Kotlin & Jetpack Compose.
 
 ## Tài liệu
 

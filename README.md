@@ -6,7 +6,6 @@ Sequoia is an AI/ML educational platform featuring a structured curriculum and o
 
 - `docs/`: Product requirements, system design, user flows, and configuration guides.
 - `web/`: Next.js full-stack application (Frontend + API Routes + Supabase integration).
-- `android/`: Native Android application built with Kotlin and Jetpack Compose.
 
 ## Documentation
 
