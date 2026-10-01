@@ -46,7 +46,7 @@ export default function DesktopDashboard() {
                <div className="w-8 h-8 bg-coral rounded-full shadow-[0_0_20px_var(--color-coral)]" />
              </div>
              
-             <h2 className="text-3xl md:text-4xl font-heading text-coral tracking-[0.2em] uppercase mb-4 drop-shadow-[0_0_10px_var(--color-coral)]">
+             <h2 className="text-3xl md:text-4xl font-mono text-coral tracking-[0.2em] uppercase mb-4 drop-shadow-[0_0_10px_var(--color-coral)]">
                Critical System Failure
              </h2>
              

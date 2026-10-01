@@ -230,13 +230,13 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
   }
 
   return (
-    <div className={`relative bg-black/60 border border-panel-border overflow-hidden ${className}`}>
-      <CyberBrackets color="border-/30" />
+    <div className={`relative bg-black/60 border border-white/20 overflow-hidden ${className}`}>
+      <CyberBrackets color="border-white/30" />
       <div className="absolute top-3 left-3 z-20 pointer-events-none flex flex-col gap-2">
-        <span className="bg-black/90 text-white border border-white/30 px-2 py-0.5 text-[8px] font-mono tracking-widest uppercase">
+        <span className="bg-black/90 text-white border border-white/30 px-2 py-0.5 text-xs font-mono tracking-widest uppercase">
           MAP_EDITOR
         </span>
-        <div className="bg-black/80 border border-white/20 p-2 text-[9px] font-mono text-white/60">
+        <div className="bg-black/80 border border-white/20 p-2 text-xs font-mono text-white/60">
           <div>DRAG TO MOVE</div>
           <div>SHIFT+CLICK TO LINK</div>
           {linkingNodeId && <div className="text-coral mt-1 animate-pulse">SELECT TARGET...</div>}
@@ -297,32 +297,48 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
                   onMouseDown={(e) => handleNodeMouseDown(e, node.article_id)}
                 >
                   {draggingNodeId === node.article_id && (
-                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black/80 border border-white/50 text-white px-2 py-0.5 text-[8px] font-mono whitespace-nowrap z-50 pointer-events-none">
+                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black/80 border border-white/50 text-white px-2 py-0.5 text-xs font-mono whitespace-nowrap z-50 pointer-events-none">
                       X: {Math.round(node.x)} Y: {Math.round(node.y)}
                     </div>
                   )}
 
                   {isAnomaly ? (
                     <>
-                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-coral/10 rounded-full animate-ping" />
-                      <div className={`${styles.star} bg-coral shadow-[0_0_20px_var(--color-coral)]`} />
+                      <div className="absolute top-1/2 left-1/2 -mt-16 -ml-16 w-32 h-32 rotate-45">
+                        <div className="w-full h-full border border-coral/30 bg-coral/5 animate-ping" />
+                      </div>
+                      <div className={`${styles.star} text-coral`}>
+                        <div className={styles.glowWrapper}>
+                          <div className={styles.maskRotator}>
+                            <div className={styles.outerDiamond}></div>
+                          </div>
+                        </div>
+                        <div className={styles.coreDiamond}></div>
+                      </div>
                       <div className={`${styles.objectLabel} text-coral text-xl font-bold animate-pulse flex flex-col items-center gap-1`}>
                         <span>{node.title.toUpperCase()}</span>
-                        <span className="text-[11px] font-mono text-coral/90 opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 px-2 py-0.5 border border-coral/30 rounded">[{Math.round(node.x)}, {Math.round(node.y)}]</span>
+                        <span className="text-xs font-mono text-coral/90 opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 px-2 py-0.5 border border-coral/30 rounded">[{Math.round(node.x)}, {Math.round(node.y)}]</span>
                       </div>
                     </>
                   ) : (
                     <>
                         {isCompleted && (
                           <>
-                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border border-white/20 rounded-full animate-[spin_10s_linear_infinite]" />
-                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 border border-white/10 rounded-full animate-[spin_15s_linear_infinite_reverse]" />
+                          <div className="absolute top-1/2 left-1/2 -mt-24 -ml-24 w-48 h-48 border border-white/20 animate-[spin_10s_linear_infinite]" />
+                          <div className="absolute top-1/2 left-1/2 -mt-32 -ml-32 w-64 h-64 border border-white/10 animate-[spin_15s_linear_infinite_reverse]" />
                           </>
                         )}
-                      <div className={styles.star} />
+                      <div className={styles.star}>
+                        <div className={styles.glowWrapper}>
+                          <div className={styles.maskRotator}>
+                            <div className={styles.outerDiamond}></div>
+                          </div>
+                        </div>
+                        <div className={styles.coreDiamond}></div>
+                      </div>
                       <div className={`${styles.objectLabel} flex flex-col items-center gap-1 ${isCompleted ? 'text-white drop-shadow-[0_0_10px_var(--color-white)]' : ''}`}>
                         <span>{node.title}</span>
-                        <span className="text-[10px] font-mono text-white/80 opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 px-2 py-0.5 border border-white/20 rounded">[{Math.round(node.x)}, {Math.round(node.y)}]</span>
+                        <span className="text-xs font-mono text-white/80 opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 px-2 py-0.5 border border-white/20 rounded">[{Math.round(node.x)}, {Math.round(node.y)}]</span>
                       </div>
                     </>
                   )}
@@ -333,40 +349,41 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
         </div>
       </div>
 
-      {/* Zoom HUD */}
-      <div className="absolute bottom-6 right-6 font-mono text-[10px] flex flex-col items-end gap-2 pointer-events-none z-1000">
-        <div className="relative bg-black/80 border border-white/30 px-4 py-2 flex flex-col items-end backdrop-blur-sm">
-          <CyberBrackets color="border-white/30" />
-          <div className="flex items-center gap-3 text-white mb-1">
-            <span className="tracking-widest opacity-60">SYS_ZOOM</span>
-            <span ref={hudScaleRef} className="font-bold text-sm">0.20x</span>
+      {/* HUD Telemetry & Actions */}
+      <div className="absolute bottom-6 right-6 flex flex-col items-end gap-3 pointer-events-none z-1000">
+        
+        {/* Map Actions & Telemetry Container */}
+        <div className="flex items-center gap-4 bg-black/60 backdrop-blur-md border border-white/20 p-2 pr-2">
+          {/* Telemetry Ruler */}
+          <div className="flex items-center gap-4 text-white font-mono border-r-2 border-white/20 pr-4 pl-2">
+            <div className="flex flex-col items-end">
+              <span className="text-xs tracking-widest uppercase opacity-60">Target_Lock</span>
+              <span ref={hudTargetRef} className="font-bold text-xs">0, 0</span>
+            </div>
+            <div className="w-px h-6 bg-white/20" />
+            <div className="flex flex-col items-end">
+              <span className="text-xs tracking-widest uppercase opacity-60">SYS_ZOOM</span>
+              <span ref={hudScaleRef} className="font-bold text-xs">0.20x</span>
+            </div>
           </div>
-          <div className="w-full h-px bg-white/20 mb-2" />
-          <div className="flex items-center gap-2">
-            <div className="text-[8px] text-text-dim tracking-widest uppercase">Target_Lock</div>
-            <div ref={hudTargetRef} className="text-white font-bold">0, 0</div>
-          </div>
+
+          <button
+            className="pointer-events-auto border border-white/20 p-2 flex items-center justify-center cursor-pointer group hover:bg-white hover:text-black transition-colors text-white mr-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              flyTo(10000, 10000, 0.2);
+            }}
+            title="Recenter Map"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+              <path d="M3 3h6v2H5v4H3V3zm18 0h-6v2h4v4h2V3zM3 21h6v-2H5v-4H3v6zm18 0h-6v-2h4v-4h2v6zM9 9h6v6H9V9z" />
+            </svg>
+          </button>
         </div>
 
-        <button
-          className="pointer-events-auto bg-black/80 border border-panel-border hover:border-white/50 px-4 py-2 hover:bg-white/5 transition-all duration-300 cursor-pointer uppercase tracking-widest relative group overflow-hidden"
-          onClick={(e) => {
-            e.stopPropagation();
-            flyTo(10000, 10000, 0.2);
-          }}
-        >
-          <CyberBrackets color="border-white/30 group-hover:border-white transition-colors duration-300" />
-          <div className="absolute left-0 top-0 w-1 h-full bg-white scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--color-white)]" />
-          <div className="absolute inset-0 translate-x-[-150%] group-hover:translate-x-[150%] bg-linear-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
-          
-          <span className="relative z-10 flex items-center gap-2 font-bold text-white group-hover:drop-shadow-[0_0_8px_var(--color-white)] group-hover:text-white transition-all duration-300">
-            <div className="w-1.5 h-1.5 bg-white shadow-[0_0_8px_var(--color-white)] animate-pulse transition-colors duration-300" />
-            RECENTER_MAP
-          </span>
-        </button>
         {!hideSaveButton && (
           <button
-            className="pointer-events-auto bg-black/80 border border-panel-border hover:border-white px-4 py-2 hover:bg-white/10 transition-all duration-300 cursor-pointer uppercase tracking-widest relative group overflow-hidden mt-2 flex items-center justify-center w-full"
+            className="pointer-events-auto bg-black/80 border border-white/20 hover:border-white px-6 py-2 hover:bg-white/10 transition-all duration-300 cursor-pointer uppercase font-mono tracking-widest relative group overflow-hidden flex items-center justify-center"
             onClick={(e) => {
               e.stopPropagation();
               handleSaveMap();
@@ -374,8 +391,8 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
           >
             <CyberBrackets color="border-white/30 group-hover:border-white transition-colors duration-300" />
             <div className="absolute inset-0 translate-x-[-150%] group-hover:translate-x-[150%] bg-linear-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
-            <span className="relative z-10 flex items-center gap-2 font-bold text-white transition-all duration-300">
-              <Save className="w-4 h-4" /> {isSaving ? "SAVING..." : "SAVE MAP"}
+            <span className="relative z-10 flex items-center gap-2 font-bold text-xs text-white transition-all duration-300">
+              <Save className="w-3.5 h-3.5" /> {isSaving ? "SAVING..." : "SAVE MAP"}
             </span>
           </button>
         )}

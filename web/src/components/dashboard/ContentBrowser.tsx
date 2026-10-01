@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import CyberBrackets from "@/components/ui/CyberBrackets";
 import { type User } from "@supabase/supabase-js";
+import CyberPanel from "@/components/ui/CyberPanel";
 import NebulasTab from "./tabs/NebulasTab";
 import RogueTab from "./tabs/RogueTab";
 import ModulesTab from "./tabs/ModulesTab";
@@ -86,51 +86,52 @@ export default function ContentBrowser({
   }, [currentMapId]);
 
   return (
-    <div className="flex-shrink-0 w-full lg:w-[400px] flex flex-col min-h-0 bg-black/40 border border-panel-border relative">
-      <CyberBrackets color="border-white/10" />
-
+    <CyberPanel variant="solid-dark" chamfer="none" decorations="brackets" className="flex-shrink-0 w-full lg:w-[400px] flex flex-col min-h-0 relative z-10 bg-space-bg">
       {/* Tab bar */}
-      <div className="flex flex-shrink-0 border-b border-panel-border">
+      <div className="flex flex-shrink-0 border-b border-white/10 bg-space-bg">
         {[
-          { id: "nebulas", label: "NEBULAS", sub: "Topics", accent: "turquoise", defaultTarget: { x: 0, y: 0, scale: 0.2, mapId: topics.length > 0 ? topics[0].id : undefined } },
-          { id: "rogue", label: "ROGUE", sub: "Papers", accent: "purple", defaultTarget: { x: 0, y: 0, scale: 0.2, mapId: "standalone-articles" } },
-          { id: "modules", label: "MODULES", sub: "Textbooks", accent: "orange", defaultTarget: { x: 0, y: 0, scale: 0.2, mapId: undefined } },
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => {
-              setActiveTab(tab.id as TabId);
-              setSelectedTopic(null);
-              setMapTarget(prev => ({
-                ...prev,
-                x: tab.defaultTarget.x,
-                y: tab.defaultTarget.y,
-                scale: tab.defaultTarget.scale,
-                mapId: tab.defaultTarget.mapId ?? prev.mapId,
-                activeNodeId: undefined
-              }));
-            }}
-            className={`flex-1 py-3 px-1 text-center font-heading text-[11px] font-bold tracking-[0.12em] uppercase transition-all cursor-pointer border-b-2 ${
-              activeTab === tab.id
-                ? tab.id === "nebulas" ? "text-turquoise border-turquoise bg-turquoise/5" : tab.id === "rogue" ? "text-purple border-purple bg-purple/5" : tab.id === "modules" ? "text-orange border-orange bg-orange/5" : "text-white border-white bg-white/5"
-                : "text-text-dim border-transparent hover:text-white hover:bg-white/5"
-            }`}
-          >
-            {tab.label}
-            <span className="block text-[8px] font-mono font-normal mt-0.5 opacity-50 normal-case tracking-wider">
-              {tab.sub}
-            </span>
-          </button>
-        ))}
+          { id: "nebulas", label: "NEBULAS", sub: "Topics", defaultTarget: { x: 0, y: 0, scale: 0.2, mapId: topics.length > 0 ? topics[0].id : undefined } },
+          { id: "rogue", label: "ROGUE", sub: "Papers", defaultTarget: { x: 0, y: 0, scale: 0.2, mapId: "standalone-articles" } },
+          { id: "modules", label: "MODULES", sub: "Textbooks", defaultTarget: { x: 0, y: 0, scale: 0.2, mapId: undefined } },
+        ].map(tab => {
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => {
+                setActiveTab(tab.id as TabId);
+                setSelectedTopic(null);
+                setMapTarget(prev => ({
+                  ...prev,
+                  x: tab.defaultTarget.x,
+                  y: tab.defaultTarget.y,
+                  scale: tab.defaultTarget.scale,
+                  mapId: tab.defaultTarget.mapId ?? prev.mapId,
+                  activeNodeId: undefined
+                }));
+              }}
+              className={`group relative z-10 flex-1 h-14 md:h-16 flex flex-col justify-center px-4 md:px-6 transition-colors duration-200 cursor-pointer border-r border-white/10 last:border-r-0 bg-transparent overflow-hidden ${
+                isActive ? "text-space-bg" : "text-white/40 hover:text-white"
+              }`}
+            >
+              {/* Individual Slide Fill */}
+              <div 
+                className={`absolute top-0 left-0 h-full w-full bg-white clip-mod-1 transition-transform duration-300 ease-out z-0 ${
+                  isActive ? "translate-x-0" : "-translate-x-full group-hover:-translate-x-[95%]"
+                }`}
+              />
+              <div className="relative z-10 flex items-center justify-center w-full">
+                <span className="text-sm font-mono font-bold tracking-[0.12em] uppercase">
+                  {tab.label}
+                </span>
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       {/* Tab content */}
-      <div className={`flex-1 overflow-y-auto min-h-0 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-black/20 uppercase tracking-wider ${
-        activeTab === "nebulas" ? "[&::-webkit-scrollbar-thumb]:bg-turquoise/20 hover:[&::-webkit-scrollbar-thumb]:bg-turquoise/40" :
-        activeTab === "rogue" ? "[&::-webkit-scrollbar-thumb]:bg-purple/20 hover:[&::-webkit-scrollbar-thumb]:bg-purple/40" :
-        activeTab === "modules" ? "[&::-webkit-scrollbar-thumb]:bg-orange/20 hover:[&::-webkit-scrollbar-thumb]:bg-orange/40" :
-        "[&::-webkit-scrollbar-thumb]:bg-white/20 hover:[&::-webkit-scrollbar-thumb]:bg-white/40"
-      }`}>
+      <div key={activeTab} className="flex-1 overflow-y-auto min-h-0 animate-snap-in">
         {/* NEBULAS tab */}
         {activeTab === "nebulas" && (
           <NebulasTab 
@@ -165,7 +166,7 @@ export default function ContentBrowser({
           <ModulesTab textbooks={textbooks} />
         )}
       </div>
-    </div>
+    </CyberPanel>
   );
 }
 

@@ -1,5 +1,5 @@
 import { RotateCcw } from 'lucide-react';
-import CyberBrackets from '@/components/ui/CyberBrackets';
+import CyberPanel from '@/components/ui/CyberPanel';
 import InputSourceSelector from './InputSourceSelector';
 import { ParameterDefinition, ParamValue } from '@/types/playground';
 
@@ -39,15 +39,14 @@ export default function ParameterPanel({
   supportedModes
 }: ParameterPanelProps) {
   return (
-    <div className="w-64 bg-black/60 border border-panel-border relative flex flex-col p-4 shrink-0 hidden lg:flex">
-      <CyberBrackets color="border-system/30" />
-      <div className="flex items-center justify-between border-b border-panel-border pb-2 mb-4">
-        <div className="text-[10px] font-mono text-text-dim tracking-widest uppercase">
+    <CyberPanel variant="outline" chamfer="tl-br" decorations="brackets" className="w-64 bg-transparent border-white/10 relative flex flex-col p-4 shrink-0 hidden lg:flex">
+      <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-4">
+        <div className="text-xs font-mono text-white/40 tracking-widest uppercase">
           PARAMETERS
         </div>
         <button
           onClick={resetParams}
-          className="text-[9px] font-mono text-text-dim hover:text-system tracking-widest uppercase flex items-center gap-1 transition-colors"
+          className="text-xs font-mono text-white/40 hover:text-white tracking-widest uppercase flex items-center gap-1 transition-colors"
           title="Reset all parameters to defaults"
         >
           <RotateCcw className="w-3 h-3" />
@@ -72,7 +71,7 @@ export default function ParameterPanel({
           />
         ))}
       </div>
-    </div>
+    </CyberPanel>
   );
 }
 
@@ -89,8 +88,8 @@ function DynamicParameter({ definition, value, onChange }: {
     return (
       <div className="flex flex-col gap-2">
         <div className="flex justify-between items-end">
-          <span className="text-[9px] font-mono text-text-dim tracking-widest uppercase">{definition.label.replace(/\s/g, '_')}</span>
-          <span className="text-xs font-mono text-system font-bold">{displayVal}</span>
+          <span className="text-xs font-mono text-white/40 tracking-widest uppercase">{definition.label.replace(/\s/g, '_')}</span>
+          <span className="text-xs font-mono text-white font-bold">{displayVal}</span>
         </div>
         <input 
           type="range" 
@@ -99,7 +98,7 @@ function DynamicParameter({ definition, value, onChange }: {
           step={definition.step}
           value={numVal}
           onChange={(e) => onChange(Number(e.target.value))}
-          className="w-full h-1 bg-panel-border appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-system [&::-webkit-slider-thumb]:shadow-[0_0_10px_var(--color-system)]"
+          className="w-full h-1 bg-white/10 appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(255,255,255,0.8)]"
         />
       </div>
     );
@@ -109,19 +108,19 @@ function DynamicParameter({ definition, value, onChange }: {
     const boolVal = (value as boolean) ?? (definition.default as boolean);
     return (
       <div className="flex justify-between items-center">
-        <span className="text-[9px] font-mono text-text-dim tracking-widest uppercase">{definition.label.replace(/\s/g, '_')}</span>
+        <span className="text-xs font-mono text-white/40 tracking-widest uppercase">{definition.label.replace(/\s/g, '_')}</span>
         <button
           onClick={() => onChange(!boolVal)}
           className={`w-10 h-5 border relative transition-all duration-300 ${
             boolVal 
-              ? 'border-system bg-system/20 shadow-[0_0_8px_var(--color-system)]' 
-              : 'border-panel-border bg-black/40'
+              ? 'border-white/40 bg-white/10 shadow-[0_0_8px_rgba(255,255,255,0.2)]' 
+              : 'border-white/10 bg-transparent'
           }`}
         >
           <div className={`absolute top-0.5 w-3.5 h-3.5 transition-all duration-300 ${
             boolVal 
-              ? 'right-0.5 bg-system' 
-              : 'left-0.5 bg-text-dim'
+              ? 'right-0.5 bg-white' 
+              : 'left-0.5 bg-white/40'
           }`} />
         </button>
       </div>

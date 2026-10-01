@@ -1,16 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Orbit, User as UserIcon, Cpu } from "lucide-react";
+import { User as UserIcon, Cpu } from "lucide-react";
 import Link from "next/link";
-import CyberBrackets from "@/components/ui/CyberBrackets";
+import Image from "next/image";
+
 import { useAuth } from "@/contexts/AuthContext";
 import CommandCenterPanel from "./CommandCenterPanel";
+import CyberButton from "@/components/ui/CyberButton";
 
-/**
- * Global header for the dashboard interface.
- * Displays the system status, local time, and handles the Command Center panel toggle.
- */
 export default function DashboardHeader({ error }: { error?: string | null }) {
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
@@ -23,78 +21,82 @@ export default function DashboardHeader({ error }: { error?: string | null }) {
     return () => clearInterval(timer);
   }, []);
 
-  // Logout is now handled inside CommandCenterPanel
-
   return (
-    <header className="relative z-50 flex items-center justify-between px-4 lg:px-6 py-3 border-b border-panel-border uppercase tracking-wider">
-      <div className="flex items-center gap-3">
-        <Orbit className="w-5 h-5 text-system animate-[spin_20s_linear_infinite]" />
-        <div>
-          <div className="flex items-center gap-2 mb-1 text-system hidden lg:flex">
-            <span className="font-mono text-[10px] tracking-[0.3em]">SYS.CMD.CENTER // ROOT</span>
-          </div>
-          <h1 className="text-2xl lg:text-3xl font-display font-black text-white tracking-[0.15em] m-0 leading-none drop-shadow-[0_0_10px_var(--color-system)]">
-            SEQUOIA
-          </h1>
-        </div>
-      </div>
-      <div className="flex items-center gap-3">
-        <div className={`bg-black/80 border px-4 py-2 relative hidden lg:flex items-center gap-6 ${error ? 'border-coral shadow-[0_0_15px_var(--color-coral)]' : 'border-system/30'}`}>
-          <CyberBrackets color={error ? 'border-coral/50' : 'border-system/30'} />
+    <header className="relative z-50 flex items-center justify-between h-16 md:h-20 border-b border-white/10 bg-space-bg uppercase tracking-wider select-none">
+      
+      {/* LEFT: Logo & System Identity */}
+      <div className="flex items-center gap-4 px-4">
+        <Image src="/bot.png" alt="Sequoia Bot" width={40} height={40} unoptimized className="w-20 h-20" />
           
+          <div className="flex flex-col justify-center">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="bg-white text-space-bg px-4 py-0.5 text-xs font-mono tracking-widest clip-chamfer-tl-br">
+                ROOT_NODE
+              </span>
+              <span className="font-mono text-xs tracking-[0.2em] text-white/40 hidden lg:block">
+                {"// SYS.CMD.CENTER"}
+              </span>
+            </div>
+            <h1 className="text-xl md:text-3xl font-display font-black text-white tracking-[0.15em] m-0 leading-none">
+              SEQUOIA
+            </h1>
+          </div>
+      </div>
+
+      {/* RIGHT: Status & User Panel */}
+      <div className="flex items-center gap-2 md:gap-6 px-4">
+        
+        {/* Status Box - Hidden on small screens */}
+        <div className="hidden lg:flex items-center gap-6 px-4 py-2 border border-white/10 bg-white/10 relative">
+          {/* Decorative Corner */}
+          <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-white"></div>
+          <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-white"></div>
+
           <div className="flex flex-col">
-            <span className="text-[9px] font-mono text-text-dim mb-1">SYS_STATUS</span>
-            <span className={`text-xs font-mono flex items-center gap-2 font-bold tracking-wider uppercase ${error ? 'text-coral' : 'text-system'}`}>
-              <span className={`w-1.5 h-1.5 shadow-[0_0_8px_currentColor] animate-pulse ${error ? 'bg-coral' : 'bg-system'}`} />
-              {error ? 'SYSTEM FAULT' : 'OPTIMAL'}
+            <span className="text-xs font-mono text-white/40 mb-1 tracking-widest">SYS_STATUS</span>
+            <span className={`text-xs font-mono flex items-center gap-2 font-bold tracking-wider ${error ? 'text-coral' : 'text-white'}`}>
+              <span className={`w-2 h-2 animate-pulse ${error ? 'bg-coral shadow-[0_0_8px_var(--color-coral)]' : 'bg-white shadow-[0_0_8px_white]'}`} />
+              {error ? 'FAULT DETECTED' : 'OPTIMAL'}
             </span>
           </div>
 
-          <div className="w-px h-8 bg-panel-border" />
+          <div className="w-px h-8 bg-white/10" />
 
-          <div className="flex flex-col min-w-35">
-            <span className="text-[9px] font-mono text-text-dim mb-1">LOCAL_TIME</span>
-            <span className="text-xs font-mono text-system flex items-center gap-2 font-bold tracking-wider uppercase">
-              <span className="w-1.5 h-1.5 bg-system shadow-[0_0_8px_var(--color-system)] animate-pulse" />
+          <div className="flex flex-col min-w-[140px]">
+            <span className="text-xs font-mono text-white/40 mb-1 tracking-widest">LOCAL_TIME</span>
+            <span className="text-xs font-mono text-white flex items-center gap-2 font-bold tracking-wider">
               {currentTime ? currentTime.toLocaleString('en-US', { hour12: false, month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'SYNCING...'}
             </span>
           </div>
         </div>
 
-        <div className="bg-black/80 border border-panel-border px-3 lg:px-4 py-2 flex items-center gap-4">
-          
+        {/* User Identity / Command Center Toggle */}
+        <div className="flex items-center">
           {user ? (
             <button 
               onClick={() => setIsCommandCenterOpen(true)}
-              className="flex items-center gap-4 hover:bg-white/5 transition-colors p-2 lg:p-1 lg:-m-1 rounded group cursor-pointer text-left"
+              className="h-10 md:h-12 bg-white text-space-bg pl-4 md:pl-6 pr-0 flex items-center clip-chamfer-tl-br hover:bg-gray-200 transition-colors group overflow-hidden"
             >
-              <div className="flex-col hidden lg:flex">
-                <span className="text-[9px] font-mono text-text-dim group-hover:text-system transition-colors tracking-widest mb-1 uppercase">ID_ENTITY</span>
-                <span className="text-xs font-heading text-white flex items-center gap-2 font-bold tracking-widest">
-                  <UserIcon className="w-3.5 h-3.5 text-system" />
+              <div className="flex-col items-end text-right hidden sm:flex mr-4 relative z-10">
+                <span className="text-xs font-mono text-space-bg/70 tracking-widest font-bold">ID_ENTITY</span>
+                <span className="text-xs font-mono font-black tracking-widest">
                   {user.user_metadata?.name?.toUpperCase() || user.email?.split('@')[0].toUpperCase() || 'USER_NODE'}
                 </span>
               </div>
-              <div className="lg:hidden flex items-center justify-center">
-                <UserIcon className="w-5 h-5 text-system" />
+              
+              {/* Partitioned Icon Box with Stripes */}
+              <div className="h-full w-10 md:w-12 flex items-center justify-center relative border-l border-space-bg/10">
+                <div className="absolute inset-0 stripes-dark opacity-10"></div>
+                <UserIcon className="w-4 h-4 md:w-5 md:h-5 relative z-10" />
               </div>
             </button>
           ) : (
-            <div className="flex items-center gap-4">
-              <div className="flex-col hidden lg:flex">
-                <span className="text-[9px] font-mono text-text-dim tracking-widest mb-1 uppercase">ID_ENTITY</span>
-                <span className="text-xs font-heading text-white flex items-center gap-2 font-bold tracking-widest">
-                  <UserIcon className="w-3.5 h-3.5 text-system" />
-                  GUEST_ACCESS
-                </span>
-              </div>
-              <Link href="/auth">
-                <button className="px-3 py-1.5 border border-system/30 hover:border-system bg-system/5 hover:bg-system/20 text-system text-[10px] font-mono tracking-widest uppercase transition-colors flex items-center gap-2">
-                  <Cpu className="w-3 h-3" />
-                  ESTABLISH
-                </button>
-              </Link>
-            </div>
+            <Link href="/auth" className="flex items-center">
+              <CyberButton variant="secondary" className="h-10 text-xs">
+                <Cpu className="w-4 h-4 mr-2" />
+                ESTABLISH
+              </CyberButton>
+            </Link>
           )}
         </div>
       </div>

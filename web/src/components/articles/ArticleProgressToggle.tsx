@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { CheckCircle2, XCircle, Cpu, Loader2, AlertTriangle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import CyberBrackets from "@/components/ui/CyberBrackets";
 import Link from "next/link";
 import { UserService } from "@/services/user.service";
 import { ArticleService } from "@/services/article.service";
+import CyberPanel from "@/components/ui/CyberPanel";
 
 interface ArticleProgressToggleProps {
   /** The unique identifier of the article */
@@ -68,46 +68,48 @@ export default function ArticleProgressToggle({ article_id }: ArticleProgressTog
 
   if (!authLoading && !user) {
     return (
-      <div className="mt-16 p-8 border border-panel-border bg-black/40 flex flex-col items-center justify-center relative gap-4">
-        <CyberBrackets color="border-system/20" />
-        <Cpu className="w-8 h-8 text-text-dim opacity-50 mb-2" />
-        <p className="text-xs font-mono text-text-dim uppercase tracking-widest text-center max-w-sm">
+      <CyberPanel variant="outline" chamfer="tl-br" decorations="minimal" className="mt-16 p-8 flex flex-col items-center justify-center gap-4 w-full border-white/20">
+        <Cpu className="w-8 h-8 text-white/30 mb-2" />
+        <p className="text-xs font-mono text-white/50 uppercase tracking-widest text-center max-w-sm mb-4">
           Signal interception successful, but neural uplink is severed. Establish a connection to record your decoding progress.
         </p>
-        <Link 
-          href="/auth" 
-          className="mt-2 px-6 py-2 border border-system/50 text-system hover:bg-system/10 font-mono text-xs uppercase tracking-widest transition-all duration-300 shadow-[0_0_15px_rgba(66,255,255,0.05)] hover:shadow-[0_0_20px_rgba(66,255,255,0.2)]"
-        >
-          Initialize Uplink (Login)
+        <Link href="/auth">
+          <button className="px-6 py-2 border border-teal-400 text-teal-400 hover:bg-teal-400/10 font-mono text-xs uppercase tracking-widest transition-all duration-300 clip-chamfer-tl-br">
+            Initialize Uplink (Login)
+          </button>
         </Link>
-      </div>
+      </CyberPanel>
     );
   }
 
   if (authLoading || isLoading) {
     return (
-      <div className="mt-16 p-8 border border-panel-border bg-black/40 flex items-center justify-center relative">
-        <CyberBrackets color="border-system/20" />
-        <Loader2 className="w-6 h-6 text-system animate-spin" />
-      </div>
+      <CyberPanel variant="outline" chamfer="tl-br" decorations="minimal" className="mt-16 p-8 flex items-center justify-center w-full border-white/20">
+        <Loader2 className="w-6 h-6 text-white/30 animate-spin" />
+      </CyberPanel>
     );
   }
 
   return (
-    <div className={`mt-16 p-8 border transition-all duration-500 relative flex flex-col md:flex-row items-center justify-between gap-6 ${isCompleted ? 'border-system/40 bg-system/5' : 'border-panel-border bg-black/60'}`}>
-      <CyberBrackets color={isCompleted ? 'border-system/50' : 'border-white/10'} />
-      
+    <CyberPanel 
+      variant="outline" 
+      chamfer="tl-br" 
+      decorations="brackets" 
+      className={`mt-16 p-8 flex flex-col md:flex-row items-center justify-between gap-6 w-full transition-all duration-500 ${
+        isCompleted ? 'border-teal-400/40 bg-teal-400/5' : 'border-white/20 bg-transparent'
+      }`}
+    >
       <div className="relative z-10 text-center md:text-left">
-        <h4 className={`text-lg font-heading font-bold uppercase tracking-wider mb-2 ${isCompleted ? 'text-system drop-shadow-[0_0_8px_rgba(66,255,255,0.4)]' : 'text-white'}`}>
+        <h4 className={`text-lg font-mono font-bold uppercase tracking-wider mb-2 text-white`}>
           {isCompleted ? 'DATAPAD DECODED' : 'SIGNAL INTERCEPTED'}
         </h4>
-        <p className="text-xs font-mono text-text-dim max-w-md">
+        <p className="text-xs font-mono text-white/50 max-w-md uppercase tracking-widest">
           {isCompleted 
             ? 'Transmission securely archived in your neural cortex. Access retained indefinitely.' 
             : 'Mark as decoded to synchronize this datapad with your Orbital Streak progression.'}
         </p>
         {errorMsg && (
-          <div className="mt-3 text-[10px] font-mono text-coral uppercase tracking-widest flex items-center justify-center md:justify-start gap-2 bg-coral/10 border border-coral/30 px-3 py-1.5 w-fit">
+          <div className="mt-3 text-xs font-mono text-coral uppercase tracking-widest flex items-center justify-center md:justify-start gap-2 bg-coral/10 border border-coral/30 px-3 py-1.5 w-fit">
             <AlertTriangle className="w-3 h-3" /> {errorMsg}
           </div>
         )}
@@ -116,18 +118,14 @@ export default function ArticleProgressToggle({ article_id }: ArticleProgressTog
       <button 
         onClick={toggleStatus}
         disabled={isUpdating}
-        className={`relative group overflow-hidden flex items-center justify-center gap-3 px-6 py-3 font-mono text-xs tracking-widest uppercase transition-all duration-300 min-w-[220px]
+        className={`relative flex items-center justify-center gap-3 px-6 py-3 font-mono text-] font-bold tracking-widest uppercase transition-all duration-300 min-w-[200px] border clip-chamfer-tl-br
           ${isCompleted 
-            ? 'text-coral bg-coral/5 hover:text-white hover:bg-coral/20' 
-            : 'text-system bg-system/5 hover:text-white hover:bg-system/20'}
+            ? 'border-coral/50 text-coral hover:bg-coral/10 hover:border-coral' 
+            : 'border-teal-400/50 text-teal-400 hover:bg-teal-400/10 hover:border-teal-400'}
           ${isUpdating ? 'opacity-50 cursor-not-allowed' : ''}
         `}
       >
-        <CyberBrackets color={`transition-colors duration-300 ${isCompleted ? 'border-coral/30 group-hover:border-coral' : 'border-system/30 group-hover:border-system'}`} />
-        <div className={`absolute left-0 top-0 w-1 h-full scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out ${isCompleted ? 'bg-coral shadow-[0_0_10px_var(--color-coral)]' : 'bg-system shadow-[0_0_10px_var(--color-system)]'}`} />
-        <div className={`absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent to-transparent transition-transform duration-700 ease-out pointer-events-none ${isCompleted ? 'via-coral/10' : 'via-system/10'}`} />
-        
-        <span className={`relative z-10 flex items-center gap-3 transition-all duration-300 ${isCompleted ? 'group-hover:drop-shadow-[0_0_8px_var(--color-coral)]' : 'group-hover:drop-shadow-[0_0_8px_var(--color-system)]'}`}>
+        <span className="relative z-10 flex items-center gap-3 transition-all duration-300">
           {isUpdating ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : isCompleted ? (
@@ -141,6 +139,6 @@ export default function ArticleProgressToggle({ article_id }: ArticleProgressTog
           )}
         </span>
       </button>
-    </div>
+    </CyberPanel>
   );
 }

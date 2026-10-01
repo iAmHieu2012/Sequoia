@@ -1,7 +1,9 @@
 "use client";
 
-import { ShieldCheck, ClipboardClock, Radar, BookText, Activity } from "lucide-react";
-import CyberBrackets from "@/components/ui/CyberBrackets";
+import { ClipboardCheck, ClipboardX, Activity } from "lucide-react";
+import CyberFlipCard from "@/components/ui/CyberFlipCard";
+import CyberPanel from "@/components/ui/CyberPanel";
+import { CyberProgressBar } from "@/components/ui/CyberProgressBar";
 import { type User } from "@supabase/supabase-js";
 import { UserProgress } from "@/hooks/cosmos/useCosmosData";
 
@@ -36,13 +38,10 @@ interface StatsBarProps {
 export default function StatsBar({
   user,
   progressSummary,
-  rogueArticlesLength,
-  textbooksLength,
   userProgress
 }: StatsBarProps) {
   let sigDecoded = 0;
   let undiscovered = 0;
-  const anomalies = rogueArticlesLength;
   let totalNodes = 0;
 
   if (progressSummary) {
@@ -59,124 +58,115 @@ export default function StatsBar({
 
   const sysProgress = totalNodes > 0 ? (sigDecoded / totalNodes) : 0;
   const sysProgressPercent = Math.round(sysProgress * 100);
+  const displayProgress = user ? sysProgressPercent : 0;
+  
+  // Calculate width ratio for the split (min 35%, max 65%)
+  const leftRatio = Math.max(35, Math.min(65, displayProgress));
+  const rightRatio = 100 - leftRatio;
+
+  const leftColorClass = "text-teal drop-shadow-[0_0_15px_var(--color-teal)]";
+  const rightColorClass = "text-coral drop-shadow-[0_0_15px_var(--color-coral)]";
 
   return (
-    <div className="grid grid-cols-5 gap-3">
-        {/* Stat 1: SIG_DECODED */}
-        <div className="bg-black/60 border border-panel-border hover:border-blue/50 p-3 relative group hover:bg-blue/5 transition-all duration-300 flex items-center gap-4 overflow-hidden cursor-default">
-          <CyberBrackets color="border-blue/30 group-hover:border-blue transition-colors duration-300" />
-          <div className="absolute left-0 top-0 w-1 h-full bg-blue scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--color-blue)]" />
-          <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-blue/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
-          
-          <div className="w-10 h-10 bg-blue/5 border border-blue/20 group-hover:border-blue/50 group-hover:shadow-[0_0_15px_color-mix(in_srgb,var(--color-blue)_30%,transparent)] flex items-center justify-center text-blue shrink-0 relative transition-all duration-300">
-            <ShieldCheck className="w-5 h-5 relative z-10 opacity-60 group-hover:opacity-100 group-hover:scale-110 group-hover:animate-pulse transition-all duration-300" />
-          </div>
-          <div className="flex flex-col relative z-10">
-            <span className="block text-[9px] font-mono text-text-dim group-hover:text-blue/80 tracking-widest mb-1 uppercase transition-colors duration-300">DECODED</span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-xl font-heading font-bold text-white group-hover:drop-shadow-[0_0_8px_var(--color-blue)] group-hover:text-blue transition-all duration-300">{user ? sigDecoded : '---'}</span>
-              <span className="text-[10px] font-mono text-blue/60 group-hover:text-blue transition-colors duration-300">SIGNALS</span>
-            </div>
-          </div>
-        </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      
+      {/* Stat 1: PROGRESS (Tactical Wireframe Hover Split) */}
+      <div className="relative h-20 md:h-24 border border-white/20 bg-space-bg group overflow-hidden clip-chamfer-tr-bl cursor-default transition-colors duration-500">
 
-        {/* Stat 2: ACTIVE_DECODE */}
-        <div className="bg-black/60 border border-panel-border hover:border-green/50 p-3 relative group hover:bg-green/5 transition-all duration-300 flex items-center gap-4 overflow-hidden cursor-default">
-          <CyberBrackets color="border-green/30 group-hover:border-green transition-colors duration-300" />
-          <div className="absolute left-0 top-0 w-1 h-full bg-green scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--color-green)]" />
-          <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-green/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
-          
-          <div className="w-10 h-10 bg-green/5 border border-green/20 group-hover:border-green/50 group-hover:shadow-[0_0_15px_color-mix(in_srgb,var(--color-green)_30%,transparent)] flex items-center justify-center text-green shrink-0 relative transition-all duration-300">
-            <ClipboardClock className="w-5 h-5 relative z-10 opacity-60 group-hover:opacity-100 group-hover:scale-110 group-hover:animate-pulse transition-all duration-300" />
-          </div>
-          <div className="flex flex-col relative z-10">
-            <span className="block text-[9px] font-mono text-text-dim group-hover:text-green/80 tracking-widest mb-1 uppercase transition-colors duration-300">UNKNOWN</span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-xl font-heading font-bold text-white group-hover:drop-shadow-[0_0_8px_var(--color-green)] group-hover:text-green transition-all duration-300">{user ? undiscovered : '---'}</span>
-              <span className="text-[10px] font-mono text-green/60 group-hover:text-green transition-colors duration-300">WAITING</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Stat 3: ANOMALIES */}
-        <div className="bg-black/60 border border-panel-border hover:border-pink/50 p-3 relative group hover:bg-pink/5 transition-all duration-300 flex items-center gap-4 overflow-hidden cursor-default">
-          <CyberBrackets color="border-pink/30 group-hover:border-pink transition-colors duration-300" />
-          <div className="absolute left-0 top-0 w-1 h-full bg-pink scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--color-pink)]" />
-          <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-pink/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
-          
-          <div className="w-10 h-10 bg-pink/5 border border-pink/20 group-hover:border-pink/50 group-hover:shadow-[0_0_15px_color-mix(in_srgb,var(--color-pink)_30%,transparent)] flex items-center justify-center text-pink shrink-0 relative transition-all duration-300">
-            <Radar className="w-5 h-5 relative z-10 opacity-60 group-hover:opacity-100 group-hover:scale-110 group-hover:animate-pulse transition-all duration-300" />
-          </div>
-          <div className="flex flex-col relative z-10">
-            <span className="block text-[9px] font-mono text-text-dim group-hover:text-pink/80 tracking-widest mb-1 uppercase transition-colors duration-300">ANOMALIES</span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-xl font-heading font-bold text-white group-hover:drop-shadow-[0_0_8px_var(--color-pink)] group-hover:text-pink transition-all duration-300">{user ? anomalies : '---'}</span>
-              <span className="text-[10px] font-mono text-pink/60 group-hover:text-pink transition-colors duration-300">DETECTED</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Stat 4: TEXTBOOKS */}
-        <div className="bg-black/60 border border-panel-border hover:border-yellow/50 p-3 relative group hover:bg-yellow/5 transition-all duration-300 flex items-center gap-4 overflow-hidden cursor-default">
-          <CyberBrackets color="border-yellow/30 group-hover:border-yellow transition-colors duration-300" />
-          <div className="absolute left-0 top-0 w-1 h-full bg-yellow scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--color-yellow)]" />
-          <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-yellow/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
-          
-          <div className="w-10 h-10 bg-yellow/5 border border-yellow/20 group-hover:border-yellow/50 group-hover:shadow-[0_0_15px_color-mix(in_srgb,var(--color-yellow)_30%,transparent)] flex items-center justify-center text-yellow shrink-0 relative transition-all duration-300">
-            <BookText className="w-5 h-5 relative z-10 opacity-60 group-hover:opacity-100 group-hover:scale-110 group-hover:animate-pulse transition-all duration-300" />
-          </div>
-          <div className="flex flex-col relative z-10">
-            <span className="block text-[9px] font-mono text-text-dim group-hover:text-yellow/80 tracking-widest mb-1 uppercase transition-colors duration-300">CODEX</span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-xl font-heading font-bold text-white group-hover:drop-shadow-[0_0_8px_var(--color-yellow)] group-hover:text-yellow transition-all duration-300">{user ? textbooksLength : '---'}</span>
-              <span className="text-[10px] font-mono text-yellow/60 group-hover:text-yellow transition-colors duration-300">ACTIVE</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Stat 5: SYS_STATUS (Combined Streak & Progress) */}
-        <div className="bg-black/60 border border-panel-border hover:border-grey/50 p-3 relative group hover:bg-grey/5 transition-all duration-300 flex items-center gap-3 overflow-hidden cursor-default">
-          <CyberBrackets color="border-grey/20 group-hover:border-grey transition-colors duration-300" />
-          <div className="absolute left-0 top-0 w-1 h-full bg-grey scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--color-grey)]" />
-          <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-grey/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
-          
-          {/* Left Icon: Circular Progress (No Text) */}
-          <div className="w-10 h-10 relative flex items-center justify-center shrink-0">
-            <svg className="absolute inset-0 w-full h-full -rotate-90">
-              <circle cx="20" cy="20" r="16" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2" />
-              <circle cx="20" cy="20" r="16" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" 
-                strokeDasharray="100.5" strokeDashoffset={user ? (100.5 - (sysProgressPercent / 100) * 100.5) : 100.5}
-                strokeLinecap="round"
-                className="group-hover:stroke-grey group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all duration-1000 ease-out" 
+        {/* DEFAULT STATE (Solid White Shell) */}
+        <div className="absolute inset-0 transition-all duration-500 group-hover:-translate-y-full group-hover:opacity-0 z-20">
+          <CyberPanel
+            variant="solid-white"
+            chamfer="none"
+            stripes="right"
+            decorations="minimal"
+            padded={false}
+            stripeClassName="w-[30%] min-w-[100px]"
+            className="w-full h-full flex"
+          >
+            {/* Left Side: Label & Bar */}
+            <div className="flex flex-col justify-center w-[70%] max-w-[calc(100%-100px)] h-full pl-6 md:pl-8 pr-4 md:pr-6 relative z-10">
+              <CyberProgressBar 
+                progress={displayProgress} 
+                label="PROGRESS" 
+                showRuler={true} 
+                theme="light"
               />
-            </svg>
-            <Activity className="absolute w-4 h-4 text-grey/50 group-hover:text-grey group-hover:scale-110 group-hover:animate-pulse transition-all duration-300" />
-          </div>
-
-          {/* Right Content: Dual Rows */}
-          <div className="flex flex-col relative z-10 w-full pr-1">
-            {/* Row 1: STREAK */}
-            <div className="flex items-center justify-between w-full mb-1">
-              <span className="text-[9px] font-mono text-grey/50 group-hover:text-grey/80 transition-colors uppercase tracking-widest">STREAK</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-sm font-heading font-bold text-white group-hover:drop-shadow-[0_0_5px_var(--color-grey)] group-hover:text-grey transition-all">{user ? (userProgress?.current_streak || 0) : '---'}</span>
-                <span className="text-[8px] font-mono text-grey/60 group-hover:text-grey transition-colors">CYC</span>
+            </div>
+            
+            {/* Right Side: Massive Glow Number */}
+            <div className="relative z-10 flex items-center justify-end w-[30%] min-w-[100px] h-full pr-6 md:pr-8">
+              <span className="text-4xl md:text-5xl font-mono font-black text-space-bg transition-all duration-300 leading-none">
+                {displayProgress}
+              </span>
+              <span className="text-lg font-mono text-space-bg/60 ml-1 mb-4">%</span>
+              <div className="absolute -right-2 -top-2 w-12 h-12 text-space-bg opacity-10 transition-opacity [&>svg]:w-full [&>svg]:h-full">
+                <Activity />
               </div>
             </div>
-
-            {/* Divider */}
-            <div className="w-full h-[1px] bg-white/10 group-hover:bg-grey/30 mb-1 transition-colors"></div>
-
-            {/* Row 2: PROGRESS */}
-            <div className="flex items-center justify-between w-full">
-              <span className="text-[9px] font-mono text-grey/50 group-hover:text-grey/80 transition-colors uppercase tracking-widest">PROGRESS</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-sm font-heading font-bold text-white group-hover:drop-shadow-[0_0_5px_var(--color-grey)] group-hover:text-grey transition-all">{user ? sysProgressPercent : '--'}</span>
-                <span className="text-[8px] font-mono text-grey/60 group-hover:text-grey transition-colors">%</span>
-              </div>
-            </div>
-          </div>
+          </CyberPanel>
         </div>
+
+        {/* HOVER STATE: Split */}
+        <div className="absolute inset-0 flex translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out z-10">
+          
+          {/* LEFT HALF */}
+          <div 
+            className="h-full bg-space-bg flex flex-col justify-center px-4 md:px-6 relative overflow-hidden group/left transition-all duration-500 border-r border-white/10"
+            style={{ width: `${leftRatio}%` }}
+          >
+            {/* Colored Decor */}
+            <div className={`absolute top-2 left-2 w-2 h-2 border-t border-l border-current opacity-40 ${leftColorClass}`}></div>
+            
+            <div className="absolute inset-0 bg-gradient-to-t from-white/5 to-transparent opacity-0 group-hover/left:opacity-100 transition-opacity pointer-events-none"></div>
+            <span className={`text-xs font-mono tracking-[0.2em] uppercase mb-1 relative z-10 ${leftColorClass}`}>
+              DECODED
+            </span>
+            <div className="flex items-baseline gap-1 relative z-10">
+              <span className={`text-2xl md:text-3xl font-mono font-black leading-none ${leftColorClass}`}>
+                {user ? sigDecoded : '---'}
+              </span>
+            </div>
+            <div className={`absolute -right-4 -bottom-4 w-16 h-16 opacity-5 group-hover/left:opacity-20 transition-opacity [&>svg]:w-full [&>svg]:h-full ${leftColorClass}`}>
+              <ClipboardCheck />
+            </div>
+          </div>
+
+          {/* RIGHT HALF */}
+          <div 
+            className="h-full bg-space-bg flex flex-col justify-center px-4 md:px-6 relative overflow-hidden group/right transition-all duration-500 text-right items-end"
+            style={{ width: `${rightRatio}%` }}
+          >
+            {/* Colored Decor */}
+            <div className={`absolute bottom-2 right-2 w-2 h-2 border-b border-r border-current opacity-40 ${rightColorClass}`}></div>
+            
+            <div className="absolute inset-0 bg-gradient-to-t from-white/5 to-transparent opacity-0 group-hover/right:opacity-100 transition-opacity pointer-events-none"></div>
+            <span className={`text-xs font-mono tracking-[0.2em] uppercase mb-1 relative z-10 ${rightColorClass}`}>
+              UNKNOWN
+            </span>
+            <div className="flex items-baseline gap-1 relative z-10">
+              <span className={`text-2xl md:text-3xl font-mono font-black leading-none ${rightColorClass}`}>
+                {user ? undiscovered : '---'}
+              </span>
+            </div>
+            <div className={`absolute -left-4 -bottom-4 w-16 h-16 opacity-5 group-hover/right:opacity-20 transition-opacity [&>svg]:w-full [&>svg]:h-full ${rightColorClass}`}>
+              <ClipboardX />
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+      {/* Stat 2: CURRENT_STREAK (Mechanical Inverted Reveal) */}
+      <CyberFlipCard
+        frontTitle="CURRENT STREAK"
+        frontValue={user ? (userProgress?.current_streak || 0) : '---'}
+        frontUnit="DAYS"
+        backTitle="PEAK STREAK"
+        backValue={user ? (userProgress?.longest_streak || userProgress?.current_streak || 0) : '---'}
+        backUnit="DAYS"
+      />
+
     </div>
   );
 }

@@ -6,25 +6,34 @@ export const RENDERER_THEME = {
   colors: {
     coral: '#AE4949',
     teal: '#49AEAE',
-    tealTranslucent: 'rgba(73, 174, 174, 0.3)',
     textBg: 'rgba(0, 0, 0, 0.7)',
   },
   
   // Hex/String format for Canvas draw operations
   segmentationColors: [
-    '#49AEAE', // Teal
-    '#AE4949', // Coral
-    '#49F19D', // Turquoise
-    '#F19D49', // Orange
-    '#9D49F1'  // Purple
+    '#f14949', // red
+    '#49f149', // green
+    '#4949f1', // blue
+    '#f1f149', // yellow
+    '#f149f1', // pink
+    '#49f1f1', // cyan
+    '#f19d49', // orange
+    '#49f19d', // turquoise
+    '#9d49f1', // purple
+    '#808080'  // grey
   ],
 
   // RGB Array format for direct ImageData pixel manipulation
   segmentationColorsRGB: [
-    [73, 174, 174],  // Class 1 (Teal)
-    [255, 80, 80],   // Class 2 (Coral)
-    [0, 255, 153],   // Class 3 (Turquoise)
-    [255, 153, 0],   // Class 4 (Orange)
-    [153, 0, 255]    // Class 5 (Purple)
+    [241, 73, 73],   // red
+    [73, 241, 73],   // green
+    [73, 73, 241],   // blue
+    [241, 241, 73],  // yellow
+    [241, 73, 241],  // pink
+    [73, 241, 241],  // cyan
+    [241, 157, 73],  // orange
+    [73, 241, 157],  // turquoise
+    [157, 73, 241],  // purple
+    [128, 128, 128]  // grey
   ]
 };

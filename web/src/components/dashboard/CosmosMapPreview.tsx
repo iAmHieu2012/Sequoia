@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { usePanZoom } from "@/hooks/cosmos/usePanZoom";
 import { useCosmosData } from "@/hooks/cosmos/useCosmosData";
 import CyberBrackets from "@/components/ui/CyberBrackets";
+import CyberBadge from "@/components/ui/CyberBadge";
 import styles from './CosmosMapPreview.module.css';
 
 const CANVAS_SIZE = 20000;
@@ -93,21 +94,18 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
   }, [targetX, targetY, targetScale, flyTo, activeNodeId, mapData]);
 
   return (
-    <div className={`relative bg-black/60 border border-panel-border overflow-hidden ${className}`}>
-      <CyberBrackets color="border-cyan/30" />
-      <div className="absolute top-3 left-3 z-20 pointer-events-none">
-        <span className="bg-black/90 text-cyan border border-cyan/30 px-2 py-0.5 text-[8px] font-mono tracking-widest uppercase">
-          MAP_PREVIEW
-        </span>
+    <div className={`relative bg-black/60 border border-white/20 overflow-hidden ${className}`}>
+      <CyberBrackets color="border-white/40" />
+      <div className="absolute top-4 left-4 z-20 pointer-events-none">
+        <CyberBadge variant="outline" className="opacity-40">COSMOS MAP</CyberBadge>
       </div>
-      
       <div className="absolute inset-0">
         <div
           ref={viewportRef}
           className="w-full h-full relative cursor-grab active:cursor-grabbing overflow-hidden select-none"
           {...handlers}
       style={{ 
-        backgroundImage: 'linear-gradient(color-mix(in srgb, var(--color-system) 5%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--color-system) 5%, transparent) 1px, transparent 1px)',
+        backgroundImage: 'linear-gradient(color-mix(in srgb, #ffffff 5%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, #ffffff 5%, transparent) 1px, transparent 1px)',
       } as React.CSSProperties}
     >
       <div
@@ -149,39 +147,40 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
                 >
                   {isAnomaly ? (
                     <>
-                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-coral/10 rounded-full animate-ping" />
-                      <div className={`${styles.star} bg-coral shadow-[0_0_20px_var(--color-coral)]`} />
-                      <div className={`${styles.objectLabel} text-coral text-xl font-bold animate-pulse`}>{node.title.replace(/ /g, '_').toUpperCase()}</div>
+                      <div className="absolute top-1/2 left-1/2 -mt-16 -ml-16 w-32 h-32 rotate-45">
+                        <div className="w-full h-full border border-coral/30 bg-coral/5 animate-ping" />
+                      </div>
+                      <div className={`${styles.star} text-coral`}>
+                        <div className={styles.glowWrapper}>
+                          <div className={styles.maskRotator}>
+                            <div className={styles.outerDiamond}></div>
+                          </div>
+                        </div>
+                        <div className={styles.coreDiamond}></div>
+                      </div>
+                      <div className={`${styles.objectLabel} font-mono text-xl text-coral font-bold animate-pulse`}>{node.title.replace(/ /g, '_').toUpperCase()}</div>
                     </>
                   ) : (
                     <>
                         {isCompleted && (
                           <>
-                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border border-cyan/20 rounded-full animate-[spin_10s_linear_infinite]" />
-                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 border border-cyan/10 rounded-full animate-[spin_15s_linear_infinite_reverse]" />
+                          <div className="absolute top-1/2 left-1/2 -mt-24 -ml-24 w-48 h-48 border border-teal-400/20 animate-[spin_10s_linear_infinite]" />
+                          <div className="absolute top-1/2 left-1/2 -mt-32 -ml-32 w-64 h-64 border border-teal-400/10 animate-[spin_15s_linear_infinite_reverse]" />
                           </>
                         )}
-                      <div className={styles.star} />
-                      <div className={`${styles.objectLabel} ${isCompleted ? 'text-cyan drop-shadow-[0_0_10px_var(--color-cyan)]' : ''}`}>{node.title}</div>
+                      <div className={styles.star}>
+                        <div className={styles.glowWrapper}>
+                          <div className={styles.maskRotator}>
+                            <div className={styles.outerDiamond}></div>
+                          </div>
+                        </div>
+                        <div className={styles.coreDiamond}></div>
+                      </div>
+                      <div className={`${styles.objectLabel} font-mono text-xl ${isCompleted ? 'text-teal-400 drop-shadow-[0_0_10px_rgba(45,212,191,0.6)]' : ''}`}>{node.title}</div>
                     </>
                   )}
 
-                  <div className={`${styles.observationLog} scale-150 transform-origin-top-left`}>
-                    <div className={styles.logHeader}>
-                      <span>{node.celestial_type} {'//'}</span>
-                      <span className="opacity-40">ID: {node.article_id.length > 10 ? node.article_id.substring(0, 10) + '...' : node.article_id}</span>
-                    </div>
-                    <div className={styles.logTitle}>{node.title}</div>
-                    <div className={styles.signalStatus}>
-                      <div className={styles.statusIndicator}>
-                        <div className={styles.statusDot} />
-                        <span className={styles.statusText}>
-                          {isAnomaly ? 'ANALYZING' : (isCompleted ? 'DECODED' : 'DETECTED')}
-                        </span>
-                      </div>
-                      <span className="text-[0.65rem] text-text-dim">{isCompleted ? 'SYS_SYNCED' : 'SYS_READY'}</span>
-                    </div>
-                  </div>
+
                 </div>
               );
             })
@@ -190,36 +189,34 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
         </div>
       </div>
 
-      {/* Zoom HUD */}
-      <div className="absolute bottom-6 right-6 font-mono text-[10px] flex flex-col items-end gap-2 pointer-events-none z-1000">
-        <div className="relative bg-black/80 border border-cyan/30 px-4 py-2 flex flex-col items-end backdrop-blur-sm">
-          <CyberBrackets color="border-cyan/30" />
-          <div className="flex items-center gap-3 text-cyan mb-1">
-            <span className="tracking-widest opacity-60">SYS_ZOOM</span>
-            <span ref={hudScaleRef} className="font-bold text-sm">0.20x</span>
+      {/* HUD Telemetry & Actions */}
+      <div className="absolute bottom-6 right-6 flex items-center gap-4 pointer-events-none z-1000 bg-black/40 backdrop-blur-md border border-white/10 p-3 pr-4">
+        
+        {/* Telemetry Ruler */}
+        <div className="flex items-center gap-4 text-white font-mono border-r-2 border-white pr-4">
+          <div className="flex flex-col items-end">
+            <span className="text-xs tracking-widest uppercase">Target_Lock</span>
+            <span ref={hudTargetRef} className="font-bold text-xs">0, 0</span>
           </div>
-          <div className="w-full h-px bg-cyan/20 mb-2" />
-          <div className="flex items-center gap-2">
-            <div className="text-[8px] text-text-dim tracking-widest uppercase">Target_Lock</div>
-            <div ref={hudTargetRef} className="text-white font-bold">0, 0</div>
+          <div className="w-px h-6 bg-white/40" />
+          <div className="flex flex-col items-end">
+            <span className="text-xs tracking-widest uppercase">SYS_ZOOM</span>
+            <span ref={hudScaleRef} className="font-bold text-sm">0.20x</span>
           </div>
         </div>
 
+        {/* Action Button */}
         <button
-          className="pointer-events-auto bg-black/80 border border-panel-border hover:border-cyan/50 px-4 py-2 hover:bg-cyan/5 transition-all duration-300 cursor-pointer uppercase tracking-widest relative group overflow-hidden"
+          className="pointer-events-auto border border-white p-2 flex items-center justify-center cursor-pointer group hover:bg-white hover:text-black transition-none text-white"
           onClick={(e) => {
             e.stopPropagation();
             flyTo(0, 0, 0.2);
           }}
+          title="Recenter Map"
         >
-          <CyberBrackets color="border-cyan/30 group-hover:border-cyan transition-colors duration-300" />
-          <div className="absolute left-0 top-0 w-1 h-full bg-cyan scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--color-cyan)]" />
-          <div className="absolute inset-0 translate-x-[-150%] group-hover:translate-x-[150%] bg-linear-to-r from-transparent via-cyan/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
-          
-          <span className="relative z-10 flex items-center gap-2 font-bold text-cyan group-hover:drop-shadow-[0_0_8px_var(--color-cyan)] group-hover:text-cyan transition-all duration-300">
-            <div className="w-1.5 h-1.5 bg-cyan shadow-[0_0_8px_var(--color-cyan)] animate-pulse transition-colors duration-300" />
-            RECENTER_MAP
-          </span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+            <path d="M3 3h6v2H5v4H3V3zm18 0h-6v2h4v4h2V3zM3 21h6v-2H5v-4H3v6zm18 0h-6v-2h4v-4h2v6zM9 9h6v6H9V9z" />
+          </svg>
         </button>
       </div>
     </div>

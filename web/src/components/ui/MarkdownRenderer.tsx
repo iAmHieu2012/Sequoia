@@ -61,20 +61,20 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   return (
     <div className="w-full normal-case tracking-normal">
       {toc.length > 0 && (
-        <div className={`mb-10 border border-system/20 bg-black/40 transition-all duration-300 ${isTocExpanded ? 'w-full' : 'w-fit float-right ml-6 mb-6'}`}>
-          <div className="flex items-center justify-between p-3 border-b border-system/20 bg-system/5">
-            <h6 className="text-system font-heading font-bold text-xs tracking-widest uppercase m-0 pr-6">INDEX_TOC</h6>
-            <button onClick={() => setIsTocExpanded(!isTocExpanded)} className="text-text-dim hover:text-system transition-colors">
+        <div className={`mb-10 border border-white/10 bg-black/70 transition-all duration-300 ${isTocExpanded ? 'w-full' : 'w-fit float-right ml-6 mb-6'}`}>
+          <div className="flex items-center justify-between p-3 border-b border-white/10 bg-white/10">
+            <h6 className="text-white/40 font-mono font-bold text-xs tracking-widest uppercase m-0 pr-6">INDEX_TOC</h6>
+            <button onClick={() => setIsTocExpanded(!isTocExpanded)} className="text-text-dim hover:text-white transition-colors">
               {isTocExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </button>
           </div>
           {isTocExpanded && (
-            <div className="p-4 bg-black/60">
+            <div className="p-4 bg-black/100">
               <ul className="space-y-2 m-0 list-none pl-0">
                 {toc.map((h, i) => (
                   <li key={i} className={`${h.level === 3 ? 'pl-4' : ''}`}>
-                    <a href={`#${h.id}`} className="text-sm font-mono text-text-dim hover:text-system flex items-start gap-2 transition-colors">
-                      <span className="text-system/50 mt-1 text-[8px]">■</span>
+                    <a href={`#${h.id}`} className="text-sm font-mono text-text-dim hover:text-white flex items-start gap-2 transition-colors">
+                      <span className="text-white/40 mt-1 text-xs">■</span>
                       <span>{h.text}</span>
                     </a>
                   </li>
@@ -90,13 +90,35 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[[rehypeKatex, { strict: false }]]}
         components={{
-          h1: ({ children, ...props }) => <h1 id={getHeadingId(children)} className="text-3xl md:text-4xl font-heading font-black uppercase text-white mt-10 mb-6 drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] scroll-mt-24" {...props}>{children}</h1>,
-          h2: ({ children, ...props }) => <h2 id={getHeadingId(children)} className="text-2xl md:text-3xl font-heading font-bold uppercase text-system mt-10 mb-4 border-b border-panel-border pb-2 shadow-[0_1px_0_color-mix(in_srgb,var(--color-system)_30%,transparent)] scroll-mt-24" {...props}>{children}</h2>,
-          h3: ({ children, ...props }) => <h3 id={getHeadingId(children)} className="text-xl md:text-2xl font-heading font-bold uppercase text-white mt-8 mb-4 flex items-center gap-2 scroll-mt-24" {...props}><span className="text-system opacity-50">&gt;</span> <span>{children}</span></h3>,
-          h4: ({ children, ...props }) => <h4 id={getHeadingId(children)} className="text-lg md:text-xl font-heading font-bold uppercase text-white mt-6 mb-3 scroll-mt-24" {...props}>{children}</h4>,
-          h5: ({ children, ...props }) => <h5 id={getHeadingId(children)} className="text-base md:text-lg font-heading font-bold uppercase text-white/80 mt-4 mb-2 scroll-mt-24" {...props}>{children}</h5>,
-          h6: ({ children, ...props }) => <h6 id={getHeadingId(children)} className="text-sm md:text-base font-heading font-bold uppercase text-system mt-4 mb-2 scroll-mt-24" {...props}>{children}</h6>,
-          hr: ({ ...props }) => <hr className="my-10 border-t border-system/30 shadow-[0_1px_0_color-mix(in_srgb,var(--color-system)_10%,transparent)]" {...props} />,
+          h1: ({ children, ...props }) => (
+            <h1 id={getHeadingId(children)} className="group text-4xl md:text-5xl font-sans font-black text-white mt-10 mb-8 tracking-tighter flex flex-col gap-2 relative scroll-mt-24" {...props}>
+              <span className="font-mono text-[10px] text-white/40 tracking-[0.2em] uppercase font-normal">
+              {" // PRIMARY_INDEX "}
+              </span>
+              <span>{children}</span>
+            </h1>
+          ),
+          h2: ({ children, ...props }) => (
+            <h2 id={getHeadingId(children)} className="group text-2xl md:text-3xl font-sans font-bold text-white mt-12 mb-6 flex items-center gap-4 tracking-tight scroll-mt-24" {...props}>
+              <span className="font-mono text-white/40 text-xl font-normal">::</span>
+              <span>{children}</span>
+              <div className="flex-1 h-[1px] bg-gradient-to-r from-white/20 to-transparent"></div>
+            </h2>
+          ),
+          h3: ({ children, ...props }) => (
+            <h3 id={getHeadingId(children)} className="group text-xl md:text-2xl font-sans font-bold text-white mt-8 mb-4 flex items-center gap-3 tracking-tight border-l-2 border-white/40 pl-4 bg-gradient-to-r from-white/5 to-transparent py-1 scroll-mt-24" {...props}>
+              <span>{children}</span>
+            </h3>
+          ),
+          h4: ({ children, ...props }) => (
+            <h4 id={getHeadingId(children)} className="text-sm md:text-base font-mono font-bold text-white/70 mt-8 mb-3 uppercase tracking-widest flex items-center gap-2 scroll-mt-24" {...props}>
+              <span className="w-1.5 h-1.5 bg-white/40 inline-block shrink-0"></span>
+              <span>{children}</span>
+            </h4>
+          ),
+          h5: ({ children, ...props }) => <h5 id={getHeadingId(children)} className="text-base md:text-lg font-sans font-bold text-white/70 mt-4 mb-2 scroll-mt-24 tracking-tight" {...props}>{children}</h5>,
+          h6: ({ children, ...props }) => <h6 id={getHeadingId(children)} className="text-sm md:text-base font-sans font-bold text-white/70 mt-4 mb-2 scroll-mt-24 tracking-tight" {...props}>{children}</h6>,
+          hr: ({ ...props }) => <hr className="my-10 border-t border-white/10 shadow-[0_1px_0_rgba(255,255,255,0.05)]" {...props} />,
           p: ({ node, children, ...rest }) => {
             // React-markdown wraps block-level elements (images, math blocks, etc.) in <p> tags.
             // Rendering block elements like <div> or <figure> inside <p> is invalid HTML and causes hydration errors.
@@ -112,15 +134,15 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
             }
             return <p className="text-base font-sans text-text-main leading-relaxed mb-6" {...rest}>{children}</p>;
           },
-          ul: ({ ...props }) => <ul className="list-disc list-outside space-y-2 mb-6 text-text-main pl-6 marker:text-system" {...props} />,
-          ol: ({ ...props }) => <ol className="list-decimal list-outside space-y-2 mb-6 text-text-main pl-6 marker:text-system marker:font-mono" {...props} />,
+          ul: ({ ...props }) => <ul className="list-disc list-outside space-y-2 mb-6 text-text-main pl-6 marker:text-white/40" {...props} />,
+          ol: ({ ...props }) => <ol className="list-decimal list-outside space-y-2 mb-6 text-text-main pl-6 marker:text-white/40 marker:font-mono" {...props} />,
           li: ({ ...props }) => <li className="text-base text-text-main" {...props} />,
-          a: ({ ...props }) => <a className="text-system border-b border-system/30 hover:border-system hover:bg-system/10 transition-colors" {...props} />,
-          table: ({ ...props }) => <div className="w-full overflow-x-auto my-6 border border-system/20"><table className="w-full text-left border-collapse text-base" {...props} /></div>,
-          thead: ({ ...props }) => <thead className="bg-system/10 text-system tracking-wide font-bold" {...props} />,
-          tbody: ({ ...props }) => <tbody className="text-text-main divide-y divide-system/10" {...props} />,
-          tr: ({ ...props }) => <tr className="hover:bg-system/5 transition-colors" {...props} />,
-          th: ({ ...props }) => <th className="p-3 border-b border-system/20 font-bold" {...props} />,
+          a: ({ ...props }) => <a className="text-white font-bold border-b border-white/40 hover:border-white hover:bg-white/10 transition-colors" {...props} />,
+          table: ({ ...props }) => <div className="w-full overflow-x-auto my-6 border border-white/10"><table className="w-full text-left border-collapse text-base" {...props} /></div>,
+          thead: ({ ...props }) => <thead className="bg-white/10 text-white tracking-wide font-bold" {...props} />,
+          tbody: ({ ...props }) => <tbody className="text-text-main divide-y divide-white/10" {...props} />,
+          tr: ({ ...props }) => <tr className="hover:bg-white/10 transition-colors" {...props} />,
+          th: ({ ...props }) => <th className="p-3 border-b border-white/10 font-bold" {...props} />,
           td: ({ ...props }) => <td className="p-3" {...props} />,
           blockquote: ({ className, children, ...props }) => {
             const childrenArray = React.Children.toArray(children);
@@ -168,13 +190,13 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
                   }
                   
                   return (
-                    <div className="my-8 border border-system/30 bg-black/40 relative shadow-[0_0_15px_rgba(0,0,0,0.3)]">
-                      <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-system"></div>
-                      <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-system"></div>
+                    <div className="my-8 border border-white/40 bg-black/70 relative shadow-[0_0_15px_rgba(0,0,0,0.3)]">
+                      <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-white/70"></div>
+                      <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-white/70"></div>
                       
-                      <div className="bg-system/10 px-4 py-2 border-b border-system/30 flex items-center gap-3">
-                        <div className="w-2 h-2 bg-system animate-pulse shadow-[0_0_8px_var(--color-system)]"></div>
-                        <span className="font-heading font-bold uppercase tracking-widest text-system text-sm drop-shadow-[0_0_5px_var(--color-system)]">
+                      <div className="bg-white/10 px-4 py-2 border-b border-white/40 flex items-center gap-3">
+                        <div className="w-2 h-2 bg-white animate-pulse shadow-[0_0_8px_rgba(255,255,255,0.8)]"></div>
+                        <span className="font-mono font-bold uppercase tracking-widest text-white text-sm drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]">
                           {title || type}
                         </span>
                       </div>
@@ -191,26 +213,26 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
             }
 
             return (
-              <blockquote {...props} className={`border-l-2 border-system pl-5 text-text-dim my-6 bg-system/5 py-3 pr-4 text-base relative ${className || ''}`}>
-                <span className="absolute top-0 left-0 w-2 h-2 border-t border-l border-system"></span>
-                <span className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-system"></span>
+              <blockquote {...props} className={`border-l-2 border-white/40 pl-5 text-text-dim my-6 bg-white/10 py-3 pr-4 text-base relative ${className || ''}`}>
+                <span className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white/40"></span>
+                <span className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white/40"></span>
                 {children}
               </blockquote>
             );
           },
           strong: ({ ...props }) => <strong className="font-bold text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]" {...props} />,
           em: ({ ...props }) => <em className="italic text-text-main font-mono text-sm" {...props} />,
-          del: ({ ...props }) => <del className="line-through text-text-dim decoration-system/50" {...props} />,
+          del: ({ ...props }) => <del className="line-through text-text-dim decoration-white/40" {...props} />,
           input: ({ type, ...props }) => {
             if (type === 'checkbox') {
-              return <input type="checkbox" className="mr-2 accent-system" {...props} />;
+              return <input type="checkbox" className="mr-2 accent-white" {...props} />;
             }
             return <input type={type} {...props} />;
           },
           img: ({ alt, src }) => {
             return (
               <figure className="my-10 flex flex-col items-center relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-system/20 via-transparent to-system/20 opacity-0 group-hover:opacity-100 transition-opacity blur-md z-0" />
+                <div className="absolute -inset-1 bg-gradient-to-r from-white/10 via-transparent to-white/10 opacity-0 group-hover:opacity-100 transition-opacity blur-md z-0" />
                 <div className="relative z-10 border border-panel-border bg-black/60 p-1 w-full">
                   <Image 
                     src={(src as string) || ''} 
@@ -224,7 +246,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
                   />
                 </div>
                 {alt && (
-                  <figcaption className="mt-4 text-xs font-mono text-system tracking-widest text-center uppercase bg-system/10 border border-system/20 px-3 py-1">
+                  <figcaption className="mt-4 text-xs font-mono text-white/40 tracking-widest text-center uppercase bg-white/10 border border-white/10 px-3 py-1">
                     [ IMG_CAPTION: {alt} ]
                   </figcaption>
                 )}
@@ -263,8 +285,8 @@ function CodeBlock({ className, children, ...props }: CodeBlockProps) {
   };
 
   return match ? (
-    <div className="relative group my-6 border border-panel-border bg-black/80 font-mono shadow-[0_0_15px_rgba(0,0,0,0.5)]">
-      <div className="absolute top-0 w-full px-4 py-2 bg-system/10 border-b border-system/30 flex items-center justify-between text-[10px] uppercase tracking-widest text-system z-10">
+    <div className="relative group my-6 border border-white/10 bg-black/70 font-mono shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+      <div className="absolute top-0 w-full px-4 py-2 bg-white/10 border-b border-white/10 flex items-center justify-between text-xs uppercase tracking-widest text-white/70 z-10">
         <span>[ {match[1]} ]</span>
         <button onClick={handleCopy} className="hover:text-white transition-colors flex items-center gap-2">
           {copied ? "COPIED_TO_CLIPBOARD" : "COPY_CODE"}
@@ -277,7 +299,7 @@ function CodeBlock({ className, children, ...props }: CodeBlockProps) {
       </div>
     </div>
   ) : (
-    <code className="bg-system/10 text-system border border-system/20 px-1.5 py-0.5 font-mono text-sm uppercase tracking-wider" {...props}>
+    <code className="bg-white/10 text-white border border-white/10 px-1.5 py-0.5 font-mono text-sm uppercase tracking-wider" {...props}>
       {children}
     </code>
   );
@@ -296,7 +318,7 @@ function MermaidBlock({ chart }: { chart: string }) {
         if (isMounted) setSvgContent(svg);
       } catch (error) {
         console.error(error);
-        if (isMounted) setSvgContent(`<div class="text-red-400 border border-red-400/20 p-4 rounded bg-red-400/10">Error: ${error}</div>`);
+        if (isMounted) setSvgContent(`<div class="text-coral-400 border border-coral-400/20 p-4 rounded bg-coral-400/10">Error: ${error}</div>`);
       }
     };
     

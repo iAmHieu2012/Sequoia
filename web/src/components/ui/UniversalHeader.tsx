@@ -1,11 +1,9 @@
-import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
-import CyberBrackets from "@/components/ui/CyberBrackets";
+import CyberButton from "@/components/ui/CyberButton";
 
 interface UniversalHeaderProps {
   backHref?: string;
   onBack?: () => void;
-  backLabel: string;
   subtitle: string;
   title: React.ReactNode;
   titleIcon?: React.ReactNode;
@@ -17,7 +15,6 @@ interface UniversalHeaderProps {
 export default function UniversalHeader({
   backHref,
   onBack,
-  backLabel,
   subtitle,
   title,
   titleIcon,
@@ -25,59 +22,51 @@ export default function UniversalHeader({
   statusActive = true,
   extraRight
 }: UniversalHeaderProps) {
-  const buttonClasses = "inline-flex items-center text-[10px] font-mono tracking-widest uppercase bg-system/5 text-system px-3 lg:px-4 py-2 hover:bg-system/20 hover:text-white transition-all duration-300 relative group overflow-hidden cursor-pointer";
-
-  const buttonContent = (
-    <>
-      <CyberBrackets color="border-system/30 group-hover:border-system transition-colors duration-300" />
-      <div className="absolute left-0 top-0 w-1 h-full bg-system scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--color-system)]" />
-      <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-system/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
-      <span className="relative z-10 flex items-center gap-1 group-hover:drop-shadow-[0_0_8px_var(--color-system)]">
-        <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
-        <span className="hidden lg:inline">[ ESC ] {backLabel}</span>
-        <span className="lg:hidden">ESC</span>
-      </span>
-    </>
-  );
-
   return (
-    <header className="flex-shrink-0 relative z-50 flex items-center justify-between px-4 lg:px-6 py-3 lg:py-4 border-b border-panel-border bg-black/80 backdrop-blur-md">
-      <div className="flex items-center gap-2 lg:gap-6">
-        {backHref ? (
-          <Link href={backHref} className={buttonClasses}>
-            {buttonContent}
-          </Link>
-        ) : (
-          <button onClick={onBack} className={buttonClasses}>
-            {buttonContent}
-          </button>
-        )}
-
-        <div className="flex flex-col min-w-0">
-          <span className="text-[9px] font-mono text-text-dim tracking-widest uppercase hidden lg:block">
-            {subtitle}
-          </span>
-          <span className="text-sm font-heading font-bold text-white tracking-widest uppercase flex items-center gap-2">
-            {titleIcon}
-            {title}
-          </span>
-        </div>
+    <header className="flex-shrink-0 sticky top-0 z-50 flex items-center justify-between px-4 lg:px-6 py-3 border-b border-white/10 bg-black/70 backdrop-blur-md gap-4">
+      {/* LEFT: ESC */}
+      <div className="flex items-center w-1/3">
+        <CyberButton 
+          href={backHref}
+          onClick={onBack}
+          variant="secondary"
+          className="!w-auto !h-9 lg:!h-10 px-3 lg:px-4"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          <span className="hidden lg:inline ml-1">ESC</span>
+        </CyberButton>
       </div>
 
-      <div className="hidden lg:flex items-center gap-4 shrink-0">
-        {extraRight}
-
-        {extraRight && statusLabel && <div className="w-[1px] h-8 bg-panel-border" />}
-
+      {/* CENTER: Status & Extra */}
+      <div className="hidden md:flex items-center justify-center w-1/3 shrink-0 gap-6">
         {statusLabel && (
-          <div className="flex flex-col items-end">
-            <span className="text-[9px] font-mono text-text-dim tracking-widest uppercase">SYS_STATUS</span>
-            <span className="text-xs font-mono text-system tracking-widest uppercase flex items-center gap-2">
+          <div className="flex flex-col items-center">
+            <span className="text-[10px] font-mono text-white/40 tracking-widest uppercase mb-0.5">SYS_STATUS</span>
+            <span className="text-xs font-mono text-white tracking-widest uppercase flex items-center gap-2">
+              <span className={`w-2 h-2 ${!statusActive ? 'bg-coral animate-pulse' : 'bg-white shadow-[0_0_8px_#ffffff]'}`} />
               {statusLabel}
-              <span className={`w-2 h-2 ${!statusActive ? 'bg-coral animate-pulse' : 'bg-system shadow-[0_0_8px_var(--color-system)]'}`} />
             </span>
           </div>
         )}
+        {extraRight && (
+          <>
+            <div className="w-[1px] h-8 bg-white/10" />
+            <div className="flex flex-col items-center">
+              {extraRight}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* RIGHT: Title */}
+      <div className="flex flex-col min-w-0 items-end text-right w-1/3">
+        <span className="text-[10px] font-mono text-white/40 tracking-widest uppercase hidden lg:block mb-0.5 truncate max-w-full">
+          {subtitle || "TARGET_IDENTIFIER"}
+        </span>
+        <span className="text-sm font-mono font-bold text-white tracking-widest uppercase flex items-center justify-end gap-2 w-full truncate">
+          <span className="truncate">{title}</span>
+          {titleIcon && <span className="shrink-0">{titleIcon}</span>}
+        </span>
       </div>
     </header>
   );

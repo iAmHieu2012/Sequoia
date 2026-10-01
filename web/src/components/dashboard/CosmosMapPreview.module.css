@@ -56,58 +56,102 @@
     z-index: 10;
 }
 
+.celestialObject:hover {
+    z-index: 1000;
+}
+
 .star {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 50%;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: rotate(45deg);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .celestialObject:hover .star {
-    transform: scale(1.2);
+    transform: rotate(45deg) scale(1.5);
 }
 
 .decoded .star {
-    background: var(--color-teal);
-    box-shadow: 0 0 35px color-mix(in srgb, #49aeae 80%, transparent), 0 0 70px color-mix(in srgb, #49aeae 40%, transparent), 0 0 0 3px #49aeae;
+    color: var(--color-teal);
 }
 
 .unknown .star {
-    background: #ffffff;
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.4), 0 0 0 3px rgba(255, 255, 255, 0.2);
+    color: #ffffff;
 }
 
 .anomaly .star {
-    background: var(--color-coral);
-    box-shadow: 0 0 25px var(--color-coral), 0 0 0 8px rgba(255, 80, 80, 0.2);
+    color: var(--color-coral);
     animation: pulse-anomaly 2s infinite;
 }
 
+.glowWrapper {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    filter: drop-shadow(0 0 6px currentColor);
+}
+
+.maskRotator {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    -webkit-mask-image: 
+        linear-gradient(0deg, black 40%, transparent 40%, transparent 60%, black 60%),
+        linear-gradient(90deg, black 40%, transparent 40%, transparent 60%, black 60%);
+    -webkit-mask-composite: source-in;
+    mask-image: 
+        linear-gradient(0deg, black 40%, transparent 40%, transparent 60%, black 60%),
+        linear-gradient(90deg, black 40%, transparent 40%, transparent 60%, black 60%);
+    mask-composite: intersect;
+    animation: d21Spin 4s linear infinite;
+}
+
+.outerDiamond {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    box-sizing: border-box;
+    border: 4px solid currentColor;
+    animation: d21SpinRev 4s linear infinite;
+}
+
+.coreDiamond {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 8px; height: 8px;
+    transform: translate(-50%, -50%);
+    background: currentColor;
+    filter: drop-shadow(0 0 4px currentColor);
+    z-index: 3;
+}
+
+@keyframes d21Spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+@keyframes d21SpinRev {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(-360deg); }
+}
+
 @keyframes pulse {
-
-    0%,
-    100% {
-        box-shadow: 0 0 25px var(--color-teal), 0 0 0 8px rgba(73, 174, 174, 0.15);
+    0%, 100% {
+        filter: drop-shadow(0 0 6px var(--color-teal));
     }
-
     50% {
-        box-shadow: 0 0 45px var(--color-teal), 0 0 0 15px rgba(73, 174, 174, 0.3);
+        filter: drop-shadow(0 0 15px var(--color-teal)) brightness(1.2);
     }
 }
 
 @keyframes pulse-anomaly {
-
-    0%,
-    100% {
-        box-shadow: 0 0 25px var(--color-coral), 0 0 0 8px rgba(255, 80, 80, 0.15);
+    0%, 100% {
+        filter: drop-shadow(0 0 6px var(--color-coral));
     }
-
     50% {
-        box-shadow: 0 0 45px var(--color-coral), 0 0 0 15px rgba(255, 80, 80, 0.3);
+        filter: drop-shadow(0 0 15px var(--color-coral)) brightness(1.2);
     }
 }
 
@@ -116,8 +160,6 @@
     top: 35px;
     left: 50%;
     transform: translateX(-50%);
-    font-family: var(--font-space-grotesk);
-    font-size: 1.3rem;
     color: var(--color-text-dim);
     text-transform: uppercase;
     letter-spacing: 3px;
@@ -140,145 +182,9 @@
     font-weight: 500;
 }
 
-/* Observation Log (Hover Panel) */
-.observationLog {
-    position: absolute;
-    top: 50px;
-    left: 50%;
-    transform: translateX(-50%) translateY(15px);
-    width: 320px;
-    background: rgba(8, 8, 8, 0.85);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-    padding: 20px;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
-    pointer-events: none;
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-    z-index: 20;
-    text-align: left;
-}
 
-.observationLog::before,
-.observationLog::after {
-    content: "";
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    border: 1px solid transparent;
-}
-
-.observationLog::before {
-    top: 0;
-    left: 0;
-    border-top-color: rgba(255, 255, 255, 0.4);
-    border-left-color: rgba(255, 255, 255, 0.4);
-}
-
-.observationLog::after {
-    bottom: 0;
-    right: 0;
-    border-bottom-color: rgba(255, 255, 255, 0.4);
-    border-right-color: rgba(255, 255, 255, 0.4);
-}
-
-.celestialObject:hover .observationLog {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(-50%) translateY(0);
-}
-
-.logHeader {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    color: var(--color-text-dim);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    font-weight: 500;
-}
-
-.logTitle {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #ffffff;
-    margin-bottom: 16px;
-    font-family: var(--font-space-grotesk);
-    letter-spacing: 0.5px;
-    line-height: 1.4;
-}
-
-.signalStatus {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-weight: 500;
-    letter-spacing: 1px;
-    border-radius: 2px;
-}
-
-.statusIndicator {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.statusDot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-}
-
-.decoded .statusDot {
-    background: var(--color-teal);
-    box-shadow: 0 0 8px var(--color-teal);
-}
-
-.anomaly .statusDot {
-    background: var(--color-coral);
-    box-shadow: 0 0 8px var(--color-coral);
-    animation: blink 0.5s infinite;
-}
-
-.unknown .statusDot {
-    background: #ffffff;
-    box-shadow: 0 0 8px #ffffff;
-    animation: blink 2s infinite;
-}
-
-.statusText {
-    color: var(--color-text-dim);
-}
-
-.decoded .statusText {
-    color: var(--color-teal);
-}
-
-.anomaly .statusText {
-    color: var(--color-coral);
-}
-
-.unknown .statusText {
-    color: #ffffff;
-}
 
 @keyframes blink {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.3;
-    }
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
 }

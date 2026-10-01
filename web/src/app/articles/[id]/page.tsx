@@ -1,7 +1,7 @@
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
-import { TerminalSquare, Lock } from "lucide-react";
-import CyberBrackets from "@/components/ui/CyberBrackets";
+import { TerminalSquare } from "lucide-react";
 import CyberGrid from "@/components/ui/CyberGrid";
+import CyberPanel from "@/components/ui/CyberPanel";
 import UniversalHeader from "@/components/ui/UniversalHeader";
 import ArticleProgressToggle from "@/components/articles/ArticleProgressToggle";
 import { notFound } from "next/navigation";
@@ -96,16 +96,15 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
   }
 
   return (
-    <div className="min-h-screen w-screen bg-space-bg text-text-main font-sans overflow-x-hidden scanline-effect relative flex flex-col">
+    <div className="min-h-screen w-screen bg-space-bg text-text-main font-sans relative flex flex-col">
       <CyberGrid />
 
       {/* Universal Header */}
       <UniversalHeader
         backHref="/dashboard"
-        backLabel="ABORT_INTERCEPT"
         subtitle="ACTIVE_DATAPAD"
         title={article.title}
-        titleIcon={<TerminalSquare className="w-4 h-4 text-system shrink-0" />}
+        titleIcon={<TerminalSquare className="w-4 h-4 text-white/40 shrink-0" />}
         statusLabel="DATAPAD_SYNCED"
         statusActive={true}
       />
@@ -113,39 +112,36 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
       <main className="flex-1 max-w-4xl mx-auto px-4 py-8 relative z-10 w-full">
         
         {/* Datapad Container */}
-        <article className="bg-black/80 border border-system/20 relative p-8 md:p-12 shadow-[0_0_50px_color-mix(in_srgb,var(--color-system)_5%,transparent)] backdrop-blur-md">
-          <CyberBrackets color="border-system/40" />
-          
-          <header className="mb-10 border-b border-panel-border pb-8">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex flex-wrap gap-2">
+        <article className="relative w-full">
+          <CyberPanel variant="glass" chamfer="none" decorations="brackets" className="p-8 md:p-12 shadow-[0_0_50px_rgba(255,255,255,0.03)] z-10">
+            <header className="mb-10 border-b border-white/10 pb-8">
+              <div className="flex flex-wrap gap-4 mb-6">
                 {(article.tags || []).map(tag => (
-                  <span key={tag} className="px-3 py-1 bg-system/5 border border-system/20 text-system font-mono text-[10px] tracking-widest uppercase">
+                  <span key={tag} className="font-mono text-xs tracking-widest uppercase text-white/40">
                     #{tag}
                   </span>
                 ))}
               </div>
-              <div className="flex items-center gap-2 text-white font-mono text-[10px] tracking-widest border border-white/30 bg-white/10 px-2 py-1 uppercase">
-                <Lock className="w-3 h-3" /> CLASSIFIED_DATA
+
+              <h1 className="text-3xl md:text-5xl font-mono font-black text-white mb-6 uppercase tracking-wide drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] leading-tight">
+                {article.title}
+              </h1>
+              
+              <div className="bg-white/10 border-l-2 border-white/40 p-4 font-sans text-sm text-white/70 relative mt-6">
+                <span className="absolute -top-2 left-2 bg-space-bg px-2 text-xs font-mono text-white/40 tracking-widest uppercase">TRANSMISSION_SUMMARY</span>
+                <p className="leading-relaxed mt-1">{article.summary}</p>
               </div>
+            </header>
+
+            {/* Nội dung bài viết với Markdown Renderer */}
+            <div className="mt-8 w-full relative z-20">
+              <MarkdownRenderer content={article.content} />
             </div>
 
-            <h1 className="text-3xl md:text-5xl font-heading font-black text-white mb-6 uppercase tracking-wide drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] leading-tight">
-              {article.title}
-            </h1>
-            
-            <div className="bg-white/5 border-l-2 border-system p-4 font-sans text-sm text-text-dim relative">
-              <span className="absolute -top-2 left-2 bg-black px-2 text-[9px] font-mono text-system tracking-widest">TRANSMISSION_SUMMARY</span>
-              <p className="leading-relaxed mt-1">{article.summary}</p>
+            <div className="mt-12 w-full flex justify-end">
+              <ArticleProgressToggle article_id={article.id} />
             </div>
-          </header>
-
-          {/* Nội dung bài viết với Markdown Renderer */}
-          <div className="mt-8 w-full">
-            <MarkdownRenderer content={article.content} />
-          </div>
-
-          <ArticleProgressToggle article_id={article.id} />
+          </CyberPanel>
         </article>
       </main>
     </div>

@@ -1,9 +1,9 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+@plugin "tailwindcss-animate";
 @theme {
   --font-sans: var(--font-inter);
   --font-display: var(--font-science-gothic);
-  --font-heading: var(--font-space-grotesk);
   --font-mono: var(--font-jetbrains-mono);
 
   --color-space-bg: #020202;
@@ -35,7 +35,79 @@ body {
     min-height: 100vh;
 }
 
+/* Custom Cyberpunk Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.4);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.7);
+}
+::-webkit-scrollbar-corner {
+  background: var(--color-space-bg);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.4) rgba(255, 255, 255, 0.05);
+}
+
 /* Fixes for markdown elements in datapad */
 .prose h1, .prose h2, .prose h3 {
   font-family: var(--font-space-grotesk);
+}
+
+@layer utilities {
+  @keyframes snap-in-left {
+    from { opacity: 0; transform: translateX(-8px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  .animate-snap-in {
+    animation: snap-in-left 0.2s cubic-bezier(0, 1, 0, 1) forwards;
+  }
+
+  .text-outline-huge {
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: 2px rgba(255, 255, 255, 0.9);
+    letter-spacing: 0.1em;
+  }
+  .vertical-text {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+  }
+
+  .clip-chamfer-tl-br, .clip-tl-br { clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); }
+  .clip-chamfer-tr-bl, .clip-tr-bl { clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px)); }
+  .clip-chamfer-all { clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px); }
+  .clip-mod-1 { clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px)); }
+  .clip-mod-2 { clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 15px); }
+  .clip-hex { clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); }
+  .clip-oct { clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%); }
+  .clip-arrow-r { clip-path: polygon(0 0, 60% 0, 100% 50%, 60% 100%, 0 100%, 30% 50%); }
+
+  /* Patterns & Stripes */
+  .stripes-light { background-image: repeating-linear-gradient(-45deg, #fff, #fff 10px, transparent 10px, transparent 20px); }
+  .stripes-dark { background-image: repeating-linear-gradient(-45deg, var(--color-space-bg), var(--color-space-bg) 8px, transparent 8px, transparent 16px); }
+  .bg-stripes-dark { background-image: repeating-linear-gradient(-45deg, var(--color-space-bg), var(--color-space-bg) 4px, transparent 4px, transparent 8px); }
+  .stripes-faded { background-image: repeating-linear-gradient(-45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 4px, transparent 4px, transparent 8px); }
+  .ruler-bottom { background-image: repeating-linear-gradient(90deg, #fff, #fff 1px, transparent 1px, transparent 5px); background-position: bottom; background-repeat: repeat-x; background-size: 100% 4px; }
+  .dot-pattern { background-image: radial-gradient(rgba(255,255,255,0.3) 1px, transparent 1px); background-size: 8px 8px; }
+
+  /* Brackets */
+  .bracket-corners { position: relative; }
+  .bracket-corners::before, .bracket-corners::after,
+  .bracket-corners span::before, .bracket-corners span::after {
+    content: ""; position: absolute; width: 10px; height: 10px; border-color: #fff; border-style: solid;
+  }
+  .bracket-corners::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+  .bracket-corners::after { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+  .bracket-corners span::before { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
+  .bracket-corners span::after { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
 }

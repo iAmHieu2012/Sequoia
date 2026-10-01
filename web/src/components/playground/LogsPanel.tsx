@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import CyberBrackets from "@/components/ui/CyberBrackets";
+import CyberPanel from "@/components/ui/CyberPanel";
 
 interface LogsPanelProps {
   /** Array of log strings emitted by the Web Worker/Inference Engine */
@@ -20,18 +20,17 @@ export default function LogsPanel({ logs, booting }: LogsPanelProps) {
   }, [logs, booting]);
 
   return (
-    <div className="flex-1 bg-black/60 border border-panel-border relative flex flex-col min-h-0 p-4">
-      <CyberBrackets color="border-system/30" />
-      <div className="text-[10px] font-mono text-text-dim tracking-widest uppercase border-b border-panel-border pb-2 mb-3">
+    <CyberPanel variant="outline" chamfer="tl-br" decorations="brackets" className="flex-1 bg-transparent border-white/10 relative flex flex-col min-h-0 p-4">
+      <div className="text-xs font-mono text-white/40 tracking-widest uppercase border-b border-white/10 pb-2 mb-3">
         RUNTIME_LOGS
       </div>
-      <div className="flex-1 overflow-y-auto font-mono text-[10px] text-system/80 flex flex-col gap-2 leading-relaxed [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-black/20 [&::-webkit-scrollbar-thumb]:bg-system/30 hover:[&::-webkit-scrollbar-thumb]:bg-system pr-2">
+      <div className="flex-1 overflow-y-auto font-mono text-xs text-white/70 flex flex-col gap-2 leading-relaxed pr-2">
         {logs.map((log, i) => (
           <div key={i} className="animate-[fadeIn_0.3s_ease-out]">{log}</div>
         ))}
         {booting && <div className="animate-pulse">_</div>}
         <div ref={bottomRef} />
       </div>
-    </div>
+    </CyberPanel>
   );
 }

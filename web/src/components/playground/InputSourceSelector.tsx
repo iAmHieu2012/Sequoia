@@ -21,11 +21,11 @@ export default function InputSourceSelector({ cameraActive, booting, setCameraAc
   
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-[9px] font-mono text-text-dim tracking-widest uppercase">INPUT_SOURCE</span>
+      <span className="text-xs font-mono text-white/40 tracking-widest uppercase">INPUT_SOURCE</span>
       <div className="flex gap-2">
         {supportsCamera && (
           <button 
-            className={`flex-1 py-2 border font-mono text-[9px] tracking-widest flex items-center justify-center gap-2 transition-colors ${cameraActive ? 'border-system bg-system/10 text-system shadow-[0_0_10px_var(--color-system)]' : 'border-panel-border text-text-dim hover:border-system/50 hover:text-white'}`}
+            className={`flex-1 py-2 border font-mono text-xs tracking-widest flex items-center justify-center gap-2 transition-colors ${cameraActive ? 'border-white/40 bg-white/10 text-white shadow-[0_0_10px_rgba(255,255,255,0.2)]' : 'border-white/10 text-white/40 hover:border-white/40 hover:text-white'}`}
             onClick={() => setCameraActive(true)}
             disabled={booting}
           >
@@ -33,7 +33,7 @@ export default function InputSourceSelector({ cameraActive, booting, setCameraAc
           </button>
         )}
         <button 
-          className={`flex-1 py-2 border font-mono text-[9px] tracking-widest flex items-center justify-center gap-2 transition-colors ${!cameraActive && !booting ? 'border-system bg-system/10 text-system shadow-[0_0_10px_var(--color-system)]' : 'border-panel-border text-text-dim hover:border-system/50 hover:text-white'}`}
+          className={`flex-1 py-2 border font-mono text-xs tracking-widest flex items-center justify-center gap-2 transition-colors ${!cameraActive && !booting ? 'border-white/40 bg-white/10 text-white shadow-[0_0_10px_rgba(255,255,255,0.2)]' : 'border-white/10 text-white/40 hover:border-white/40 hover:text-white'}`}
           onClick={() => setCameraActive(false)}
           disabled={booting}
         >

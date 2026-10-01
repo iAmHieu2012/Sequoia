@@ -39,7 +39,7 @@ export default function PlaygroundClient({ modelId }: PlaygroundClientProps) {
 
   if (loading) {
     return (
-      <div className="h-screen w-screen bg-space-bg flex items-center justify-center text-system font-mono text-xl animate-pulse tracking-widest">
+      <div className="h-screen w-screen bg-space-bg flex items-center justify-center text-white/40 font-mono text-xl animate-pulse tracking-widest">
         ESTABLISHING UPLINK...
       </div>
     );
@@ -49,7 +49,7 @@ export default function PlaygroundClient({ modelId }: PlaygroundClientProps) {
     return (
       <div className="h-screen w-screen bg-space-bg flex items-center justify-center flex-col gap-4 text-coral font-mono tracking-widest">
         <div>MODEL NOT FOUND</div>
-        <button onClick={handleEscape} className="text-white hover:text-system text-sm border-b border-panel-border pb-1">
+        <button onClick={handleEscape} className="text-white/40 hover:text-white transition-colors text-sm border-b border-white/10 pb-1">
           [ ESC ] RETURN
         </button>
       </div>
@@ -59,7 +59,7 @@ export default function PlaygroundClient({ modelId }: PlaygroundClientProps) {
   const paramDefs = metadata?.parameters || [];
 
   return (
-    <div className="h-screen w-screen bg-space-bg text-text-main font-sans overflow-hidden flex flex-col relative select-none scanline-effect">
+    <div className="h-screen w-screen bg-space-bg text-text-main font-sans overflow-hidden flex flex-col relative select-none">
       <CyberGrid />
 
       <ModelInfoBar 
@@ -70,7 +70,7 @@ export default function PlaygroundClient({ modelId }: PlaygroundClientProps) {
 
       <div className="flex-1 flex p-4 lg:p-6 gap-6 relative z-10 min-h-0">
         
-        <div className="w-64 flex flex-col gap-4 shrink-0 hidden md:flex">
+        <div className="w-80 flex flex-col gap-4 shrink-0 hidden md:flex">
           <LogsPanel logs={logs} booting={booting} />
           
           <TelemetryPanel 

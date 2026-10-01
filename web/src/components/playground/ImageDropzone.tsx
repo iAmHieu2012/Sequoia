@@ -35,20 +35,20 @@ export default function ImageDropzone({ onUpload }: ImageDropzoneProps) {
 
   return (
     <div 
-      className={`w-full h-full flex flex-col items-center justify-center gap-4 text-text-dim transition-all ${
-        isDragging ? 'bg-system/10 text-system border-2 border-dashed border-system' : ''
+      className={`w-full h-full flex flex-col items-center justify-center gap-4 text-white/40 transition-all ${
+        isDragging ? 'bg-white/10 text-white border-2 border-dashed border-white/40' : ''
       }`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
       <div 
-        className="w-16 h-16 border-2 border-dashed border-current flex items-center justify-center rounded-full hover:scale-110 hover:shadow-[0_0_20px_var(--color-system)] transition-all cursor-pointer"
+        className="w-16 h-16 border-2 border-dashed border-current flex items-center justify-center rounded-full hover:scale-110 hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all cursor-pointer hover:text-white"
         onClick={() => fileInputRef.current?.click()}
       >
         <Upload className="w-6 h-6" />
       </div>
-      <span className="font-mono text-[10px] tracking-widest uppercase text-center px-4">
+      <span className="font-mono text-xs tracking-widest uppercase text-center px-4">
         CLICK OR DRAG IMAGE / VIDEO HERE
       </span>
       <input 

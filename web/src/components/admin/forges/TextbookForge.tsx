@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import CyberBrackets from '@/components/ui/CyberBrackets';
+import CyberPanel from '@/components/ui/CyberPanel';
 import { ForgeLabel, ForgeInput, ForgeTextarea, ForgeHeader, ForgeWrapper } from './ForgeShared';
 
 interface TextbookForgeProps {
@@ -47,9 +47,8 @@ export default function TextbookForge({ onClose, onSave, initialData }: Textbook
   return (
     <ForgeWrapper>
       <ForgeHeader title="TEXTBOOK_FORGE" onSave={handleSave} onClose={onClose} />
-      <div className="flex-1 flex gap-6 min-h-0 relative z-10 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-white/20">
-        <div className="max-w-3xl mx-auto w-full flex flex-col gap-6 bg-black/40 border border-white/20 relative p-8 h-fit my-8">
-          <CyberBrackets color="border-white/40" />
+      <div className="flex-1 flex gap-6 min-h-0 relative z-10 overflow-y-auto">
+        <CyberPanel variant="solid-dark" chamfer="none" decorations="brackets" className="max-w-3xl mx-auto w-full flex flex-col gap-6 p-8 h-fit my-8">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="w-full lg:w-1/4">
               <ForgeLabel>MODULE_ID</ForgeLabel>
@@ -82,7 +81,7 @@ export default function TextbookForge({ onClose, onSave, initialData }: Textbook
             <ForgeLabel>DESCRIPTION</ForgeLabel>
             <ForgeTextarea value={description} onChange={e => setDescription(e.target.value)} rows={3} placeholder="Description of the module..." />
           </div>
-        </div>
+        </CyberPanel>
       </div>
     </ForgeWrapper>
   );

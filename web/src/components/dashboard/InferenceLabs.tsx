@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { FlaskConical, Cpu } from "lucide-react";
-import CyberBrackets from "@/components/ui/CyberBrackets";
+import CyberPanel from "@/components/ui/CyberPanel";
 
 /**
  * Representation of an AI Model available in the system.
@@ -31,44 +31,66 @@ export default function InferenceLabs({
   loadingModels
 }: InferenceLabsProps) {
   return (
-    <div className="flex flex-col flex-1 min-h-0 bg-black/40 border border-panel-border relative transition-all duration-500 overflow-hidden group/panel">
-      <CyberBrackets color="transition-colors duration-300 border-red/10 group-hover/panel:border-red/50" />
-
-      
-      <div className="flex flex-shrink-0 border-b border-panel-border relative z-10">
-        <div className="flex-1 flex items-center justify-center gap-2 py-3 px-4 font-heading text-[11px] font-bold tracking-[0.12em] uppercase border-b-2 transition-all duration-300 text-red border-red bg-red/5 drop-shadow-[0_0_8px_var(--color-red)]">
-          <FlaskConical className="w-4 h-4 transition-transform duration-500 text-red" />
-          <div className="text-left">
-            LABS
-            <span className="block text-[8px] font-mono font-normal mt-0.5 opacity-50 normal-case tracking-wider">Playground</span>
+    <div className="flex flex-col flex-1 min-h-0 bg-space-bg border border-white/10 relative transition-all duration-500 overflow-hidden group/panel">
+      <CyberPanel 
+        variant="solid-white" 
+        chamfer="tl-br" 
+        stripes="right"
+        padded={false}
+        className="flex-shrink-0 flex flex-col justify-between p-4 border-b-4 border-space-bg"
+      >
+          <div className="flex justify-between items-start relative z-10">
+              <span className="text-sm font-bold uppercase tracking-widest font-mono">Lab</span>
+              <div className="w-6 h-[2px] bg-space-bg"></div>
           </div>
-        </div>
-      </div>
+          <div className="flex justify-between items-end relative z-10 mt-6">
+              <div className="flex gap-1">
+                 <div className="w-2 h-2 bg-space-bg"></div>
+                 <div className="w-2 h-2 bg-space-bg"></div>
+                 <div className="w-2 h-2 bg-space-bg"></div>
+              </div>
+              <div className="text-xs font-bold flex items-center gap-2 font-mono">
+                 PLAYGROUND <FlaskConical className="w-4 h-4" />
+              </div>
+          </div>
+      </CyberPanel>
       
-      <div className="flex-1 overflow-y-auto min-h-0 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-red/20 uppercase tracking-wider transition-opacity duration-300 opacity-100">
+      <div className="flex-1 overflow-y-auto min-h-0 uppercase tracking-wider transition-opacity duration-300 opacity-100">
         {loadingModels ? (
-            <div className="p-4 text-red animate-pulse text-xs font-mono">SCANNING FOR MODELS...</div>
+            <div className="p-5 text-white/40 animate-pulse text-xs font-mono tracking-widest">SCANNING FOR MODELS...</div>
           ) : models.length === 0 ? (
-            <div className="p-4 text-text-dim text-xs font-mono">NO MODELS DETECTED</div>
+            <div className="p-5 text-white/40 text-xs font-mono tracking-widest">NO MODELS DETECTED</div>
           ) : (
             models.map(model => (
-              <div key={model.id} className="group cursor-pointer border-b border-panel-border px-5 py-4 hover:bg-red/5 transition-all duration-300 relative overflow-hidden">
-                <div className="absolute left-0 top-0 w-1 h-full bg-red scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--color-red)]" />
-                <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-red/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
+              <div key={model.id} className="group cursor-pointer border-b border-white/10 bg-space-bg hover:bg-white/10 transition-colors relative overflow-hidden flex flex-col">
+                <div className="absolute left-0 top-0 w-1 h-full bg-white scale-y-0 group-hover:scale-y-100 origin-top transition-transform duration-200" />
                 
-                <div className="relative z-10">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-heading text-sm font-bold text-red group-hover:text-red group-hover:drop-shadow-[0_0_8px_var(--color-red)] transition-all duration-300 tracking-wide uppercase">{model.name}</h3>
-                    <div className="text-[9px] font-mono bg-red/10 text-red px-1.5 py-0.5 border border-red/20">{model.task_type.replace(/_/g, ' ')}</div>
+                <div className="relative z-10 w-full flex flex-col h-full">
+                  <div className="flex justify-between items-start px-5 pt-5 pb-3">
+                    <h3 className="text-sm md:text-base font-mono font-black text-white tracking-widest uppercase pr-4">
+                      {model.name}
+                    </h3>
                   </div>
-                  <p className="text-text-dim text-xs font-mono leading-relaxed normal-case line-clamp-2 mb-4">
-                    &gt; {model.description}
-                  </p>
-                  <div className="flex justify-between items-center border-t border-panel-border pt-3">
-                    <span className="text-[10px] text-text-dim font-mono">v{model.version} {'//'} {model.format.toUpperCase()}</span>
-                    <Link href={`/playground/${model.id}`} className="text-[10px] font-mono font-bold text-red tracking-wider flex items-center gap-1 group-hover:translate-x-1 transition-transform duration-300">
-                      INIT_RUNTIME <Cpu className="w-3 h-3" />
-                    </Link>
+                  
+                  <div className="px-5 pb-5 flex-1 flex flex-col">
+                    <p className="text-white/40 text-xs font-mono leading-relaxed normal-case line-clamp-2 mb-5">
+                      &gt; {model.description}
+                    </p>
+
+                    <div className="flex items-center justify-between mt-auto pt-2">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-xs font-mono tracking-widest uppercase text-white/40">
+                          TYPE: <span className="text-white font-bold">{model.task_type.replace(/_/g, ' ')}</span>
+                        </span>
+                        <span className="text-xs text-white/40 font-mono tracking-widest uppercase">
+                          v{model.version} {'//'} {model.format}
+                        </span>
+                      </div>
+                      
+                      <Link href={`/playground/${model.id}`} className="px-4 py-2 text-xs font-mono font-bold tracking-widest flex items-center gap-2 text-white/40 group-hover:text-space-bg group-hover:bg-white transition-all">
+                        INIT <Cpu className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>

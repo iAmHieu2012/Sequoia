@@ -1,5 +1,7 @@
 import React from 'react';
-import { Mail, Lock, ArrowRight } from 'lucide-react';
+import { Mail, Lock } from 'lucide-react';
+import CyberInput from '@/components/ui/CyberInput';
+import CyberButton from '@/components/ui/CyberButton';
 
 interface LoginFormProps {
   email: string;
@@ -21,31 +23,25 @@ export default function LoginForm({
   onResetPassword
 }: LoginFormProps) {
   return (
-    <form onSubmit={onSubmit} className="space-y-3 sm:space-y-5 [@media(max-height:750px)]:space-y-3">
-      {/* Email Input */}
-      <div className="relative group/input">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Mail className="h-4 w-4 text-text-dim group-focus-within/input:text-system transition-colors" />
-        </div>
-        <input
+    <form onSubmit={onSubmit} className="space-y-4 sm:space-y-6 [@media(max-height:750px)]:space-y-4">
+      <div className="space-y-1">
+        <label className="text-xs font-mono tracking-widest text-white/40 uppercase">User Email</label>
+        <CyberInput
+          icon={Mail}
           type="email"
           placeholder="EMAIL_ADDRESS"
-          className="w-full pl-10 pr-4 py-3 [@media(max-height:750px)]:py-2 bg-black/40 border border-panel-border focus:border-system/50 outline-none transition-all placeholder:text-text-dim/70 text-sm font-mono tracking-wider text-white"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
       </div>
 
-      {/* Password Input */}
-      <div className="relative group/input">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Lock className="h-4 w-4 text-text-dim group-focus-within/input:text-system transition-colors" />
-        </div>
-        <input
+      <div className="space-y-1">
+        <label className="text-xs font-mono tracking-widest text-white/40 uppercase">Access Code</label>
+        <CyberInput
+          icon={Lock}
           type="password"
           placeholder="PASSWORD_KEY"
-          className="w-full pl-10 pr-4 py-3 [@media(max-height:750px)]:py-2 bg-black/40 border border-panel-border focus:border-system/50 outline-none transition-all placeholder:text-text-dim/70 text-sm font-mono tracking-wider text-white"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -57,24 +53,17 @@ export default function LoginForm({
           type="button" 
           onClick={onResetPassword}
           disabled={loading}
-          className="text-[10px] font-mono tracking-widest text-system/70 hover:text-system transition-colors uppercase disabled:opacity-50 disabled:cursor-not-allowed"
+          className="text-xs font-mono font-mono tracking-widest text-white/40 hover:text-white transition-colors uppercase disabled:opacity-50 disabled:cursor-not-allowed border-b border-white/20 pb-0.5"
         >
           Forgot Key?
         </button>
       </div>
 
-      <button
-        type="submit"
-        disabled={loading}
-        className={`w-full py-3 [@media(max-height:750px)]:py-2 px-4 relative group overflow-hidden bg-system/10 border border-system/30 transition-all duration-300 mt-4 [@media(max-height:750px)]:mt-2 ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-system/20'}`}
-      >
-        <div className="absolute left-0 top-0 w-1 h-full bg-system scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out" />
-        <span className="relative z-10 flex items-center justify-center font-heading font-bold tracking-[0.2em] text-system text-sm uppercase">
+      <div className="pt-2">
+        <CyberButton type="submit" variant="primary" disabled={loading}>
           {loading ? "PROCESSING..." : "AUTHENTICATE"}
-          {!loading && <ArrowRight className="ml-2 h-4 w-4 opacity-70 group-hover:translate-x-1 transition-transform" />}
-        </span>
-        {!loading && <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-system/20 to-transparent transition-transform duration-700 ease-out pointer-events-none" />}
-      </button>
+        </CyberButton>
+      </div>
     </form>
   );
 }

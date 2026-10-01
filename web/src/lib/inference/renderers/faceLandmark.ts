@@ -15,7 +15,7 @@ export class FaceLandmarkRenderer implements TaskRenderer {
     
     for (const b of result.boxes) {
       if (showBbox) {
-        ctx.strokeStyle = RENDERER_THEME.colors.tealTranslucent;
+        ctx.strokeStyle = RENDERER_THEME.colors.teal;
         ctx.lineWidth = 1;
         ctx.strokeRect(b.cx - b.w / 2, b.cy - b.h / 2, b.w, b.h);
       }

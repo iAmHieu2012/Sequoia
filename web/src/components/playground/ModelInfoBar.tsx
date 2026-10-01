@@ -17,9 +17,9 @@ interface ModelInfoBarProps {
  */
 export default function ModelInfoBar({ model, booting, handleEscape }: ModelInfoBarProps) {
   const taskTypeBlock = (
-    <div className="flex flex-col items-end">
-      <span className="text-[9px] font-mono text-text-dim tracking-widest uppercase">TASK_TYPE</span>
-      <span className="text-xs font-mono text-system tracking-widest uppercase bg-system/10 px-2 py-0.5 border border-system/20">
+    <div className="flex flex-col items-center">
+      <span className="text-[10px] font-mono text-white/40 tracking-widest uppercase mb-0.5">TASK_TYPE</span>
+      <span className="text-xs font-mono text-white tracking-widest uppercase bg-white/10 px-2 py-0.5 border border-white/10">
         {model.task_type.replace(/_/g, ' ')}
       </span>
     </div>
@@ -28,10 +28,9 @@ export default function ModelInfoBar({ model, booting, handleEscape }: ModelInfo
   return (
     <UniversalHeader 
       onBack={handleEscape}
-      backLabel="ABORT_RUNTIME"
       subtitle="ACTIVE_MODEL"
       title={model.name}
-      titleIcon={<Cpu className="w-4 h-4 text-system" />}
+      titleIcon={<Cpu className="w-4 h-4 text-white/40" />}
       statusLabel={booting ? 'INITIALIZING' : 'ONLINE'}
       statusActive={!booting}
       extraRight={taskTypeBlock}

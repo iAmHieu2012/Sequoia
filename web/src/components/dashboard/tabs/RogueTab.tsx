@@ -26,43 +26,53 @@ interface RogueTabProps {
 export default function RogueTab({
   rogueArticles, loading, setMapTarget, progressSummary, mapData
 }: RogueTabProps) {
-  if (loading) return <div className="p-4 text-purple animate-pulse text-xs">DETECTING ANOMALIES...</div>;
+  if (loading) return <div className="p-5 text-white/40 font-mono animate-pulse text-xs tracking-widest">DETECTING ANOMALIES...</div>;
 
   return (
-    <>
-      {rogueArticles.map((article) => (
-        <div
-          key={article.id}
-          className="group cursor-pointer border-b border-panel-border px-5 py-4 hover:bg-purple/5 transition-all duration-300 relative overflow-hidden"
-          onClick={() => setMapTarget((prev) => {
-            const node = mapData?.nodes?.find(n => n.article_id === article.id);
-            return { ...prev, x: node ? node.x : prev.x, y: node ? node.y : prev.y, scale: 0.6, mapId: "standalone-articles", activeNodeId: article.id };
-          })}
-        >
-          <div className="absolute left-0 top-0 w-1 h-full bg-purple scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_var(--color-purple)]" />
-          <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-purple/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
-          
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] font-mono text-purple tracking-widest">[ ROGUE_ANOMALY ]</span>
-            </div>
-            <h3 className="text-sm font-heading font-bold text-white group-hover:text-purple group-hover:drop-shadow-[0_0_8px_var(--color-purple)] transition-all duration-300 tracking-wide mb-1 uppercase">
-              {article.title}
-            </h3>
-            <p className="text-text-dim text-xs font-mono leading-relaxed normal-case line-clamp-2 mb-4">
-              &gt; {article.summary}
-            </p>
-            <div className="flex items-center justify-between border-t border-panel-border pt-3">
-              <div className="flex gap-4 text-xs font-mono">
-                <span className="text-text-dim">STATUS: <span className={`font-bold ${progressSummary?.standalone?.[article.id] ? 'text-white' : 'text-text-dim'}`}>{progressSummary?.standalone?.[article.id] ? 'DECODED' : 'DETECTED'}</span></span>
+    <div className="animate-snap-in">
+      {rogueArticles.map((article) => {
+        const isDecoded = progressSummary?.standalone?.[article.id];
+        return (
+          <div
+            key={article.id}
+            className="group cursor-pointer border-b border-white/10 bg-space-bg hover:bg-white/10 transition-colors relative overflow-hidden flex flex-col"
+            onClick={() => setMapTarget((prev) => {
+              const node = mapData?.nodes?.find(n => n.article_id === article.id);
+              return { ...prev, x: node ? node.x : prev.x, y: node ? node.y : prev.y, scale: 0.6, mapId: "standalone-articles", activeNodeId: article.id };
+            })}
+          >
+            <div className="absolute left-0 top-0 w-1 h-full bg-white scale-y-0 group-hover:scale-y-100 origin-top transition-transform duration-200" />
+            
+            <div className="relative z-10 w-full flex flex-col h-full">
+              <div className="flex justify-between items-start px-5 pt-5 pb-3">
+                <h3 className="text-sm md:text-base font-mono font-black text-white tracking-widest uppercase pr-4">
+                  {article.title}
+                </h3>
               </div>
-              <Link href={`/articles/${article.id}`} onClick={e => e.stopPropagation()} className="text-[10px] font-mono font-bold text-purple tracking-wider flex items-center gap-1 group-hover:translate-x-1 transition-transform duration-300">
-                INTERCEPT <Rocket className="w-3 h-3" />
-              </Link>
+              
+              <div className="px-5 pb-5 flex-1 flex flex-col">
+                <p className="text-white/40 text-xs font-mono leading-relaxed normal-case line-clamp-2 mb-5">
+                  &gt; {article.summary}
+                </p>
+
+                <div className="flex items-center justify-between mt-auto pt-2">
+                  <div className="text-xs font-mono tracking-widest uppercase flex gap-2 items-center">
+                    <span className="text-white/40">STATUS:</span>
+                    <span className={isDecoded ? "text-white font-bold" : "text-white/40"}>
+                      {isDecoded ? 'DECODED' : 'DETECTED'}
+                    </span>
+                  </div>
+                  
+                  <Link href={`/articles/${article.id}`} onClick={e => e.stopPropagation()} 
+                        className="px-4 py-2 text-xs font-mono font-bold tracking-widest flex items-center gap-2 text-white/40 group-hover:text-space-bg group-hover:bg-white transition-all">
+                    INTERCEPT <Rocket className="w-3 h-3 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      ))}
-    </>
+        );
+      })}
+    </div>
   );
 }

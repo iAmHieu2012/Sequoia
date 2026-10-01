@@ -1,5 +1,5 @@
 import { FileText, AlertTriangle } from "lucide-react";
-import CyberBrackets from "@/components/ui/CyberBrackets";
+import CyberPanel from "@/components/ui/CyberPanel";
 import CyberGrid from "@/components/ui/CyberGrid";
 import UniversalHeader from "@/components/ui/UniversalHeader";
 import { notFound } from "next/navigation";
@@ -83,30 +83,27 @@ export default async function TextbookPage({ params }: { params: Promise<{ id: s
   }
 
   return (
-    <div className="min-h-screen h-screen w-screen bg-space-bg text-text-main font-sans overflow-hidden scanline-effect relative flex flex-col">
+    <div className="min-h-screen h-screen w-screen bg-space-bg text-text-main font-sans overflow-hidden relative flex flex-col">
       <CyberGrid />
 
       {/* Universal Header */}
       <UniversalHeader
         backHref="/dashboard"
-        backLabel="ABORT_ACCESS"
         subtitle="ACTIVE_MODULE"
         title={textbook.title}
-        titleIcon={<FileText className="w-4 h-4 text-system shrink-0" />}
+        titleIcon={<FileText className="w-4 h-4 text-white/40 shrink-0" />}
         statusLabel="MODULE_ACTIVE"
         statusActive={true}
       />
 
       {/* Datapad Container for PDF Viewer */}
       <main className="flex-1 relative z-10 p-4 md:p-8 flex items-center justify-center overflow-hidden">
-        <div className="w-full h-full bg-black/80 border border-system/20 relative shadow-[0_0_30px_color-mix(in_srgb,var(--color-system)_10%,transparent)] backdrop-blur-md flex flex-col transition-all hover:border-system/40 hover:shadow-[0_0_40px_color-mix(in_srgb,var(--color-system)_20%,transparent)]">
-          <CyberBrackets color="border-system/40" />
-          
-          <div className="flex-1 w-full h-full p-1 relative z-10 bg-black/80 flex items-center justify-center">
+        <CyberPanel variant="glass" chamfer="none" decorations="brackets" className="w-full h-full flex flex-col z-10 shadow-[0_0_30px_rgba(255,255,255,0.05)] transition-all hover:border-white/40 hover:shadow-[0_0_40px_rgba(255,255,255,0.1)]">
+          <div className="flex-1 w-full h-full p-1 relative z-10 flex items-center justify-center">
             {textbook.pdf_url ? (
               <iframe 
                 src={textbook.pdf_url} 
-                className="w-full h-full border-0 rounded-sm"
+                className="w-full h-full border-0"
                 title={textbook.title}
                 allowFullScreen
               />
@@ -114,13 +111,13 @@ export default async function TextbookPage({ params }: { params: Promise<{ id: s
               <div className="flex flex-col items-center justify-center text-coral gap-4 p-8 bg-coral/5 border border-coral/20">
                 <AlertTriangle className="w-12 h-12 animate-pulse" />
                 <div className="text-center">
-                  <h3 className="font-heading text-lg font-bold uppercase tracking-widest mb-2">PDF_PAYLOAD_MISSING</h3>
+                  <h3 className="font-mono text-lg font-bold uppercase tracking-widest mb-2">PDF_PAYLOAD_MISSING</h3>
                   <p className="font-mono text-xs text-coral/80 uppercase">No datastream attached to this module. Awaiting transmission.</p>
                 </div>
               </div>
             )}
           </div>
-        </div>
+        </CyberPanel>
       </main>
     </div>
   );
