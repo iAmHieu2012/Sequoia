@@ -28,7 +28,7 @@ export default function MobileDashboard() {
   } = useDashboardContext();
 
   return (
-    <div className="h-screen w-screen bg-space-bg text-text-main overflow-hidden flex flex-col-reverse landscape:flex-row">
+    <div className="h-[100dvh] w-screen bg-space-bg text-text-main overflow-hidden flex flex-col-reverse landscape:flex-row">
       
       {/* NAVIGATION BAR: Bottom in Portrait, Left in Landscape */}
       <nav className="shrink-0 bg-black border-t landscape:border-t-0 landscape:border-r border-white/10 flex landscape:flex-col justify-around landscape:justify-center p-2 gap-2 landscape:w-24 z-50">
