@@ -1,4 +1,6 @@
-import React from 'react';
+"use client";
+
+import React, { useState } from 'react';
 
 interface CyberFlipCardProps {
   frontTitle: string;
@@ -23,11 +25,16 @@ export default function CyberFlipCard({
   backUnit,
   className = ''
 }: CyberFlipCardProps) {
+  const [isFlipped, setIsFlipped] = useState(false);
+
   return (
-    <div className={`relative h-20 md:h-24 group overflow-hidden clip-chamfer-tl-br cursor-default border border-white/20 bg-space-bg ${className}`}>
+    <div 
+      className={`relative h-20 md:h-24 group overflow-hidden clip-chamfer-tl-br cursor-pointer md:cursor-default border border-white/20 bg-space-bg ${className}`}
+      onClick={() => setIsFlipped(!isFlipped)}
+    >
       
       {/* FRONT STATE (Cyberpunk Dark) */}
-      <div className="absolute inset-0 transition-transform duration-500 group-hover:translate-y-full z-10">
+      <div className={`absolute inset-0 transition-transform duration-500 z-10 ${isFlipped ? 'translate-y-full' : 'md:group-hover:translate-y-full'}`}>
         <CyberPanel 
           variant="solid-dark" 
           chamfer="none" 
@@ -64,7 +71,7 @@ export default function CyberFlipCard({
       </div>
 
       {/* BACK STATE (Brutalist White Invert) */}
-      <div className="absolute inset-0 -translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-20">
+      <div className={`absolute inset-0 -translate-y-full transition-transform duration-500 ease-out z-20 ${isFlipped ? 'translate-y-0' : 'md:group-hover:translate-y-0'}`}>
         <CyberPanel 
           variant="solid-white"
           chamfer="none"

@@ -1,5 +1,6 @@
 "use client";
 
+import React from 'react';
 import { ClipboardCheck, ClipboardX, Activity } from "lucide-react";
 import CyberFlipCard from "@/components/ui/CyberFlipCard";
 import CyberPanel from "@/components/ui/CyberPanel";
@@ -67,14 +68,20 @@ export default function StatsBar({
   const leftColorClass = "text-teal drop-shadow-[0_0_15px_var(--color-teal)]";
   const rightColorClass = "text-coral drop-shadow-[0_0_15px_var(--color-coral)]";
 
+  // Mobile tap states
+  const [isProgressFlipped, setIsProgressFlipped] = React.useState(false);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
       
       {/* Stat 1: PROGRESS (Tactical Wireframe Hover Split) */}
-      <div className="relative h-20 md:h-24 border border-white/20 bg-space-bg group overflow-hidden clip-chamfer-tr-bl cursor-default transition-colors duration-500">
+      <div 
+        className="relative h-20 md:h-24 border border-white/20 bg-space-bg group overflow-hidden clip-chamfer-tr-bl cursor-pointer md:cursor-default transition-colors duration-500"
+        onClick={() => setIsProgressFlipped(!isProgressFlipped)}
+      >
 
         {/* DEFAULT STATE (Solid White Shell) */}
-        <div className="absolute inset-0 transition-all duration-500 group-hover:-translate-y-full group-hover:opacity-0 z-20">
+        <div className={`absolute inset-0 transition-all duration-500 z-20 ${isProgressFlipped ? '-translate-y-full opacity-0' : 'md:group-hover:-translate-y-full md:group-hover:opacity-0'}`}>
           <CyberPanel
             variant="solid-white"
             chamfer="none"
@@ -108,7 +115,7 @@ export default function StatsBar({
         </div>
 
         {/* HOVER STATE: Split */}
-        <div className="absolute inset-0 flex translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out z-10">
+        <div className={`absolute inset-0 flex transition-all duration-500 ease-out z-10 ${isProgressFlipped ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100'}`}>
           
           {/* LEFT HALF */}
           <div 
