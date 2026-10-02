@@ -8,7 +8,8 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import mermaid from "mermaid";
 import "katex/dist/katex.min.css";
-
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Minimize2, Maximize2 } from "lucide-react";
 
 interface MarkdownRendererProps {
@@ -301,11 +302,16 @@ function CodeBlock({ className, children, ...props }: CodeBlockProps) {
           {copied ? "COPIED_TO_CLIPBOARD" : "COPY_CODE"}
         </button>
       </div>
-      <div className="pt-12 pb-4 px-4 overflow-x-auto text-sm text-text-main relative z-0">
-        <code className={className} {...props}>
-          {children}
-        </code>
-      </div>
+        <div className="pt-12 pb-4 px-4 overflow-x-auto text-sm relative z-0">
+          <SyntaxHighlighter
+            language={match[1]}
+            style={vscDarkPlus}
+            customStyle={{ margin: 0, padding: 0, background: 'transparent' }}
+            PreTag="div"
+          >
+            {String(children).replace(/\n$/, '')}
+          </SyntaxHighlighter>
+        </div>
     </div>
   ) : (
     <code className="bg-white/10 text-white border border-white/10 px-1.5 py-0.5 font-mono text-sm uppercase tracking-wider" {...props}>

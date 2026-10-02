@@ -350,7 +350,7 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
       </div>
 
       {/* HUD Telemetry & Actions */}
-      <div className="absolute bottom-6 right-6 flex flex-col items-end gap-3 pointer-events-none z-1000">
+      <div className="absolute bottom-6 right-6 flex flex-col items-end gap-3 pointer-events-none z-30">
         
         {/* Map Actions & Telemetry Container */}
         <div className="flex items-center gap-4 bg-black/60 backdrop-blur-md border border-white/20 p-2 pr-2">

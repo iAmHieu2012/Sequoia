@@ -190,7 +190,7 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
       </div>
 
       {/* HUD Telemetry & Actions */}
-      <div className="absolute bottom-6 right-6 flex items-center gap-4 pointer-events-none z-1000 bg-black/40 backdrop-blur-md border border-white/10 p-3 pr-4">
+      <div className="absolute bottom-6 right-6 flex items-center gap-4 pointer-events-none z-30 bg-black/40 backdrop-blur-md border border-white/10 p-3 pr-4">
         
         {/* Telemetry Ruler */}
         <div className="flex items-center gap-4 text-white font-mono border-r-2 border-white pr-4">
