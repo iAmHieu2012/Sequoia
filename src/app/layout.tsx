@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Inter, Science_Gothic, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { Inter, Science_Gothic, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { cookies } from "next/headers";
+import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -16,12 +16,6 @@ const scienceGothic = Science_Gothic({
   subsets: ["latin"],
   display: "swap",
   adjustFontFallback: false,
-});
-
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
-  subsets: ["latin"],
-  display: "swap",
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -48,55 +42,25 @@ export const metadata: Metadata = {
   manifest: '/site.webmanifest',
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = await cookies();
-  const theme = cookieStore.get('sequoia_theme')?.value;
-
-  const THEMES: Record<string, string> = {
-    "grey": "#808080",
-    "red": "#f14949",
-    "orange": "#f19d49",
-    "yellow": "#f1f149",
-    "green": "#49f149",
-    "turquoise": "#49f19d",
-    "cyan": "#49f1f1",
-    "blue": "#4949f1",
-    "purple": "#9d49f1",
-    "pink": "#f149f1"
-  };
-
-  let themeStyle = '';
-  if (theme && theme !== 'system' && THEMES[theme]) {
-    const hex = THEMES[theme];
-    themeStyle = `
-      :root {
-        --color-system: ${hex};
-        --color-red: ${hex};
-        --color-green: ${hex};
-        --color-blue: ${hex};
-        --color-yellow: ${hex};
-        --color-pink: ${hex};
-        --color-cyan: ${hex};
-        --color-orange: ${hex};
-        --color-turquoise: ${hex};
-        --color-purple: ${hex};
-        --color-grey: ${hex};
-      }
-    `;
-  }
-
   return (
-    <html lang="en" className={`${inter.variable} ${scienceGothic.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${scienceGothic.variable} ${jetbrainsMono.variable}`}>
+      <head>
+        <meta name="theme-color" content="#020202" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      </head>
       <body className="antialiased font-sans bg-space-bg text-text-main">
-        {themeStyle && <style dangerouslySetInnerHTML={{ __html: themeStyle }} />}
         <AuthProvider>
           {children}
         </AuthProvider>
+        <ServiceWorkerRegistrar />
       </body>
     </html>
   );
 }
+

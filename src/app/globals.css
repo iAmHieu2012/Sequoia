@@ -58,11 +58,6 @@ body {
   scrollbar-color: rgba(255, 255, 255, 0.4) rgba(255, 255, 255, 0.05);
 }
 
-/* Fixes for markdown elements in datapad */
-.prose h1, .prose h2, .prose h3 {
-  font-family: var(--font-space-grotesk);
-}
-
 @layer utilities {
   @keyframes snap-in-left {
     from { opacity: 0; transform: translateX(-8px); }
