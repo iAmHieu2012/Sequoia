@@ -51,10 +51,19 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   }, [content]);
 
   useEffect(() => {
+    // Clean up any orphaned Mermaid error SVGs left in document.body from previous failed renders
+    document.querySelectorAll('div[id^="dmermaid-"]').forEach((el) => {
+      // Only remove if it's a direct child of body (temp element) and contains an error SVG
+      if (el.parentElement === document.body && el.querySelector('svg[aria-roledescription="error"]')) {
+        el.remove();
+      }
+    });
+
     mermaid.initialize({
       startOnLoad: false,
       theme: "dark",
       securityLevel: "loose",
+      suppressErrorRendering: true,
     });
   }, []);
 
@@ -312,13 +321,28 @@ function MermaidBlock({ chart }: { chart: string }) {
     let isMounted = true;
     
     const renderChart = async () => {
+      const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
       try {
-        const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+        // Pre-validate syntax — if invalid, parse() returns false without creating DOM elements
+        const isValid = await mermaid.parse(chart, { suppressErrors: true });
+        if (!isValid) {
+          if (isMounted) setSvgContent(
+            `<div class="text-coral-400 border border-coral-400/20 p-4 rounded bg-coral-400/10 font-mono text-sm">⚠ Mermaid syntax error — please check your diagram code.</div>`
+          );
+          return;
+        }
+
         const { svg } = await mermaid.render(id, chart);
         if (isMounted) setSvgContent(svg);
       } catch (error) {
         console.error(error);
-        if (isMounted) setSvgContent(`<div class="text-coral-400 border border-coral-400/20 p-4 rounded bg-coral-400/10">Error: ${error}</div>`);
+        if (isMounted) setSvgContent(
+          `<div class="text-coral-400 border border-coral-400/20 p-4 rounded bg-coral-400/10 font-mono text-sm">⚠ ${error instanceof Error ? error.message : String(error)}</div>`
+        );
+      } finally {
+        // Safety net: remove any orphaned temp elements Mermaid may have left in document.body
+        document.getElementById(`d${id}`)?.remove();
+        document.getElementById(`i${id}`)?.remove();
       }
     };
     
