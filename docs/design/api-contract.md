@@ -20,14 +20,11 @@ API sử dụng URL path versioning: `/api/v1/...`. Khi có breaking changes, ve
 
 ### Authentication
 
-Các endpoint yêu cầu xác thực sử dụng **Supabase Auth Session** (cookie-based cho Web, Bearer token cho Android):
+Các endpoint yêu cầu xác thực sử dụng **Supabase Auth Session** (cookie-based):
 
 ```text
-# Web: tự động gửi qua cookie bởi @supabase/ssr
+# Tự động gửi qua cookie bởi @supabase/ssr
 Cookie: sb-<project-ref>-auth-token=...
-
-# Android: gửi qua header
-Authorization: Bearer <supabase-access-token>
 ```
 
 Session được verify bởi Next.js API Routes (lớp 1) trước khi xử lý request.
@@ -360,4 +357,4 @@ Xóa bài viết và tự động:
 
 > [!NOTE]
 > Dự án Sequoia sử dụng kiến trúc **Supabase Auth trực tiếp trên Client (Frontend)**. Do đó, Backend không cung cấp API Đăng nhập hay Đăng ký.
-> Thay vào đó, Frontend sử dụng Supabase Client SDK để đăng nhập bằng Email/Password hoặc Google OAuth. Sau khi đăng nhập thành công, session được lưu trong cookie (Web) hoặc memory (Android), và tự động gửi kèm khi gọi API.
+> Thay vào đó, Frontend sử dụng Supabase Client SDK để đăng nhập bằng Email/Password hoặc Google OAuth. Sau khi đăng nhập thành công, session được lưu trong cookie, và tự động gửi kèm khi gọi API.

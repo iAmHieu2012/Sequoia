@@ -63,7 +63,7 @@ graph TB
 | Component | Technology | Vai trò |
 | ----------- | ----------- | --------- |
 | **Web Frontend** | React / Next.js (App Router) | SSR/CSR cho giao diện web, render bài viết, nhúng playground |
-| **Web AI Runtime** | LiteRT Web SDK (WebAssembly/WebGL) | Chạy model AI trực tiếp trên trình duyệt |
+| **Web AI Runtime** | LiteRT Web SDK (WebGPU, fallback WebAssembly) | Chạy model AI trực tiếp trên trình duyệt |
 | **Web API** | Next.js API Routes | RESTful API, business logic, xác thực |
 | **Database** | PostgreSQL (Supabase) | Relational database với RLS, triggers, JSONB |
 | **Authentication** | Supabase Auth | Quản lý user, hỗ trợ email/password và Google Sign-In |
@@ -80,7 +80,7 @@ graph TB
 | @supabase/ssr | Auth session management (cookie-based) |
 | KaTeX | Render công thức toán LaTeX trong bài viết |
 | react-markdown + remark-gfm | Render Markdown content |
-| LiteRT Web SDK | Load và chạy `.tflite` model qua WebAssembly/WebGL |
+| LiteRT Web SDK | Load và chạy `.tflite` model qua WebGPU (fallback WebAssembly) |
 | Tailwind CSS | Styling framework |
 
 ---
@@ -90,7 +90,7 @@ graph TB
 ```mermaid
 sequenceDiagram
     actor User
-    participant Client as Client (Web/Android)
+    participant Client as Client (Web)
     participant SupaAuth as Supabase Auth
     participant API as Next.js API Routes
     participant DB as PostgreSQL
@@ -135,39 +135,28 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     actor User
-    participant Client as Client (Web/Android)
+    participant Client as Client (Web)
     participant API as Next.js API Routes
     participant DB as PostgreSQL
     participant CDN as Public CDN
 
     User->>Client: Mở playground trong bài viết
 
-    Client->>Client: Kiểm tra model đã cache<br/>trên thiết bị chưa
+    Client->>API: GET /api/v1/models/{modelId}
+    API->>DB: SELECT * FROM models WHERE id = $1
+    DB-->>API: Model info
+    API-->>Client: 200 OK + Model metadata<br/>{ name, version, size,<br/>fileUrl, metadataUrl }
 
-    alt Model đã có trong cache
-        Client->>Client: Load model từ cache
-        Note over Client: Skip download,<br/>sử dụng trực tiếp
-    else Model chưa có hoặc cần cập nhật
-        Client->>API: GET /api/v1/models/{modelId}
-        API->>DB: SELECT * FROM models WHERE id = $1
-        DB-->>API: Model info
-        API-->>Client: 200 OK + Model metadata<br/>{ name, version, size,<br/>fileUrl, metadataUrl }
-        
-        Client->>CDN: GET {fileUrl}<br/>(Public access, không cần auth)
-        CDN-->>Client: Model file (.tflite)
-        
-        Client->>Client: Lưu model vào cache<br/>cùng version info
-    end
+    Client->>CDN: GET {metadataUrl}
+    CDN-->>Client: metadata.json
+
+    Client->>CDN: GET {fileUrl}<br/>(Public access, không cần auth)
+    CDN-->>Client: Model file (.tflite)
 
     Client->>Client: Load model vào LiteRT runtime
 ```
 
-**Chi tiết caching strategy:**
-
-| Platform | Vị trí cache | Cơ chế kiểm tra version |
-| ---------- | ------------- | ------------------------ |
-| **Android** | Internal storage (`/data/data/{package}/files/models/`) | So sánh `version` field từ API với version đã lưu trong SharedPreferences |
-| **Web** | Cache API hoặc IndexedDB | So sánh `version` field từ API với version lưu trong IndexedDB |
+**Caching:** Ứng dụng không tự cache model (không dùng Cache API / IndexedDB, Service Worker bỏ qua request cross-origin). Việc tải lại hay không phụ thuộc hoàn toàn vào HTTP cache của trình duyệt theo header của CDN.
 
 **Tại sao dùng Public CDN?**
 
@@ -193,9 +182,9 @@ sequenceDiagram
     UI->>Runtime: Kiểm tra model đã load chưa
     
     alt Model chưa load
-        Runtime->>Runtime: Load model từ cache vào memory
-        Runtime->>Runtime: Khởi tạo interpreter<br/>(GPU/NPU delegate nếu có)
-        Note over Runtime: Android: GPU Delegate hoặc NNAPI<br/>Web: WebGL/WebAssembly backend
+        Runtime->>Runtime: Tải model từ CDN vào memory
+        Runtime->>Runtime: Khởi tạo LiteRT runtime
+        Note over Runtime: WebGPU nếu trình duyệt hỗ trợ,<br/>ngược lại fallback WebAssembly (CPU)
     end
 
     User->>UI: Chọn input source
@@ -221,14 +210,18 @@ sequenceDiagram
     UI->>UI: Vẽ bounding boxes lên ảnh/camera feed<br/>Hiển thị label + confidence %<br/>Hiển thị inference time
 ```
 
-**Hiệu năng inference theo platform:**
+**Accelerator của LiteRT Web SDK:**
 
-| Platform | Backend | Acceleration | Inference time (YOLO) |
-| ---------- | --------- | ------------- | ---------------------- |
-| Android (high-end) | LiteRT Android SDK | GPU Delegate | ~15-30ms |
-| Android (mid-range) | LiteRT Android SDK | CPU (4 threads) | ~50-100ms |
-| Web (desktop) | LiteRT Web SDK | WebGL | ~30-60ms |
-| Web (mobile browser) | LiteRT Web SDK | WebAssembly | ~80-150ms |
+Code hiện tại ([useModelLoader.ts](../../src/hooks/playground/useModelLoader.ts)) gọi `loadAndCompile(url)` không truyền `accelerator`, nên LiteRT.js tự chọn theo trình duyệt:
+
+| Accelerator | Điều kiện | Ghi chú |
+| ----------- | --------- | ------- |
+| **WebGPU** | Trình duyệt có `navigator.gpu` và tạo được GPU device (`powerPreference: high-performance`) | Được chọn mặc định nếu khả dụng |
+| **WASM (CPU)** | Không có WebGPU hoặc tạo GPU device thất bại | Fallback |
+
+> [!NOTE]
+> Phần lõi của LiteRT.js luôn là WebAssembly (`loadLiteRt()` tải file `.wasm` từ CDN), kể cả khi inference chạy trên WebGPU. LiteRT.js không có backend WebGL.
+> Latency thực tế cần đo qua Telemetry Panel trên từng thiết bị.
 
 ---
 

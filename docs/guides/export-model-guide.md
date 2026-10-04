@@ -131,12 +131,8 @@ Hoặc sử dụng Supabase Dashboard (Table Editor) để thao tác trực quan
 
 * **Quantization (Lượng tử hóa):** Nên sử dụng INT8 Quantization (`int8=True`) thay vì Float16 hoặc Float32. INT8 làm giảm độ chính xác một chút nhưng giảm 4 lần dung lượng model và tăng tốc đáng kể, rất cần thiết cho ứng dụng Web.
 * **Kích thước giới hạn:** Vì lưu trên GitHub và fetch qua CDN miễn phí (như jsDelivr), hãy cố gắng giữ file `.tflite` dưới 20MB. (jsDelivr có giới hạn file size, thường là 20-50MB tuỳ chính sách).
-* **Compatibility (Tương thích):**
-* Web: Sử dụng LiteRT Web API (WASM/WebGL).
-* Android: LiteRT API hỗ trợ Neural Networks API (NNAPI) hoặc GPU delegate để tận dụng phần cứng.
-
-
-* **Ủy quyền phần cứng (Delegates):** Mặc định chạy trên CPU. Trên Android, nên kích hoạt GPU Delegate nếu có.
+* **Compatibility (Tương thích):** Sử dụng LiteRT Web API (`@litertjs/core`). LiteRT.js chỉ hỗ trợ accelerator `webgpu` và `wasm`, không có WebGL.
+* **Tăng tốc phần cứng:** Nếu không truyền `accelerator`, LiteRT.js tự dùng WebGPU khi trình duyệt tạo được GPU device, ngược lại chạy WASM trên CPU. Nên test model trên cả hai backend vì một số op có thể chưa được WebGPU hỗ trợ.
 
 ## 7. Troubleshooting (Xử lý sự cố)
 

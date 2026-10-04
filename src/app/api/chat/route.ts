@@ -6,11 +6,19 @@ import {
   createUIMessageStreamResponse,
   toUIMessageStream
 } from 'ai';
+import { createClient } from '@/utils/supabase/server';
 
 export const runtime = 'edge';
 
 export async function POST(req: Request) {
   try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { messages, modelId: requestedModelId } = await req.json();
     const modelId = requestedModelId || 'gemini-3.5-flash-lite';
     

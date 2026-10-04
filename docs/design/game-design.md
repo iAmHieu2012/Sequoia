@@ -6,10 +6,10 @@ Tài liệu đặc tả kiến trúc và luồng dữ liệu cho Game Domain ("T
 
 Hệ thống Gamification được thiết kế dưới dạng một Interactive 2D Canvas (Bản đồ không gian), đóng vai trò là giao diện điều hướng chính (Navigation UI) thay thế cho dạng danh sách dọc truyền thống.
 
-- **Vùng không gian (Sectors)**: Ánh xạ 1-1 với bảng `textbooks`.
+- **Tinh vân (Nebulas)**: Ánh xạ 1-1 với bảng `topics`. Mỗi chủ đề là một tinh vân, chứa các bài viết bên trong. Riêng các bài tự do được gom vào vùng không gian nhiễu (Rogue Anomalies).
 
 - **Thiên thể (Celestial Objects)**: Ánh xạ 1-1 với bảng `articles`.
-- **Khám phá tự do (Open Exploration)**: Không có trạng thái Locked. Mọi node đều có thể truy cập bất kỳ lúc nào để tra cứu.
+- **Khám phá tự do (Open Exploration)**: Không có trạng thái Locked. Mọi thiên thể (bài viết) đều có thể truy cập bất kỳ lúc nào để tra cứu.
 
 ## 2. Cấu trúc Dữ liệu UI (Celestial Types)
 

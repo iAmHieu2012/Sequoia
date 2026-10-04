@@ -28,11 +28,11 @@ Trong Markdown, Admin sử dụng cú pháp custom block `{{playground ...}}` đ
 **Lý do duy trì từ khóa `playground` trong Markdown:**
 Từ khóa "playground" phản ánh đúng nghiệp vụ lõi (môi trường thực hành mô hình). Tên gọi "Signal Tuner" chỉ là lớp hiển thị thuộc về Game Domain ở giao diện người dùng.
 
-**Luồng Client-side Parsing (Web/Android):**
+**Luồng Client-side Parsing:**
 1. Nhận chuỗi Markdown từ Next.js API.
 2. Dùng Regex quét các tag `{{playground ...}}`.
 3. Gỡ tag ra khỏi Markdown, thay bằng placeholder `<!-- signal-tuner:0 -->`.
-4. Render Markdown thành HTML (hoặc Compose Text).
+4. Render Markdown thành HTML.
 5. Inject component `SignalTuner` vào đúng vị trí placeholder.
 
 ## 3. Cấu trúc PostgreSQL (Bảng `article_contents`)

@@ -6,7 +6,7 @@ Tài liệu này quy định các chính sách bảo mật Row Level Security ch
 
 Kiến trúc bảo mật của Sequoia dựa trên mô hình **Defense-in-depth (phòng thủ chiều sâu)**:
 
-- **Lớp 1 (Next.js API Routes):** Là chốt chặn chính. Mọi request từ client (Web/Android) đều đi qua Next.js API Routes. API sẽ xác thực session, kiểm tra quyền truy cập, thực hiện business logic và chỉ khi hợp lệ mới tương tác với PostgreSQL qua Supabase Admin Client (`service_role` key, bypass RLS).
+- **Lớp 1 (Next.js API Routes):** Là chốt chặn chính. Mọi request từ client (Web) đều đi qua Next.js API Routes. API sẽ xác thực session, kiểm tra quyền truy cập, thực hiện business logic và chỉ khi hợp lệ mới tương tác với PostgreSQL qua Supabase Admin Client (`service_role` key, bypass RLS).
 - **Lớp 2 (PostgreSQL RLS):** Đóng vai trò lớp bảo vệ dự phòng. Nếu có lỗ hổng trên API hoặc ai đó truy cập trực tiếp vào Supabase từ bên ngoài (dùng `anon` key), RLS sẽ đảm bảo dữ liệu vẫn an toàn và không bị thao tác trái phép.
 
 ## 2. Quy tắc cho từng bảng
