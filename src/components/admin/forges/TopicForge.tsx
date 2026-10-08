@@ -26,7 +26,8 @@ export default function TopicForge({ onClose, onSave, initialData }: TopicForgeP
   const [sortOrder, setSortOrder] = useState(initialData?.sort_order?.toString() || '99');
 
   const handleSave = () => {
-    onSave({ id: initialData?.id, name, description, sort_order: parseInt(sortOrder) || 99 });
+    const parsedOrder = parseInt(sortOrder, 10);
+    onSave({ id: initialData?.id, name, description, sort_order: !isNaN(parsedOrder) ? parsedOrder : 99 });
   };
 
   return (

@@ -33,6 +33,7 @@ export default function TextbookForge({ onClose, onSave, initialData }: Textbook
   const [sortOrder, setSortOrder] = useState(initialData?.sort_order?.toString() || '99');
 
   const handleSave = () => {
+    const parsedOrder = parseInt(sortOrder, 10);
     onSave({ 
       id: entityId, 
       title, 
@@ -40,7 +41,7 @@ export default function TextbookForge({ onClose, onSave, initialData }: Textbook
       authors: authors.split(',').map(a => a.trim()).filter(Boolean), 
       cover_image_url: coverImageUrl, 
       pdf_url: pdfUrl,
-      sort_order: parseInt(sortOrder) || 99
+      sort_order: !isNaN(parsedOrder) ? parsedOrder : 99
     });
   };
 
