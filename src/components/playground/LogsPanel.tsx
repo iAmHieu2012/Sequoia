@@ -6,13 +6,14 @@ interface LogsPanelProps {
   logs: string[];
   /** True if the inference engine is currently booting up */
   booting: boolean;
+  className?: string;
 }
 
 /**
  * A cyberpunk-themed terminal panel that displays live execution logs 
  * from the AI Inference Engine. Automatically scrolls to the newest log entry.
  */
-export default function LogsPanel({ logs, booting }: LogsPanelProps) {
+export default function LogsPanel({ logs, booting, className = '' }: LogsPanelProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -20,7 +21,7 @@ export default function LogsPanel({ logs, booting }: LogsPanelProps) {
   }, [logs, booting]);
 
   return (
-    <CyberPanel variant="outline" chamfer="tl-br" decorations="brackets" className="flex-1 bg-transparent border-white/10 relative flex flex-col min-h-0 p-4">
+    <CyberPanel variant="outline" chamfer="tl-br" decorations="brackets" className={`bg-transparent border-white/10 relative flex flex-col min-h-0 p-4 ${className}`}>
       <div className="text-xs font-mono text-white/40 tracking-widest uppercase border-b border-white/10 pb-2 mb-3">
         RUNTIME_LOGS
       </div>

@@ -20,6 +20,7 @@ interface ParameterPanelProps {
   setCameraActive: (active: boolean) => void;
   /** Modes supported by the active model (e.g., ['camera', 'image']) */
   supportedModes?: ('camera' | 'image')[];
+  className?: string;
 }
 
 /**
@@ -36,10 +37,11 @@ export default function ParameterPanel({
   cameraActive,
   booting,
   setCameraActive,
-  supportedModes
+  supportedModes,
+  className = ''
 }: ParameterPanelProps) {
   return (
-    <CyberPanel variant="outline" chamfer="tl-br" decorations="brackets" className="w-64 bg-transparent border-white/10 relative flex flex-col p-4 shrink-0 hidden lg:flex">
+    <CyberPanel variant="outline" chamfer="tl-br" decorations="brackets" className={`w-64 bg-transparent border-white/10 relative flex flex-col p-4 shrink-0 ${className}`}>
       <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-4">
         <div className="text-xs font-mono text-white/40 tracking-widest uppercase">
           PARAMETERS

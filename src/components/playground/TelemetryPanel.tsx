@@ -12,6 +12,7 @@ interface TelemetryPanelProps {
   metadata: ModelMetadata | null;
   /** The active AI model configuration */
   model: AiModel;
+  className?: string;
 }
 
 /**
@@ -25,13 +26,13 @@ interface PerformanceWithMemory extends Performance {
   };
 }
 
-export default function TelemetryPanel({ telemetry, cameraActive, metadata, model }: TelemetryPanelProps) {
+export default function TelemetryPanel({ telemetry, cameraActive, metadata, model, className = '' }: TelemetryPanelProps) {
   const memUsed = typeof performance !== 'undefined' && (performance as PerformanceWithMemory).memory
     ? String(Math.round((performance as PerformanceWithMemory).memory!.usedJSHeapSize / 1048576))
     : 'N/A';
 
   return (
-    <CyberPanel variant="outline" chamfer="tl-br" decorations="brackets" className="bg-transparent border-white/10 relative p-4 flex flex-col gap-4 shrink-0">
+    <CyberPanel variant="outline" chamfer="tl-br" decorations="brackets" className={`bg-transparent border-white/10 relative p-4 flex flex-col gap-4 shrink-0 ${className}`}>
       <div className="text-xs font-mono text-white/40 tracking-widest uppercase border-b border-white/10 pb-2">
         TELEMETRY
       </div>
