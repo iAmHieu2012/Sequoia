@@ -102,7 +102,7 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
       <div className="absolute inset-0">
         <div
           ref={viewportRef}
-          className="w-full h-full relative cursor-grab active:cursor-grabbing overflow-hidden select-none"
+          className="w-full h-full relative cursor-grab active:cursor-grabbing overflow-hidden select-none touch-none"
           {...handlers}
       style={{ 
         backgroundImage: 'linear-gradient(color-mix(in srgb, #ffffff 5%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, #ffffff 5%, transparent) 1px, transparent 1px)',
