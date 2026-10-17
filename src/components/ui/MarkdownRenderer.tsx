@@ -314,7 +314,7 @@ function CodeBlock({ className, children, ...props }: CodeBlockProps) {
         </div>
     </div>
   ) : (
-    <code className="bg-white/10 text-white border border-white/10 px-1.5 py-0.5 font-mono text-sm uppercase tracking-wider" {...props}>
+    <code className="bg-white/10 text-white border border-white/10 px-1.5 py-0.5 font-mono text-sm tracking-wider" {...props}>
       {children}
     </code>
   );
