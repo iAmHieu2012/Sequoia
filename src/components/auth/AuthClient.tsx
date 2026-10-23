@@ -78,7 +78,7 @@ export default function AuthClient() {
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3 mb-3">
-              <Image src="/bot-idle.gif" alt="Sequoia Bot" width={40} height={40} unoptimized className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
+              <Image src="/bot.png" alt="Sequoia Bot" width={40} height={40} unoptimized className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
               <div className="text-left">
                 <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-black text-white tracking-[0.15em] m-0 leading-none">
                   SEQUOIA

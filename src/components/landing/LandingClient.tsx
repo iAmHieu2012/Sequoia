@@ -73,7 +73,7 @@ export default function LandingClient() {
         
         {/* Boot Status Line */}
         <div className="flex items-center gap-3 mb-6">
-          <Image src="/bot-idle.gif" alt="Sequoia Bot" width={48} height={48} unoptimized className="object-contain w-10 h-10 md:w-12 md:h-12 border border-white/20 clip-chamfer-tl-br p-1" />
+          <Image src="/bot.png" alt="Sequoia Bot" width={48} height={48} unoptimized className="object-contain w-10 h-10 md:w-12 md:h-12 border border-white/20 clip-chamfer-tl-br p-1" />
           <div className="flex flex-col items-start text-left">
             <span className="bg-white text-space-bg px-5 py-0.5 text-xs font-bold tracking-widest uppercase clip-chamfer-tl-br mb-1">
               SYSTEM_STATUS

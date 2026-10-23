@@ -62,9 +62,23 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
   });
   const { mapData, getNodeStatus } = useCosmosData(mapId);
 
+  let cx = targetX;
+  let cy = targetY;
+
+  if (mapData && mapData.nodes.length > 0) {
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    mapData.nodes.forEach(n => {
+      if (n.x < minX) minX = n.x;
+      if (n.x > maxX) maxX = n.x;
+      if (n.y < minY) minY = n.y;
+      if (n.y > maxY) maxY = n.y;
+    });
+    cx = (minX + maxX) / 2;
+    cy = (minY + maxY) / 2;
+  }
+
   useEffect(() => {
     const doFlyTo = () => {
-      const OFFSET = CANVAS_SIZE / 2;
       if (activeNodeId && mapData) {
         const activeNode = mapData.nodes.find(n => n.article_id === activeNodeId);
         if (activeNode) {
@@ -73,25 +87,10 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
         }
       }
       
-      let cx = targetX;
-      let cy = targetY;
-      
-      if (!activeNodeId && mapData && mapData.nodes.length > 0) {
-        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-        mapData.nodes.forEach(n => {
-          if (n.x < minX) minX = n.x;
-          if (n.x > maxX) maxX = n.x;
-          if (n.y < minY) minY = n.y;
-          if (n.y > maxY) maxY = n.y;
-        });
-        cx = (minX + maxX) / 2;
-        cy = (minY + maxY) / 2;
-      }
-      
       flyTo(cx + OFFSET, cy + OFFSET, targetScale);
     };
     doFlyTo();
-  }, [targetX, targetY, targetScale, flyTo, activeNodeId, mapData]);
+  }, [cx, cy, targetScale, flyTo, activeNodeId, mapData]);
 
   return (
     <div className={`relative bg-black/60 border border-white/20 overflow-hidden ${className}`}>
@@ -210,7 +209,7 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
           className="pointer-events-auto border border-white p-2 flex items-center justify-center cursor-pointer group hover:bg-white hover:text-black transition-none text-white"
           onClick={(e) => {
             e.stopPropagation();
-            flyTo(0, 0, 0.2);
+            flyTo(cx + OFFSET, cy + OFFSET, 0.2);
           }}
           title="Recenter Map"
         >
