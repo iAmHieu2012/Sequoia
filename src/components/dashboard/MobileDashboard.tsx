@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useDashboardContext } from "@/contexts/DashboardContext";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsBar from "@/components/dashboard/StatsBar";
@@ -8,7 +9,8 @@ import ContentBrowser from "@/components/dashboard/ContentBrowser";
 import InferenceLabs from "@/components/dashboard/InferenceLabs";
 import AiAssistant from "@/components/dashboard/AiAssistant";
 import CosmosMapPreview from "@/components/dashboard/CosmosMapPreview";
-import { Activity, Compass, FlaskConical, TerminalSquare } from "lucide-react";
+import CyberBrackets from "@/components/ui/CyberBrackets";
+import { Activity, Compass, FlaskConical, Terminal, TerminalSquare } from "lucide-react";
 
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -95,8 +97,20 @@ export default function MobileDashboard() {
           )}
           
           {mobileTab === "labs" && (
-            <div className="flex-1 min-h-0 flex flex-col animate-in fade-in duration-300">
+            <div className="flex-1 min-h-0 flex flex-col gap-4 animate-in fade-in duration-300">
               <InferenceLabs models={models} loadingModels={loadingModels} />
+              <Link
+                href="/sandbox"
+                className="flex items-center justify-center h-[46px] shrink-0 bg-black/40 border border-white/10 relative transition-all duration-500 overflow-hidden group/panel cursor-pointer hover:bg-white/10 hover:border-white/40"
+              >
+                <CyberBrackets color="transition-colors duration-300 border-white/10 group-hover/panel:border-white/40" />
+                <div className="absolute left-0 top-0 w-1 h-full bg-white scale-y-0 group-hover/panel:scale-y-100 origin-center transition-transform duration-300 ease-out shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
+                <div className="absolute inset-0 -translate-x-[150%] group-hover/panel:translate-x-[150%] bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
+                <div className="flex items-center justify-center gap-2 py-2 px-4 font-mono text-xs font-bold tracking-[0.12em] uppercase text-white/40 group-hover/panel:text-white group-hover/panel:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all duration-300 relative z-10">
+                  <Terminal className="w-5 h-5 transition-all duration-500 group-hover/panel:scale-110 opacity-70 group-hover/panel:opacity-100" />
+                  <span>PYTHON SANDBOX</span>
+                </div>
+              </Link>
             </div>
           )}
           {mobileTab === "ai" && (
