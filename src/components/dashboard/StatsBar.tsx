@@ -24,10 +24,6 @@ interface StatsBarProps {
   user: User | null;
   /** Summary of progress across textbooks, topics, and standalone nodes */
   progressSummary: ProgressSummary | null;
-  /** Total count of rogue (standalone) anomalies/articles */
-  rogueArticlesLength: number;
-  /** Total count of active textbooks/codexes */
-  textbooksLength: number;
   /** Detailed user progress including current streak */
   userProgress: UserProgress | null;
 }

@@ -73,8 +73,6 @@ export default function DesktopDashboard() {
             <StatsBar 
               user={user} 
               progressSummary={progressSummary} 
-              rogueArticlesLength={rogueArticles.length} 
-              textbooksLength={textbooks.length} 
               userProgress={userProgress} 
             />
             

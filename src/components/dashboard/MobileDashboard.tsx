@@ -47,12 +47,10 @@ export default function MobileDashboard() {
         <div className="flex-1 min-h-0 p-4 flex flex-col">
           {mobileTab === "stats" && (
             <div className="flex flex-col gap-4 animate-in fade-in duration-300 overflow-y-auto flex-1 pb-4">
-              <div className="[&>div]:!grid-cols-1 sm:[&>div]:!grid-cols-2 [&>div>div:nth-child(5)]:!order-first [&>div>div:nth-child(5)]:sm:!col-span-2 gap-4">
+              <div className="[&>div]:!grid-cols-1 sm:[&>div]:!grid-cols-2 gap-4">
                 <StatsBar 
                   user={user}
                   progressSummary={progressSummary}
-                  rogueArticlesLength={rogueArticles.length}
-                  textbooksLength={textbooks.length}
                   userProgress={userProgress}
                 />
               </div>

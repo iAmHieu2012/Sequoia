@@ -47,7 +47,7 @@ export default function NebulasTab({
       <div className="animate-snap-in">
         <button 
           onClick={() => setSelectedTopic(null)} 
-          className="w-full text-left px-5 py-4 bg-space-bg text-white/40 hover:text-white font-mono text-xs tracking-widest uppercase flex items-center gap-2 transition-colors border-b border-white/10 group"
+          className="sticky top-0 z-20 cursor-pointer w-full text-left px-5 py-4 bg-space-bg text-white/40 hover:text-white font-mono text-xs tracking-widest uppercase flex items-center gap-2 transition-colors border-b border-white/10 group"
         >
           <ArrowRight className="w-3 h-3 rotate-180 group-hover:-translate-x-1 transition-transform" /> 
           RETURN TO NEBULAS
