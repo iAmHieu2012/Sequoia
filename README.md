@@ -36,3 +36,11 @@ Apply the migration file: `supabase/migrations/00_reset_and_init.sql`.
 ```bash
 npx tsx scripts/seed.ts
 ```
+
+> **Warning:** seeding deletes all users and content. The scripts only run against a local Supabase or the URL set in `SEED_ALLOWED_SUPABASE_URL` in `.env.local` (set it to your **dev** project URL, never production).
+
+### 4. Grant admin rights
+
+```bash
+npx tsx scripts/make_admin.ts you@example.com
+```
