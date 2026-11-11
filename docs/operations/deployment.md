@@ -18,6 +18,7 @@ Next.js đóng vai trò cả Frontend lẫn Backend (API Routes), nên chỉ c�
 - `SUPABASE_SERVICE_ROLE_KEY`: Service role key (chỉ dùng phía server, bypass RLS).
 - `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`: Cloud name cho Cloudinary image upload.
 - `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET`: Upload preset cho Cloudinary.
+- `GOOGLE_GENERATIVE_AI_API_KEY`: API key Gemini cho AI Assistant (chỉ dùng phía server).
 
 ### Build & Deploy
 

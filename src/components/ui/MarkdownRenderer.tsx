@@ -63,7 +63,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
     mermaid.initialize({
       startOnLoad: false,
       theme: "dark",
-      securityLevel: "loose",
+      securityLevel: "strict",
       suppressErrorRendering: true,
     });
   }, []);
