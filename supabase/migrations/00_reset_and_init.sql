@@ -244,9 +244,9 @@ ALTER TABLE public.user_progress ENABLE ROW LEVEL SECURITY;
 
 CREATE OR REPLACE FUNCTION is_admin() RETURNS BOOLEAN AS $$
 BEGIN
-  RETURN (auth.jwt() ->> 'is_admin')::boolean = true;
+  RETURN COALESCE((auth.jwt() -> 'app_metadata' ->> 'is_admin')::boolean, false);
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public;
 
 -- Users & Progress: own data only, or admin
 CREATE POLICY "Users can access own profile" ON public.users FOR ALL USING (auth.uid()::text = id OR is_admin());
@@ -271,5 +271,7 @@ CREATE POLICY "Admin write cosmos_maps" ON public.cosmos_maps FOR ALL USING (is_
 -- Articles & Contents: public read published (or admin), admin write
 CREATE POLICY "Public read published articles" ON public.articles FOR SELECT USING (is_published = true OR is_admin());
 CREATE POLICY "Admin write articles" ON public.articles FOR ALL USING (is_admin());
-CREATE POLICY "Public read article contents" ON public.article_contents FOR SELECT USING (true);
+CREATE POLICY "Public read published article contents" ON public.article_contents FOR SELECT USING (
+  is_admin() OR EXISTS (SELECT 1 FROM public.articles a WHERE a.id = article_contents.id AND a.is_published = true)
+);
 CREATE POLICY "Admin write article contents" ON public.article_contents FOR ALL USING (is_admin());

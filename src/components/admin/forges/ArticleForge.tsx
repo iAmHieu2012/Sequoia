@@ -50,7 +50,8 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
   const [x, setX] = useState(initialData?.x?.toString() || '');
   const [y, setY] = useState(initialData?.y?.toString() || '');
   const [connections, setConnections] = useState(initialData?.connections?.join(', ') || '');
-  const [isPublished, setIsPublished] = useState(initialData?.is_published !== false);
+  // New articles start as drafts; publishing must be an explicit choice.
+  const [isPublished, setIsPublished] = useState(initialData?.is_published === true);
 
   const insertMarkdown = (prefix: string, suffix: string) => {
     if (!textareaRef.current) return;

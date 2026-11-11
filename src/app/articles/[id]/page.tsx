@@ -28,6 +28,7 @@ const getArticle = cache(async (id: string): Promise<Article | null> => {
       .from('articles')
       .select('*, article_contents(content)')
       .eq('id', id)
+      .eq('is_published', true)
       .single();
 
     if (error || !data) return null;
@@ -48,7 +49,7 @@ export async function generateStaticParams() {
   const ids: { id: string }[] = [];
 
   try {
-    const { data } = await supabaseAdmin.from('articles').select('id');
+    const { data } = await supabaseAdmin.from('articles').select('id').eq('is_published', true);
     if (data) {
       data.forEach(a => ids.push({ id: a.id }));
     }

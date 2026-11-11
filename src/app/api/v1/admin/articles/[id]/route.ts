@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { supabaseAdmin } from '@/utils/supabase/admin';
+import { revalidatePath } from 'next/cache';
 
 export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -64,6 +65,8 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
         }));
       await supabaseAdmin.from('cosmos_maps').update({ nodes: updatedNodes }).eq('id', mapId);
     }
+
+    revalidatePath(`/articles/${docId}`);
 
     return NextResponse.json({ success: true });
   } catch (error: unknown) {

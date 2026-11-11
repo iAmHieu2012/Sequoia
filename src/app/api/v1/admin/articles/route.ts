@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { supabaseAdmin } from '@/utils/supabase/admin';
+import { revalidatePath } from 'next/cache';
 
 export async function POST(request: NextRequest) {
   try {
@@ -79,6 +80,9 @@ export async function POST(request: NextRequest) {
         nodes: [newNodeData]
       });
     }
+
+    // The article page is statically generated; refresh it so publish/unpublish takes effect.
+    revalidatePath(`/articles/${docId}`);
 
     return NextResponse.json({ data: article });
   } catch (error: unknown) {
