@@ -10,14 +10,14 @@ Nguyên tắc: nội dung ngắn gọn, không đi sâu vào tiểu tiết. Mỗ
 
 ### Product Requirements Document (PRD) rút gọn
 
-**Tầm nhìn sản phẩm:** Nền tảng học AI/ML có cấu trúc theo giáo trình, kết hợp bài viết chuyên sâu với Model Playground nhúng trực tiếp trong nội dung, cho phép chạy mô hình trên thiết bị người dùng mà không cần server xử lý AI.
+**Tầm nhìn sản phẩm:** Nền tảng học AI/ML có cấu trúc theo giáo trình, kết hợp bài viết chuyên sâu với Model Playground (trang thực hành riêng), cho phép chạy mô hình trên thiết bị người dùng mà không cần server xử lý AI.
 
 **Tính năng bắt buộc cho bản MVP:**
 
 - Hệ thống nội dung linh hoạt với hai cách tổ chức song song:
   - Theo chủ đề độc lập: các bài viết được nhóm theo chủ đề tự do (VD: Computer Vision, NLP, Optimization).
   - Bài viết tự do: không thuộc chủ đề nào, hiển thị dưới dạng "Rogue Anomalies" trên bản đồ.
-- Bài viết có playground nhúng bên trong: bài viết không chỉ là văn bản, mà có thể chứa các khối playground tương tác tại vị trí phù hợp trong nội dung, giúp người đọc thực hành ngay khi đang học lý thuyết.
+- Model Playground là trang riêng, mở từ khung LAB trên Dashboard (không nhúng trong bài viết). Bài viết có thể dẫn sang Playground bằng link thông thường.
 - Render công thức toán học: hỗ trợ LaTeX/KaTeX trong nội dung bài viết.
 - Code blocks với syntax highlighting: bài viết AI/ML chứa code Python, cần hiển thị đẹp với syntax highlighting và nút copy.
 - Tìm kiếm full-text: tìm kiếm xuyên suốt bài viết, chủ đề. Sử dụng PostgreSQL full-text search hoặc ILIKE cho MVP.
@@ -47,7 +47,7 @@ Luồng duyệt học liệu: Người dùng truy cập ứng dụng và đượ
 - Họ chọn một Tinh vân (Nebula) tương ứng với chủ đề muốn học.
 - Họ quan sát các Ngôi sao (Celestial Objects - tương ứng với Bài viết).
 - Các ngôi sao chưa học sáng bình thường chờ khám phá. Người dùng click vào một Ngôi sao bất kỳ để mở giao diện bài học (Datapad).
-- Đọc lý thuyết, cuộn đến phần **Signal Tuner (Playground nhúng)**, chạy thử mô hình.
+- Đọc lý thuyết. Muốn thực hành thì mở **Signal Tuner (Playground)** từ khung LAB để chạy thử mô hình.
 - Hoàn thành bài học, tín hiệu báo "DECODED", ngôi sao trên bản đồ bùng sáng.
 
 ### Lộ trình phát triển

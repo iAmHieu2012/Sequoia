@@ -56,9 +56,8 @@ graph TD
 
 ### 3.3. Signal Tuner (Model Playground)
 
-Playground được nhúng trực tiếp vào nội dung bài viết dưới dạng Signal Tuner.
-- Khi người dùng cuộn đến phần thực hành, một "Thiết bị nhận sóng" (Signal Tuner) xuất hiện.
-- Model AI (YOLO LiteRT) được ngầm tải về.
+Playground là một trang riêng (`/playground/<model-id>`), không nhúng trong bài viết. Người dùng mở từ khung **LAB** trên Dashboard, hoặc qua link trong bài viết.
+- Khi mở trang, model AI (YOLO LiteRT) được tải về.
 - Người dùng truyền Camera vào để "Quét".
 - Kết quả Object Detection (Bounding Box) được hiển thị như là việc "bắt được tín hiệu thành công".
 - **Threshold Slider** biến thành **Noise Filter (Bộ lọc nhiễu)**, giúp người dùng hiểu rõ bản chất precision/recall của mô hình thông qua lăng kính chỉnh tần số dò sóng.
@@ -167,6 +166,6 @@ Hệ thống xác thực người dùng qua Supabase Auth (Email/Password, Googl
 - **API Response:** < 300ms (p95) cho content endpoints.
 
 ### 7.2. Metrics Sản phẩm (Gamification)
-- **Engagement:** Tỷ lệ người dùng "Giải mã" (chạy Signal Tuner) đạt ≥ 40% trên tổng số bài đọc.
+- **Engagement:** Tỷ lệ người dùng chạy Playground (Signal Tuner) ít nhất một lần đạt ≥ 40% trên tổng số người dùng hoạt động.
 - **Retention:** Số sao được mở khóa trung bình mỗi session ≥ 3.
 - **Tỷ lệ đăng ký:** ≥ 10% visitor chuyển đổi thành registered user.

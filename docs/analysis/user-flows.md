@@ -35,26 +35,21 @@ flowchart TD
 
 ## 2. Luồng Thực hành AI (Giải mã Tín hiệu)
 
-Khi người dùng mở một bài viết (Datapad) và gặp một khối Playground (Signal Tuner).
+Playground (Signal Tuner) là trang riêng, không nhúng trong bài viết. Người dùng mở từ khung LAB trên Dashboard.
 
 ```mermaid
 flowchart TD
-    A["📝 Đang đọc Datapad (Bài viết)"] --> B{"Gặp khối Signal Tuner<br/>(Playground)"}
-    
-    B --> C["Giao diện Tuner hiện lên:<br/>'Phát hiện sóng AI bí ẩn'"]
+    A["🧪 Dashboard: khung LAB"] --> B["Chọn một model<br/>(nút INIT)"]
+    B --> C["Mở trang /playground/&lt;model-id&gt;"]
     C --> D["Tải AI Model từ Public CDN<br/>(LiteRT tflite file)"]
-    D --> E["Cung cấp dữ liệu đầu vào<br/>(Camera / Hình ảnh)"]
-    
+    D --> E["Cung cấp dữ liệu đầu vào<br/>(Camera / Hình ảnh / Video)"]
+
     E --> F["Bắt đầu quá trình Giải mã (Inference)"]
     F --> G["Hiển thị dữ liệu:<br/>- Bounding Boxes (Tín hiệu)<br/>- Confidence (Độ nhiễu)<br/>- Inference Time (Độ trễ)"]
-    
+
     G --> H["Điều chỉnh Tần số (Threshold Slider)"]
     H --> I["Màn hình cập nhật Real-time"]
-    I --> J["Hoàn thành giải mã?"]
-    
-    J -->|"Có"| K["Đánh dấu hoàn thành bài học<br/>POST /api/v1/users/progress"]
-    K --> L["Quay lại Galaxy Map"]
-    L --> M["Ngôi sao này rực sáng.<br/>Tia sáng truyền tới ngôi sao tiếp theo.<br/>Sương mù tan đi."]
+    I --> J["Nhấn ESC để quay lại Dashboard"]
 ```
 
 **Ngữ nghĩa Giao diện (UX Semantics):**

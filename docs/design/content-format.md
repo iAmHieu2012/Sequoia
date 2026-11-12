@@ -17,23 +17,15 @@ Việc này đảm bảo tính "sạch sẽ" của dữ liệu giáo dục. Các
 
 ---
 
-## 2. Cú pháp nhúng Signal Tuner (Playground)
+## 2. Playground không nhúng trong bài viết
 
-Trong Markdown, Admin sử dụng cú pháp custom block `{{playground ...}}` để khai báo các module tương tác AI.
+Bài viết chỉ chứa Markdown thuần, **không** có cú pháp nhúng Playground (không dùng `{{playground ...}}`).
 
-```text
-{{playground model="yolo-v8-nano" mode="camera" threshold=0.5 title="Bộ giải mã sóng YOLO-Nano"}}
+Playground (Signal Tuner) là trang riêng tại `/playground/<model-id>`, người dùng mở từ khung **LAB** trên Dashboard. Nếu bài viết muốn dẫn người đọc sang thực hành, dùng link Markdown thông thường, ví dụ:
+
+```markdown
+[Thử model YOLO-Nano trong Lab](/playground/yolo-v8-nano)
 ```
-
-**Lý do duy trì từ khóa `playground` trong Markdown:**
-Từ khóa "playground" phản ánh đúng nghiệp vụ lõi (môi trường thực hành mô hình). Tên gọi "Signal Tuner" chỉ là lớp hiển thị thuộc về Game Domain ở giao diện người dùng.
-
-**Luồng Client-side Parsing:**
-1. Nhận chuỗi Markdown từ Next.js API.
-2. Dùng Regex quét các tag `{{playground ...}}`.
-3. Gỡ tag ra khỏi Markdown, thay bằng placeholder `<!-- signal-tuner:0 -->`.
-4. Render Markdown thành HTML.
-5. Inject component `SignalTuner` vào đúng vị trí placeholder.
 
 ## 3. Cấu trúc PostgreSQL (Bảng `article_contents`)
 

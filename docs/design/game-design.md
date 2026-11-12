@@ -15,10 +15,8 @@ Hệ thống Gamification được thiết kế dưới dạng một Interactive
 
 | Thành phần UI | Tương quan Backend | Loại hiển thị | Logic xử lý |
 | --- | --- | --- | --- |
-
 | Node cơ bản | `articles` (Lý thuyết) | Star | Thay đổi CSS/SVG sáng lên khi hoàn thành (Decoded) |
 | Node phức hợp | `articles` (Thuật toán lớn) | Binary Star | Hiệu ứng quỹ đạo quay quanh (Animation) |
-| Node thực hành | `articles` (Chứa Playground) | Nebula | Yêu cầu phải chạy LiteRT thành công để qua bài |
 | Sự cố (Anomaly) | `articles` (Gỡ lỗi) | Black Hole | Trạng thái hiển thị cảnh báo (Warning state) |
 
 ## 3. Luồng xử lý Gamification (Game Loop)
@@ -28,7 +26,7 @@ Luồng tương tác vòng lặp của người dùng trên bản đồ:
 1. **Khởi tạo dữ liệu**: Client tải `cosmos_maps` (chứa mảng JSONB tọa độ các Node) và `user_progress` (trạng thái mở khóa hiện tại với mảng các ID đã học) từ Supabase PostgreSQL.
 2. **Hiển thị Tín hiệu**: Render SVG/CSS. Các Node chưa khám phá (unread) hiển thị bình thường. Các Node decoded phát sáng rực rỡ.
 3. **Thao tác Khám phá**: Người dùng chọn một Node bất kỳ. Giao diện chuyển sang màn hình bài học định dạng Terminal (Datapad UI).
-4. **Xác thực (Verification)**: Hoàn thành bài đọc hoặc chạy Model Playground đạt Threshold. Client gửi request POST tới Next.js API Route cập nhật tiến trình.
+4. **Xác thực (Verification)**: Người dùng đọc xong bài và bấm "MARK DECODED". Client gửi request POST tới Next.js API Route cập nhật tiến trình. (Playground là trang riêng, không ảnh hưởng tiến trình bài học.)
 5. **Cập nhật (Illumination)**: Next.js API cập nhật PostgreSQL. Client nhận response trạng thái `decoded`, kích hoạt hiệu ứng CSS mở đường nối (Light Beams) tới các Node liền kề.
 
 ## 4. Thiết kế Giao diện (UI/UX Specifications)
