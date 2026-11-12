@@ -60,7 +60,7 @@ export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPan
               className="w-auto h-auto py-2"
             >
               <X className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
-              [ ESC ] CLOSE_PANEL
+              CLOSE_PANEL
             </CyberButton>
 
             <div className="flex-col hidden sm:flex">

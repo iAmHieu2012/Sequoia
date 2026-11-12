@@ -33,7 +33,6 @@ export default function UniversalHeader({
           className="!w-auto !h-9 lg:!h-10 px-3 lg:px-4"
         >
           <ChevronLeft className="w-4 h-4" />
-          <span className="hidden lg:inline ml-1">ESC</span>
         </CyberButton>
       </div>
 

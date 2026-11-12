@@ -25,8 +25,7 @@ export const ForgeHeader = ({ title, onSave, onClose, children }: { title: strin
     <div className="flex items-center gap-2 lg:gap-6">
       <CyberButton onClick={onClose} variant="secondary" className="w-auto h-auto py-2">
         <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
-        <span className="hidden lg:inline">[ ESC ] CANCEL_EDIT</span>
-        <span className="lg:hidden">ESC</span>
+        <span className="hidden lg:inline">CANCEL_EDIT</span>
       </CyberButton>
 
       <div className="flex-col hidden lg:flex">
