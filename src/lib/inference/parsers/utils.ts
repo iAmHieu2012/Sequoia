@@ -1,19 +1,6 @@
 import { BoundingBox, ModelMetadata } from '@/types/playground';
 
 /**
- * Common RGB colors for semantic segmentation masks.
- * Format: [R, G, B]. Alpha channel will be applied dynamically by the parser.
- */
-export const SEGMENTATION_COLORS_RGB = [
-  [0, 0, 0],       // Background (class 0)
-  [73, 174, 174],  // Class 1 (System Teal)
-  [255, 80, 80],   // Class 2 (Coral Red)
-  [0, 255, 153],   // Class 3 (Turquoise)
-  [255, 153, 0],   // Class 4 (Orange)
-  [153, 0, 255]    // Class 5 (Purple)
-];
-
-/**
  * Helper to resolve class label safely from metadata
  */
 export function getLabelName(classId: number, metadata: ModelMetadata): string {

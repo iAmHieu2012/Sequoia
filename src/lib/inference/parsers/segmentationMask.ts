@@ -1,6 +1,11 @@
 import { ParsedSemanticSegmentationResult } from '@/types/playground';
 import { OutputParser, ParseOptions } from './types';
-import { SEGMENTATION_COLORS_RGB } from './utils';
+import { RENDERER_THEME } from '../renderers/theme';
+
+// Same palette as instance segmentation, so class colors are consistent across models (no black entries).
+const CLASS_COLORS_RGB = RENDERER_THEME.segmentationColorsRGB;
+// Single-channel masks (e.g. selfie binary mask) keep the system teal.
+const BINARY_MASK_RGB = [73, 174, 174];
 
 /**
  * Parser for semantic segmentation models.
@@ -66,7 +71,7 @@ export class SegmentationMaskParser implements OutputParser {
         } else if (channels === 1) {
           // Single channel & mask overlay mode (e.g. selfie binary mask)
           const val = (rawData[y * width + x] - min) / (max - min);
-          const rgb = SEGMENTATION_COLORS_RGB[1]; // Cyan for class 1
+          const rgb = BINARY_MASK_RGB;
           maskData[destIdx] = rgb[0];
           maskData[destIdx + 1] = rgb[1];
           maskData[destIdx + 2] = rgb[2];
@@ -88,7 +93,7 @@ export class SegmentationMaskParser implements OutputParser {
           }
         }
 
-        const rgb = SEGMENTATION_COLORS_RGB[classId % SEGMENTATION_COLORS_RGB.length];
+        const rgb = CLASS_COLORS_RGB[classId % CLASS_COLORS_RGB.length];
         
         maskData[destIdx] = rgb[0];
         maskData[destIdx + 1] = rgb[1];

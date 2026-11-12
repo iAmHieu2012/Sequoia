@@ -85,11 +85,13 @@ export class YoloxParser implements OutputParser {
       }
     }
     
-    return { 
-      type: 'detection', 
-      boxes: applyNMS(boxes, iouThreshold, maxDetections), 
-      numClasses, 
-      count: boxes.length 
+    // Count only the boxes that survive NMS, i.e. what is actually drawn.
+    const keptBoxes = applyNMS(boxes, iouThreshold, maxDetections);
+    return {
+      type: 'detection',
+      boxes: keptBoxes,
+      numClasses,
+      count: keptBoxes.length
     };
   }
 }

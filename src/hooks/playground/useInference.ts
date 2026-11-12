@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, Dispatch, SetStateAction, RefObject } from 'react';
 import { CompiledModel, Tensor } from '@litertjs/core';
-import { getParser, getRenderer } from "@/lib/inference/registry";
+import { getParser, getRenderer, OutputParser, TaskRenderer } from "@/lib/inference/registry";
 import { AiModel, ModelMetadata, PlaygroundParams } from '@/types/playground';
 
 interface UseInferenceProps {
@@ -63,6 +63,10 @@ export function useInference({
   const workerCtxRef = useRef<CanvasRenderingContext2D | null>(null);
   const floatBufferRef = useRef<Float32Array | null>(null);
   const firstFrameLoggedRef = useRef(false);
+
+  // Reuse parser/renderer across frames (renderers keep scratch canvases); rebuild only when the format/task changes.
+  const parserRef = useRef<{ key: string; parser: OutputParser } | null>(null);
+  const rendererRef = useRef<{ key: string; renderer: TaskRenderer } | null>(null);
 
   // Use refs for values accessed inside the render loop to avoid stale closures
   const modelRef = useRef<AiModel | null>(null);
@@ -244,8 +248,16 @@ export function useInference({
           const scaleX = displayCanvas.width / width;
           const scaleY = displayCanvas.height / height;
           
-          const parser = getParser(metadataRef.current.output_format);
-          const renderer = getRenderer(metadataRef.current.task);
+          const outputFormat = metadataRef.current.output_format;
+          if (parserRef.current?.key !== outputFormat) {
+            parserRef.current = { key: outputFormat, parser: getParser(outputFormat) };
+          }
+          const taskKey = metadataRef.current.task;
+          if (rendererRef.current?.key !== taskKey) {
+            rendererRef.current = { key: taskKey, renderer: getRenderer(taskKey) };
+          }
+          const parser = parserRef.current.parser;
+          const renderer = rendererRef.current.renderer;
           
             const task = metadataRef.current.task;
             const isReplacementTask = 

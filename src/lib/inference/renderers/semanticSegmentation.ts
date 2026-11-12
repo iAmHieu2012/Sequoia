@@ -9,10 +9,8 @@ export class SemanticSegmentationRenderer implements TaskRenderer {
   private tempCanvas: HTMLCanvasElement | null = null;
   private tempCtx: CanvasRenderingContext2D | null = null;
 
-  render({ ctx, result, params, metadata, canvasWidth, canvasHeight, mediaSource }: RenderOptions): void {
+  render({ ctx, result, metadata, canvasWidth, canvasHeight, mediaSource }: RenderOptions): void {
     if (result.type !== 'semantic-segmentation') return;
-    
-    const maskOpacity = (params.mask_opacity as number) ?? 0.6;
     
     if (!this.tempCanvas || this.tempCanvas.width !== result.width || this.tempCanvas.height !== result.height) {
       this.tempCanvas = document.createElement('canvas');
@@ -41,10 +39,9 @@ export class SemanticSegmentationRenderer implements TaskRenderer {
       ctx.drawImage(tempCanvas, 0, 0, result.width, result.height, 0, 0, canvasWidth, canvasHeight);
       ctx.globalCompositeOperation = 'source-over';
     } else {
-      // Normal colored mask overlay
-      ctx.globalAlpha = maskOpacity;
+      // Normal colored mask overlay. Opacity is already baked into the mask's alpha by the parser
+      // (from the mask_opacity param), so it must not be applied a second time here.
       ctx.drawImage(tempCanvas, 0, 0, result.width, result.height, 0, 0, canvasWidth, canvasHeight);
-      ctx.globalAlpha = 1.0;
     }
   }
 }
