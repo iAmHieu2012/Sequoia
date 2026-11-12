@@ -27,7 +27,7 @@ export default function DesktopDashboard() {
     activeTab, setActiveTab,
     isAssistantOpen, setIsAssistantOpen,
     mapTarget, setMapTarget,
-    topics, rogueArticles, textbooks, models, progressSummary, loading, loadingModels, dashboardError,
+    topics, rogueArticles, textbooks, models, progressSummary, loading, loadingModels, dashboardError, modelsError,
     userProgress, getNodeStatus, cosmosError,
     selectedTopic, setSelectedTopic, articles, drilldownLoading, fetchTopicArticles
   } = useDashboardContext();
@@ -35,10 +35,11 @@ export default function DesktopDashboard() {
   return (
     <div className="h-screen w-screen bg-space-bg text-text-main font-sans overflow-hidden select-none flex flex-col">
       <CyberGrid opacity="" />
-      <DashboardHeader error={dashboardError || cosmosError} />
+      <DashboardHeader error={dashboardError || cosmosError || modelsError} />
 
       {/* === MAIN LAYOUT (2 ZONES) === */}
-      {(dashboardError || cosmosError) ? (
+      {/* Only a core content failure replaces the whole dashboard; other failures stay local. */}
+      {dashboardError ? (
         <div className="flex-1 flex flex-col items-center justify-center p-6 z-10 relative">
            <div className="max-w-2xl w-full border border-coral bg-black/80 p-12 flex flex-col items-center text-center relative overflow-hidden">
              <CyberBrackets color="border-coral/50" />
@@ -56,7 +57,7 @@ export default function DesktopDashboard() {
              
              <div className="text-coral/90 font-mono text-sm leading-relaxed max-w-lg mb-8 bg-coral/10 p-4 border border-coral/20 text-left overflow-y-auto max-h-[30vh]">
                <span className="opacity-70 animate-pulse mr-2">{">>"}</span>
-               {dashboardError || cosmosError}
+               {dashboardError}
              </div>
              
              <button onClick={() => window.location.reload()} className="px-8 py-3 border border-coral text-coral uppercase tracking-[0.2em] font-mono text-xs hover:bg-coral hover:text-black transition-all duration-300 relative group overflow-hidden">
@@ -111,9 +112,10 @@ export default function DesktopDashboard() {
           {/* === COMMAND ZONE (RIGHT) === */}
           <div className={`shrink-0 flex flex-col gap-4 min-h-0 transition-all duration-500 ${isAssistantOpen ? 'w-full lg:w-full' : 'w-full lg:w-87.5'}`}>
             <div className={`flex flex-col gap-4 transition-all duration-500 overflow-hidden ${isAssistantOpen ? 'h-0 opacity-0' : 'flex-1 min-h-0 opacity-100'}`}>
-              <InferenceLabs 
+              <InferenceLabs
                 models={models}
                 loadingModels={loadingModels}
+                error={modelsError}
               />
               <Link
                 href="/sandbox"

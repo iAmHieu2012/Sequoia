@@ -9,7 +9,7 @@ interface AiModel {
   id: string;
   name: string;
   description: string;
-  task_type: string;
+  task_type: string | null;
   file_url: string;
   version: string;
   format: string;
@@ -20,6 +20,8 @@ interface InferenceLabsProps {
   models: AiModel[];
   /** Indicates if models are currently being fetched */
   loadingModels: boolean;
+  /** Set when the model list failed to load; shown inside this panel only */
+  error?: string | null;
 }
 
 /**
@@ -28,7 +30,8 @@ interface InferenceLabsProps {
  */
 export default function InferenceLabs({
   models,
-  loadingModels
+  loadingModels,
+  error
 }: InferenceLabsProps) {
   return (
     <div className="flex flex-col flex-1 min-h-0 bg-space-bg border border-white/10 relative transition-all duration-500 overflow-hidden group/panel">
@@ -58,6 +61,8 @@ export default function InferenceLabs({
       <div className="flex-1 overflow-y-auto min-h-0 uppercase tracking-wider transition-opacity duration-300 opacity-100">
         {loadingModels ? (
             <div className="p-5 text-white/40 animate-pulse text-xs font-mono tracking-widest">SCANNING FOR MODELS...</div>
+          ) : error ? (
+            <div className="p-5 text-coral text-xs font-mono tracking-widest">MODEL UPLINK FAILED. RELOAD TO RETRY.</div>
           ) : models.length === 0 ? (
             <div className="p-5 text-white/40 text-xs font-mono tracking-widest">NO MODELS DETECTED</div>
           ) : (
@@ -80,7 +85,7 @@ export default function InferenceLabs({
                     <div className="flex items-center justify-between mt-auto pt-2">
                       <div className="flex flex-col gap-1">
                         <span className="text-xs font-mono tracking-widest uppercase text-white/40">
-                          TYPE: <span className="text-white font-bold">{model.task_type.replace(/_/g, ' ')}</span>
+                          TYPE: <span className="text-white font-bold">{(model.task_type || 'unknown').replace(/_/g, ' ')}</span>
                         </span>
                         <span className="text-xs text-white/40 font-mono tracking-widest uppercase">
                           v{model.version} {'//'} {model.format}

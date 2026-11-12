@@ -7,17 +7,7 @@ import CyberPanel from "@/components/ui/CyberPanel";
 import { CyberProgressBar } from "@/components/ui/CyberProgressBar";
 import { type User } from "@supabase/supabase-js";
 import { UserProgress } from "@/hooks/cosmos/useCosmosData";
-
-interface CategoryProgress {
-  total: number;
-  completed: number;
-}
-
-interface ProgressSummary {
-  textbooks: Record<string, CategoryProgress>;
-  topics: Record<string, CategoryProgress>;
-  standalone: Record<string, boolean>;
-}
+import { ProgressSummary } from "@/types/dashboard";
 
 interface StatsBarProps {
   /** The authenticated user object */

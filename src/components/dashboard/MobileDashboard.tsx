@@ -26,7 +26,7 @@ export default function MobileDashboard() {
     topics, articles, loading,
     selectedTopic, setSelectedTopic, drilldownLoading, fetchTopicArticles,
     getNodeStatus,
-    progressSummary, rogueArticles, textbooks, models, loadingModels, userProgress, dashboardError, cosmosError 
+    progressSummary, rogueArticles, textbooks, models, loadingModels, userProgress, dashboardError, cosmosError, modelsError
   } = useDashboardContext();
 
   return (
@@ -42,7 +42,7 @@ export default function MobileDashboard() {
 
       {/* MAIN CONTENT AREA */}
       <div className="flex-1 flex flex-col min-h-0 min-w-0">
-        <DashboardHeader error={dashboardError || cosmosError} />
+        <DashboardHeader error={dashboardError || cosmosError || modelsError} />
         
         <div className="flex-1 min-h-0 p-4 flex flex-col">
           {mobileTab === "stats" && (
@@ -96,7 +96,7 @@ export default function MobileDashboard() {
           
           {mobileTab === "labs" && (
             <div className="flex-1 min-h-0 flex flex-col gap-4 animate-in fade-in duration-300">
-              <InferenceLabs models={models} loadingModels={loadingModels} />
+              <InferenceLabs models={models} loadingModels={loadingModels} error={modelsError} />
               <Link
                 href="/sandbox"
                 className="flex items-center justify-center h-[46px] shrink-0 bg-black/40 border border-white/10 relative transition-all duration-500 overflow-hidden group/panel cursor-pointer hover:bg-white/10 hover:border-white/40"

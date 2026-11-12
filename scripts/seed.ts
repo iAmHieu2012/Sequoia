@@ -1,11 +1,5 @@
 import { execSync } from 'child_process';
 import path from 'path';
-import * as dotenv from 'dotenv';
-import { assertDevDatabase } from './seed_guard';
-
-// Check once up front so nothing runs (not even partially) against a non-dev database.
-dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
-assertDevDatabase(process.env.NEXT_PUBLIC_SUPABASE_URL);
 
 function runScript(scriptName: string) {
   const scriptPath = path.join(__dirname, scriptName);

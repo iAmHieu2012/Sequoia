@@ -41,10 +41,10 @@ export interface CategoryProgress {
 }
 
 /**
- * Summarizes a user's global progress across all Textbooks, Topics, and Standalone Articles.
+ * Summarizes a user's progress across Topics and Standalone Articles.
+ * Matches the response of GET /api/v1/users/progress/summary.
  */
 export interface ProgressSummary {
-  textbooks: Record<string, CategoryProgress>;
   topics: Record<string, CategoryProgress>;
   standalone: Record<string, boolean>;
 }

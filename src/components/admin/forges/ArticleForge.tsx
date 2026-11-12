@@ -26,6 +26,8 @@ interface ArticleForgeProps {
     is_published?: boolean;
   };
   isAnomaly?: boolean;
+  /** Existing topics to pick from, so a mistyped topic ID can't be saved */
+  topics?: { id: string; name: string }[];
 }
 
 /**
@@ -33,7 +35,7 @@ interface ArticleForgeProps {
  * A full-featured editor for Articles and Anomalies. Includes a Markdown editor with
  * live preview, Cloudinary image upload, and an embedded Cosmos Map editor for plotting coordinates.
  */
-export default function ArticleForge({ onClose, onSave, initialData, isAnomaly = false }: ArticleForgeProps) {
+export default function ArticleForge({ onClose, onSave, initialData, isAnomaly = false, topics = [] }: ArticleForgeProps) {
   const entityId = initialData?.id || '';
   const [viewMode, setViewMode] = useState<ViewMode>('edit');
   const [articleSubTab, setArticleSubTab] = useState<ArticleSubTab>('general');
@@ -135,7 +137,20 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
               </div>
               <div className="w-full lg:w-1/3">
                 <ForgeLabel>TOPIC_SECTOR</ForgeLabel>
-                <ForgeInput value={category} onChange={e => setCategory(e.target.value)} placeholder="e.g. computer-vision" />
+                <select
+                  value={category}
+                  onChange={e => setCategory(e.target.value)}
+                  className="w-full bg-black/70 border border-white/40 p-2 text-sm text-white focus:border-white focus:shadow-[0_0_10px_rgba(255,255,255,0.2)] outline-none font-mono transition-all"
+                >
+                  <option value="">— NONE (STANDALONE) —</option>
+                  {topics.map(t => (
+                    <option key={t.id} value={t.id}>{t.name} ({t.id})</option>
+                  ))}
+                  {/* Keep an unknown existing value visible instead of silently dropping it */}
+                  {category && !topics.some(t => t.id === category) && (
+                    <option value={category}>{category} (NOT FOUND)</option>
+                  )}
+                </select>
               </div>
               <div className="w-full lg:w-1/4">
                 <ForgeLabel>STATUS</ForgeLabel>

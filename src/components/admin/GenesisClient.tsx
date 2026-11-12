@@ -194,7 +194,9 @@ export default function GenesisClient() {
       }
       setRefreshKey(prev => prev + 1);
     } catch (error) {
+      // Keep the form open so nothing typed is lost, and tell the admin why it failed.
       console.error("Save error:", error);
+      alert(`SAVE FAILED — nothing was saved.\n\n${error instanceof Error ? error.message : String(error)}`);
     }
   };
 
@@ -215,6 +217,7 @@ export default function GenesisClient() {
       setRefreshKey(prev => prev + 1);
     } catch (error) {
       console.error("Delete error:", error);
+      alert(`DELETE FAILED.\n\n${error instanceof Error ? error.message : String(error)}`);
     }
   };
 
@@ -245,7 +248,7 @@ export default function GenesisClient() {
             <div className="absolute inset-0 -translate-x-[150%] group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
             <span className="relative z-10 flex items-center gap-1 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">
               <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
-              [ ESC ] EXIT_GENESIS
+              EXIT_GENESIS
             </span>
           </Link>
 
@@ -726,6 +729,7 @@ export default function GenesisClient() {
           onClose={() => setIsForgeOpen(false)} 
           onSave={handleSave}
           initialData={forgeInitialData}
+          topics={topics}
         />
       )}
     </div>

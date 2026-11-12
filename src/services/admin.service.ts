@@ -1,5 +1,14 @@
 import { CosmosNode } from "@/hooks/cosmos/useCosmosData";
 
+/** Builds an Error that carries the server's message (e.g. a DB constraint error), not just a generic label. */
+async function toError(res: Response, fallback: string): Promise<Error> {
+  try {
+    const body = await res.json();
+    if (body?.error) return new Error(`${fallback}: ${body.error}`);
+  } catch { /* response was not JSON */ }
+  return new Error(`${fallback} (HTTP ${res.status})`);
+}
+
 /**
  * Service for handling all Admin-level mutations and privileged fetches.
  * Assumes the user is authenticated; the server automatically verifies cookies.
@@ -8,17 +17,17 @@ export const AdminService = {
   // --- ARTICLES ---
   getStandaloneArticles: async () => {
     const res = await fetch('/api/v1/admin/articles/standalone');
-    if (!res.ok) throw new Error('Failed to fetch standalone articles');
+    if (!res.ok) throw await toError(res, 'Failed to fetch standalone articles');
     return res.json();
   },
   getTopicArticles: async (topicId: string) => {
     const res = await fetch(`/api/v1/admin/topics/${topicId}/articles`);
-    if (!res.ok) throw new Error('Failed to fetch topic articles');
+    if (!res.ok) throw await toError(res, 'Failed to fetch topic articles');
     return res.json();
   },
   getArticleDetails: async (articleId: string) => {
     const res = await fetch(`/api/v1/admin/articles/${articleId}`);
-    if (!res.ok) throw new Error('Failed to fetch article details');
+    if (!res.ok) throw await toError(res, 'Failed to fetch article details');
     return res.json();
   },
   saveArticle: async (payload: Record<string, unknown>) => {
@@ -27,12 +36,12 @@ export const AdminService = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    if (!res.ok) throw new Error('Failed to save article');
+    if (!res.ok) throw await toError(res, 'Failed to save article');
     return res;
   },
   deleteArticle: async (id: string) => {
     const res = await fetch(`/api/v1/admin/articles/${id}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error('Failed to delete article');
+    if (!res.ok) throw await toError(res, 'Failed to delete article');
     return res;
   },
 
@@ -43,12 +52,12 @@ export const AdminService = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    if (!res.ok) throw new Error('Failed to save topic');
+    if (!res.ok) throw await toError(res, 'Failed to save topic');
     return res;
   },
   deleteTopic: async (id: string) => {
     const res = await fetch(`/api/v1/admin/topics/${id}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error('Failed to delete topic');
+    if (!res.ok) throw await toError(res, 'Failed to delete topic');
     return res;
   },
 
@@ -59,12 +68,12 @@ export const AdminService = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    if (!res.ok) throw new Error('Failed to save model');
+    if (!res.ok) throw await toError(res, 'Failed to save model');
     return res;
   },
   deleteModel: async (id: string) => {
     const res = await fetch(`/api/v1/admin/models/${id}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error('Failed to delete model');
+    if (!res.ok) throw await toError(res, 'Failed to delete model');
     return res;
   },
 
@@ -75,12 +84,12 @@ export const AdminService = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    if (!res.ok) throw new Error('Failed to save textbook');
+    if (!res.ok) throw await toError(res, 'Failed to save textbook');
     return res;
   },
   deleteTextbook: async (id: string) => {
     const res = await fetch(`/api/v1/admin/textbooks/${id}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error('Failed to delete textbook');
+    if (!res.ok) throw await toError(res, 'Failed to delete textbook');
     return res;
   },
 
@@ -91,7 +100,7 @@ export const AdminService = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ nodes })
     });
-    if (!res.ok) throw new Error('Failed to save cosmos map');
+    if (!res.ok) throw await toError(res, 'Failed to save cosmos map');
     return res;
   }
 };

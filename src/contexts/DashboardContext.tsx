@@ -35,6 +35,7 @@ interface DashboardContextType {
   loading: boolean;
   loadingModels: boolean;
   dashboardError: string | null;
+  modelsError: string | null;
   
   userProgress: UserProgress | null;
   getNodeStatus: (id: string) => boolean;
@@ -63,7 +64,8 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     progressSummary,
     loading,
     loadingModels,
-    error: dashboardError
+    error: dashboardError,
+    modelsError
   } = useDashboardData(activeTab);
 
   const { userProgress, getNodeStatus, error: cosmosError } = useCosmosData();
@@ -96,7 +98,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         activeTab, setActiveTab,
         isAssistantOpen, setIsAssistantOpen,
         mapTarget, setMapTarget,
-        topics, rogueArticles, textbooks, models, progressSummary, loading, loadingModels, dashboardError,
+        topics, rogueArticles, textbooks, models, progressSummary, loading, loadingModels, dashboardError, modelsError,
         userProgress, getNodeStatus, cosmosError,
         selectedTopic, setSelectedTopic, articles, setArticles, drilldownLoading, fetchTopicArticles
       }}

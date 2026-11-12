@@ -20,7 +20,9 @@ export function useDashboardData(activeTab: string) {
   const [textbooks, setTextbooks] = useState<Textbook[]>([]);
   const [models, setModels] = useState<AiModel[]>([]);
   
+  // Only core content failures (topics/articles/textbooks) block the whole dashboard.
   const [error, setError] = useState<string | null>(null);
+  const [modelsError, setModelsError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingModels, setLoadingModels] = useState(true);
   const [progressCache, setProgressCache] = useState<{ userId: string | undefined, data: ProgressSummary | null }>({ userId: undefined, data: null });
@@ -67,7 +69,7 @@ export function useDashboardData(activeTab: string) {
         .catch(error => {
           console.error('Failed to fetch AI models:', error);
           if (isMounted) {
-             setError('Failed to fetch AI models');
+             setModelsError('Failed to fetch AI models');
              setLoadingModels(false);
           }
         });
@@ -85,8 +87,8 @@ export function useDashboardData(activeTab: string) {
         const data = await UserService.getUserProgressSummary();
         if (isMounted) setProgressCache({ userId: user.id, data });
       } catch (err) {
+        // Non-blocking: stats simply stay empty if this fails.
         console.error('Failed to fetch user progress:', err);
-        if (isMounted) setError('Failed to fetch user progress summary');
       }
     };
 
@@ -102,6 +104,7 @@ export function useDashboardData(activeTab: string) {
     progressSummary,
     loading,
     loadingModels,
-    error
+    error,
+    modelsError
   };
 }
