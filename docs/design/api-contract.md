@@ -14,7 +14,7 @@
 | Development | `http://localhost:3000/api/v1` |
 | Production | `https://sequoia.app/api/v1` |
 
-Riêng AI Assistant nằm ngoài versioning: `/api/chat`.
+AI Assistant không đi qua server: trình duyệt gọi thẳng Google Gemini bằng API key của người dùng (xem mục 6).
 
 ### Versioning
 
@@ -53,7 +53,6 @@ Lỗi: một chuỗi trong `error`.
 | 401 | Chưa đăng nhập hoặc session không hợp lệ |
 | 403 | Không có quyền truy cập (`Admin privileges required`) |
 | 404 | Resource không tồn tại (bài chưa xuất bản cũng trả 404) |
-| 413 | Request quá lớn (dùng ở `/api/chat`) |
 | 500 | Lỗi server không xác định |
 
 ### Danh sách endpoint
@@ -76,7 +75,6 @@ Lỗi: một chuỗi trong `error`.
 | POST | `/articles/:id/progress` | User |
 | POST | `/uploads/presigned-url` | User |
 | POST | `/cosmos/progress/:mapId/decode` | User (chưa dùng) |
-| POST | `/api/chat` | User |
 | GET | `/admin/articles/standalone` | Admin |
 | GET | `/admin/topics/:id/articles` | Admin |
 | GET | `/admin/articles/:id` | Admin |
@@ -381,28 +379,6 @@ Endpoint giữ chỗ, chưa có logic. Chỉ trả về một message xác nhậ
 
 ---
 
-### 3.7. POST `/api/chat` — AI Assistant
-
-Stream câu trả lời từ Google Gemini (định dạng UI message stream của Vercel AI SDK).
-
-#### Request Body
-
-```json
-{
-  "messages": [ { "role": "user", "parts": [ { "type": "text", "text": "..." } ] } ],
-  "modelId": "gemini-3.5-flash-lite"
-}
-```
-
-| Ràng buộc | Giá trị |
-| --- | --- |
-| `modelId` cho phép | `gemini-3.5-flash-lite`, `gemini-3.5-flash`. Giá trị khác → tự dùng `gemini-3.5-flash-lite` |
-| Số tin nhắn tối đa | 40 (vượt → `413`) |
-| Tổng độ dài text tối đa | 40.000 ký tự (vượt → `413`) |
-| Độ dài câu trả lời tối đa | 4.096 token |
-
----
-
 ## 4. Admin Endpoints (Yêu cầu `is_admin` claim)
 
 Tất cả admin endpoints đều kiểm tra `user.app_metadata.is_admin === true`, sai thì trả `403`.
@@ -599,3 +575,20 @@ Ghi đè **toàn bộ** danh sách node của bản đồ (dùng bởi nút SAVE
 > [!NOTE]
 > Dự án Sequoia sử dụng kiến trúc **Supabase Auth trực tiếp trên Client (Frontend)**. Do đó, Backend không cung cấp API Đăng nhập hay Đăng ký.
 > Thay vào đó, Frontend sử dụng Supabase Client SDK để đăng nhập bằng Email/Password hoặc Google OAuth. Sau khi đăng nhập thành công, session được lưu trong cookie, và tự động gửi kèm khi gọi API.
+
+---
+
+## 6. AI Assistant (không qua server)
+
+AI Assistant chạy hoàn toàn trên trình duyệt (`src/lib/ai/browserGeminiTransport.ts`):
+
+- Người dùng tự nhập **Gemini API key** của mình. Key lưu ở `sessionStorage` (mất khi đóng tab), hoặc `localStorage` nếu chọn "Remember on this device".
+- Trình duyệt gọi thẳng `https://generativelanguage.googleapis.com/v1beta/models/<model>:streamGenerateContent`, key gửi qua header `x-goog-api-key`. Server của Sequoia không nhận key cũng như tin nhắn.
+- Người dùng chọn **nhóm model** bằng nút (`GEMINI_MODEL_GROUPS`); trong mỗi nhóm, model mới nhất được thử trước:
+  - **FLASH LITE** (mặc định): 3.5 Flash Lite → 3.1 Flash Lite
+  - **FLASH**: 3.8 Flash → 3.6 Flash
+  - **HYDROGEN**: 4 Hydrogen
+- Model trả lỗi **429** (hết lượt / không có trong gói) hoặc **404** (đã gỡ) thì bị tạm bỏ qua (lưu trong `localStorage`; 429 chờ theo `retryDelay` của Google, 404 chờ 7 ngày) và chuyển sang model kế **trong cùng nhóm**.
+- Lỗi **5xx** (Google quá tải, ví dụ 503): chuyển ngay sang model kế, không thử lại. Không đặt thời gian chờ, nên lần gửi sau thử lại model đó ngay. Mỗi tin nhắn tốn tối đa 1 request cho mỗi model trong nhóm.
+- Hết model trong nhóm thì báo lỗi đúng lý do (quá tải / hết lượt / đã gỡ), không tự nhảy sang nhóm khác. Lỗi key (400/401/403) báo ngay, không xoay vòng.
+- Mỗi câu trả lời ghi tên model đã trả lời. Câu trả lời tối đa 4.096 token.

@@ -23,7 +23,7 @@ export const PRIVACY_CYBERPUNK = `### [ SECURITY CLEARANCE: LEVEL 4 ] - NODE DAT
 - **Local Buffers:** Code written in the Python Sandbox stays in your own terminal (browser storage) and is never transmitted to the Core.
 
 #### 2. OFF-GRID RELAYS (THIRD-PARTY TRANSMISSION):
-- **System AI Uplink:** Queries sent to the AI Assistant are relayed to Google Gemini to generate a response. The Nexus does not archive these transmissions.
+- **System AI Uplink:** The AI Assistant runs on your own Google Gemini access key. The key is held only in your terminal (browser storage) and your queries travel directly from your Node to Google Gemini - they never pass through, and are never archived by, the Nexus.
 - **Optical Sensors:** Camera feeds and images used in the Labs are decoded entirely on your device. They never leave your Node.
 - **Asset Relays:** Datapad images are served from Cloudinary, and AI models and the Python runtime from jsDelivr / Hugging Face. These relays may observe your network signature (IP address) when delivering assets.
 
@@ -37,13 +37,13 @@ export const PRIVACY_CYBERPUNK = `### [ SECURITY CLEARANCE: LEVEL 4 ] - NODE DAT
 export const PRIVACY_LEGAL = `### PRIVACY POLICY
 
 **Effective Date:** January 1, 2026
-**Last Updated:** November 12, 2026
+**Last Updated:** November 17, 2026
 
 #### 1. INFORMATION WE COLLECT
 - **Account Information:** When you register, we store your Email Address, Display Name, and a unique authentication identifier (Supabase UID). If you sign in with Google, we also store your Google profile picture URL.
 - **Learning Progress:** The articles you mark as completed and the dates you were active, used to show your progress and streak.
 - **Session Data:** Authentication cookies that keep you signed in.
-- **Stored only on your device:** Code you write in the Python Sandbox is saved in your browser's local storage and is not sent to our servers.
+- **Stored only on your device:** Code you write in the Python Sandbox, and your Gemini API key if you add one, are saved in your browser's storage and are not sent to our servers. You can remove the key at any time from the AI Assistant.
 
 We do not use analytics or advertising trackers.
 
@@ -55,7 +55,7 @@ We do not use analytics or advertising trackers.
 - **Zero-Sell Policy:** We do not sell, rent, or trade your personal information to advertisers, data brokers, or any third party.
 - **Service Providers:** We rely on the following providers to operate the Service:
   - **Supabase** - stores your account and learning progress.
-  - **Google Gemini** - receives the messages you send to the AI Assistant in order to generate a reply. We do not store these conversations.
+  - **Google Gemini** - if you use the AI Assistant, your browser sends your messages directly to Google Gemini using the Gemini API key you provide, under your own agreement with Google. The messages and the key do not pass through our servers and we do not store them.
   - **Cloudinary** - hosts images used in articles.
   - **jsDelivr and Hugging Face** - deliver AI model files and the Python runtime to your browser.
   - Our hosting provider, which serves the website.
