@@ -8,7 +8,6 @@ import { useChat } from "@ai-sdk/react";
 import type { UIMessage } from "ai";
 import { DefaultChatTransport } from "ai";
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
-import Image from "next/image";
 
 interface AiAssistantProps {
   /** Controls whether the chat panel is expanded or collapsed */
@@ -58,15 +57,7 @@ export default function AiAssistant({ isOpen, setIsOpen }: AiAssistantProps) {
   }, [messages]);
 
   const isLoading = status === 'streaming';
-  
-  const botState = isLoading
-    ? '/bot-loading.gif'
-    : error
-    ? '/bot-negative.gif'
-    : showPulse
-    ? '/bot-positive.gif'
-    : '/bot-idle.gif';
-  
+    
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -172,7 +163,6 @@ export default function AiAssistant({ isOpen, setIsOpen }: AiAssistantProps) {
                 <div className="flex flex-col">
                   <span className="text-xs font-mono text-white/40 tracking-widest mb-1">SYS_STATUS</span>
                   <div className="flex items-center gap-2">
-                    <Image src={botState} alt="AI Bot" width={20} height={20} unoptimized className="object-contain" />
                     <span className="text-xs font-mono text-white tracking-widest flex items-center gap-2">
                       {isLoading ? 'PROCESSING' : 'AWAITING_INPUT'}
                       <span className="w-2 h-2 bg-teal shadow-[0_0_8px_var(--color-teal)] animate-pulse" />
