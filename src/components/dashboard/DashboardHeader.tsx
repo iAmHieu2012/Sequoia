@@ -26,7 +26,7 @@ export default function DashboardHeader({ error }: { error?: string | null }) {
       
       {/* LEFT: Logo & System Identity */}
       <div className="flex items-center gap-4 px-4">
-        <Image src="/bot.png" alt="Sequoia Bot" width={40} height={40} unoptimized className="w-20 h-20" />
+        <Image src="/bot.svg" alt="" width={64} height={64} unoptimized className="w-12 h-12 md:w-16 md:h-16" />
           
           <div className="flex flex-col justify-center">
             <div className="flex items-center gap-2 mb-1">
