@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
@@ -38,13 +39,9 @@ export default function LandingClient() {
     return () => clearTimeout(timer);
   }, []);
 
+  // The dashboard works without an account; signing in is only needed to save progress.
   const handleEnterSystem = () => {
-    if (loading) return;
-    if (user) {
-      router.push('/dashboard');
-    } else {
-      router.push('/auth');
-    }
+    router.push('/dashboard');
   };
 
   return (
@@ -128,7 +125,6 @@ export default function LandingClient() {
         <div className={`w-full max-w-sm transition-all duration-700 ease-out delay-200 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           <button 
             onClick={handleEnterSystem}
-            disabled={loading}
             className="group relative h-14 md:h-16 w-full bg-white text-space-bg flex items-center justify-between px-4 sm:px-6 clip-chamfer-tl-br hover:bg-gray-200 transition-colors border-none outline-none"
           >
             {/* Background Decorative Stripes */}
@@ -141,17 +137,21 @@ export default function LandingClient() {
                 <div className="w-2 md:w-4 h-[2px] bg-space-bg"></div>
               </div>
               <span className="font-mono font-black text-xs sm:text-sm md:text-base tracking-[0.2em] uppercase">
-                {loading ? "INITIALIZING..." : "ENTER_SYSTEM"}
+                ENTER_SYSTEM
               </span>
             </div>
             
             {/* Right Action Icon Box */}
-            {!loading && (
-              <div className="relative z-10 flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 border-2 border-space-bg/20 group-hover:border-space-bg group-hover:bg-space-bg group-hover:text-white transition-all duration-300">
-                <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-0.5 transition-transform" />
-              </div>
-            )}
+            <div className="relative z-10 flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 border-2 border-space-bg/20 group-hover:border-space-bg group-hover:bg-space-bg group-hover:text-white transition-all duration-300">
+              <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-0.5 transition-transform" />
+            </div>
           </button>
+          {!loading && !user && (
+            <div className="mt-3 text-center font-mono text-xs tracking-widest uppercase text-white/40">
+              Have an account?{" "}
+              <Link href="/auth" className="text-white/70 hover:text-white underline underline-offset-4">LOGIN</Link>
+            </div>
+          )}
         </div>
 
         {/* Decorative Bottom Bar */}

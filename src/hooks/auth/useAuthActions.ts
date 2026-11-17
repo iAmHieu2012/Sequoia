@@ -12,11 +12,14 @@ export const mapSupabaseError = (errorMessage: string): string => {
 };
 
 /**
+ * `initialError`: message to show on load (e.g. a failed Google sign-in passed back by /auth/callback).
+ * `next`: same-site path to go to after signing in (already validated with safeNext).
+ *
  * Orchestrates Supabase authentication flows including Email/Password login, registration, Google OAuth, and password resets.
  * Manages its own loading, error, and success message states.
  */
-export function useAuthActions() {
-  const [error, setError] = useState('');
+export function useAuthActions({ initialError, next = '/dashboard' }: { initialError?: string; next?: string } = {}) {
+  const [error, setError] = useState(initialError ?? '');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -45,7 +48,7 @@ export function useAuthActions() {
         });
         if (error) throw error;
       }
-      router.push('/dashboard');
+      router.push(next);
     } catch (error: unknown) {
       setError(mapSupabaseError(error instanceof Error ? error.message : String(error)));
     } finally {
@@ -61,7 +64,7 @@ export function useAuthActions() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
         }
       });
       if (error) throw error;
@@ -82,7 +85,8 @@ export function useAuthActions() {
     setLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/update-password`,
+        // Goes through the callback so the one-time code becomes a session before the new-password page.
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent('/auth/update-password')}`,
       });
       if (error) throw error;
       setMessage("RESET_LINK_DISPATCHED_TO_EMAIL");

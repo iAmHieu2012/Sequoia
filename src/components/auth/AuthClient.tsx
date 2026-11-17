@@ -12,7 +12,14 @@ import { useAuthActions } from '@/hooks/auth/useAuthActions';
 import { useAuth } from '@/contexts/AuthContext';
 import Image from "next/image";
 
-export default function AuthClient() {
+interface AuthClientProps {
+  /** Error to show on load (passed back from /auth/callback) */
+  initialError?: string;
+  /** Same-site path to go to after signing in */
+  next?: string;
+}
+
+export default function AuthClient({ initialError, next = '/dashboard' }: AuthClientProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -29,13 +36,13 @@ export default function AuthClient() {
     handleGoogleSignIn, 
     handleResetPassword,
     clearMessages 
-  } = useAuthActions();
+  } = useAuthActions({ initialError, next });
 
   useEffect(() => {
     if (user) {
-      router.push('/dashboard');
+      router.push(next);
     }
-  }, [user, router]);
+  }, [user, router, next]);
 
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);

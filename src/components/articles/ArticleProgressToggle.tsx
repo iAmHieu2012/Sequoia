@@ -73,10 +73,12 @@ export default function ArticleProgressToggle({ article_id }: ArticleProgressTog
         <p className="text-xs font-mono text-white/50 uppercase tracking-widest text-center max-w-sm mb-4">
           Signal interception successful, but neural uplink is severed. Establish a connection to record your decoding progress.
         </p>
-        <Link href="/auth">
-          <button className="px-6 py-2 border border-teal-400 text-teal-400 hover:bg-teal-400/10 font-mono text-xs uppercase tracking-widest transition-all duration-300 clip-chamfer-tl-br">
-            Initialize Uplink (Login)
-          </button>
+        {/* After signing in, come back to this article */}
+        <Link
+          href={`/auth?next=${encodeURIComponent(`/articles/${article_id}`)}`}
+          className="inline-block px-6 py-2 border border-teal-400 text-teal-400 hover:bg-teal-400/10 font-mono text-xs uppercase tracking-widest transition-all duration-300 clip-chamfer-tl-br"
+        >
+          Initialize Uplink (Login)
         </Link>
       </CyberPanel>
     );

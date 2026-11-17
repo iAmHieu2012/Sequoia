@@ -1,30 +1,36 @@
 import { NextResponse } from 'next/server'
-// The client you created from the Server-Side Auth instructions
 import { createClient } from '@/utils/supabase/server'
+import { safeNext } from '@/utils/safeNext'
 
+/**
+ * OAuth (Google) and password-reset links land here with a one-time `code`.
+ * On success: exchange it for a session and go to `next` (same-site paths only).
+ * On failure: go back to the login page with an `error` code shown in the login panel.
+ */
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  // if "next" is in param, use it as the redirect URL
-  const next = searchParams.get('next') ?? '/dashboard'
+  const next = safeNext(searchParams.get('next'))
+
+  // Behind a load balancer the public host is in X-Forwarded-Host.
+  const forwardedHost = request.headers.get('x-forwarded-host')
+  const base = process.env.NODE_ENV !== 'development' && forwardedHost ? `https://${forwardedHost}` : origin
 
   if (code) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) {
-      const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
-      const isLocalEnv = process.env.NODE_ENV === 'development'
-      if (isLocalEnv) {
-        // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
-        return NextResponse.redirect(`${origin}${next}`)
-      } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`)
-      } else {
-        return NextResponse.redirect(`${origin}${next}`)
-      }
-    }
+    if (!error) return NextResponse.redirect(`${base}${next}`)
   }
 
-  // return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth/auth-code-error`)
+  // Provider error (e.g. the user pressed Cancel on Google's screen) or an invalid / expired code.
+  const providerError = searchParams.get('error')
+  const reason =
+    next === '/auth/update-password' ? 'reset_link_invalid'
+    : providerError === 'access_denied' ? 'oauth_cancelled'
+    : 'oauth_failed'
+
+  const loginUrl = new URL('/auth', base)
+  loginUrl.searchParams.set('error', reason)
+  if (next !== '/dashboard' && next !== '/auth/update-password') loginUrl.searchParams.set('next', next)
+  return NextResponse.redirect(loginUrl)
 }
