@@ -163,7 +163,7 @@ export default function ContentBrowser({
 
         {/* MODULES tab */}
         {activeTab === "modules" && (
-          <ModulesTab textbooks={textbooks} />
+          <ModulesTab textbooks={textbooks} loading={loading} />
         )}
       </div>
     </CyberPanel>

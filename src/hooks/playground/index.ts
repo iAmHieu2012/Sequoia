@@ -24,7 +24,7 @@ export function usePlayground(modelId: string) {
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { model, loading, booting, compiledModelRef, compiledModelReady } = useModelLoader(modelId, setLogs);
+  const { model, loading, loadError, booting, compiledModelRef, compiledModelReady } = useModelLoader(modelId, setLogs);
   
   const metadata = model?.metadata || null;
   const { params, paramsRef, updateParam, resetParams } = usePlaygroundParams(metadata);
@@ -66,6 +66,7 @@ export function usePlayground(modelId: string) {
     model,
     metadata,
     loading,
+    loadError,
     booting,
     logs,
     cameraActive,

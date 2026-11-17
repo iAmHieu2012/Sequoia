@@ -17,6 +17,8 @@ export function useModelLoader(
 ) {
   const [model, setModel] = useState<AiModel | null>(null);
   const [loading, setLoading] = useState(true);
+  // Why the model could not be loaded: it does not exist, or the request failed (network / server error).
+  const [loadError, setLoadError] = useState<"not_found" | "failed" | null>(null);
   const [booting, setBooting] = useState(true);
   
   const compiledModelRef = useRef<CompiledModel | null>(null);
@@ -74,7 +76,11 @@ export function useModelLoader(
     initialized.current = true;
 
     fetch(`/api/v1/models/${modelId}`)
-      .then(res => res.json())
+      .then(res => {
+        if (res.status === 404) throw new Error("not_found");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then(async data => {
         const modelData = data.data;
         if (modelData.metadata_url) {
@@ -98,6 +104,7 @@ export function useModelLoader(
       .catch(error => {
         console.error(error);
         setLogs(prev => [...prev, "> ERROR: FAILED TO FETCH MODEL MATRIX."]);
+        setLoadError(error instanceof Error && error.message === "not_found" ? "not_found" : "failed");
         setLoading(false);
       });
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -105,5 +112,5 @@ export function useModelLoader(
 
 
 
-  return { model, loading, booting, compiledModelRef, compiledModelReady };
+  return { model, loading, loadError, booting, compiledModelRef, compiledModelReady };
 }

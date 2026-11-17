@@ -5,13 +5,17 @@ import { Textbook } from "@/types/dashboard";
 interface ModulesTabProps {
   /** List of interactive textbooks (Modules) */
   textbooks: Textbook[];
+  /** Whether the textbook list is still loading */
+  loading: boolean;
 }
 
 /**
  * Renders the "Modules" tab within the ContentBrowser.
  * Displays a list of interactive textbooks available for the user.
  */
-export default function ModulesTab({ textbooks }: ModulesTabProps) {
+export default function ModulesTab({ textbooks, loading }: ModulesTabProps) {
+  if (loading) return <div className="p-5 text-white/40 font-mono animate-pulse text-xs tracking-widest">LOADING MODULES...</div>;
+
   if (textbooks.length === 0) {
     return <div className="p-5 text-white/40 font-mono text-xs tracking-widest">NO MODULES ACTIVE.</div>;
   }

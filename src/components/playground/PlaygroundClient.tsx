@@ -21,6 +21,7 @@ export default function PlaygroundClient({ modelId }: PlaygroundClientProps) {
     model,
     metadata,
     loading,
+    loadError,
     booting,
     logs,
     cameraActive,
@@ -42,8 +43,9 @@ export default function PlaygroundClient({ modelId }: PlaygroundClientProps) {
 
   if (loading) {
     return (
-      <div className="h-screen w-screen bg-space-bg flex items-center justify-center text-white/40 font-mono text-xl animate-pulse tracking-widest">
-        ESTABLISHING UPLINK...
+      <div className="h-screen w-screen bg-space-bg flex items-center justify-center">
+        <CyberGrid />
+        <div className="relative z-10 text-white/40 font-mono text-xl animate-pulse tracking-widest">ESTABLISHING UPLINK...</div>
       </div>
     );
   }
@@ -51,8 +53,9 @@ export default function PlaygroundClient({ modelId }: PlaygroundClientProps) {
   if (!model) {
     return (
       <div className="h-screen w-screen bg-space-bg flex items-center justify-center flex-col gap-4 text-coral font-mono tracking-widest">
-        <div>MODEL NOT FOUND</div>
-        <button onClick={handleEscape} className="text-white/40 hover:text-white transition-colors text-sm border-b border-white/10 pb-1">
+        <CyberGrid />
+        <div className="relative z-10">{loadError === "failed" ? "CONNECTION FAILED" : "MODEL NOT FOUND"}</div>
+        <button onClick={handleEscape} className="relative z-10 text-white/40 hover:text-white transition-colors text-sm border-b border-white/10 pb-1">
           [ ESC ] RETURN
         </button>
       </div>
