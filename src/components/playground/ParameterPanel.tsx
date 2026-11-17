@@ -77,6 +77,7 @@ export default function ParameterPanel({
   );
 }
 
+/** One control per metadata parameter: slider, toggle or select. */
 function DynamicParameter({ definition, value, onChange }: { 
   definition: ParameterDefinition; 
   value: ParamValue | undefined;
@@ -84,6 +85,7 @@ function DynamicParameter({ definition, value, onChange }: {
 }) {
   if (definition.type === 'slider') {
     const numVal = (value as number) ?? (definition.default as number);
+    // A [0, 1] slider with fractional steps is shown as a percentage.
     const isPercent = definition.max === 1.0 && definition.step !== undefined && definition.step < 1;
     const displayVal = isPercent ? `${(numVal * 100).toFixed(0)}%` : String(numVal);
 
@@ -125,6 +127,24 @@ function DynamicParameter({ definition, value, onChange }: {
               : 'left-0.5 bg-white/40'
           }`} />
         </button>
+      </div>
+    );
+  }
+
+  if (definition.type === 'select') {
+    const strVal = String(value ?? definition.default);
+    return (
+      <div className="flex flex-col gap-2">
+        <span className="text-xs font-mono text-white/40 tracking-widest uppercase">{definition.label.replace(/\s/g, '_')}</span>
+        <select
+          value={strVal}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full bg-black/70 border border-white/10 hover:border-white/40 focus:border-white/40 p-2 text-xs font-mono text-white outline-none transition-colors"
+        >
+          {(definition.options ?? []).map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
       </div>
     );
   }

@@ -1,6 +1,5 @@
 import { useRef, useCallback, useEffect } from 'react';
-
-const CANVAS_SIZE = 20000;
+import { CANVAS_SIZE } from '@/constants/cosmos';
 
 interface PanZoomOptions {
   initialScale?: number;
@@ -11,7 +10,9 @@ interface PanZoomOptions {
 }
 
 /**
- * High-performance hook for panning and zooming a 2D canvas area.
+ * Pan and zoom for a 2D map with mouse, wheel and touch (drag + pinch).
+ * The transform lives in refs and is reported through `onUpdate` instead of React state,
+ * so moving the map never re-renders the component.
  * Returns handlers to attach to a viewport div and a `flyTo` function.
  */
 export function usePanZoom(
@@ -54,6 +55,7 @@ export function usePanZoom(
     return Math.max(w / CANVAS_SIZE, h / CANVAS_SIZE, 0.08);
   }, [getContainerSize, minScaleOverride]);
 
+  // Allow panning up to half a viewport past each edge of the map, no further.
   const clampTranslate = useCallback((tx: number, ty: number, s: number) => {
     const { w, h } = getContainerSize();
     const canvasW = CANVAS_SIZE * s;
@@ -65,6 +67,7 @@ export function usePanZoom(
     return { x: clampedX, y: clampedY };
   }, [getContainerSize]);
 
+  /** Centers the view on world point (x, y), in [0, CANVAS_SIZE] (stored node x/y + OFFSET). `isTransitioning` stays true for 800ms so the caller can animate. */
   const flyTo = useCallback((x: number, y: number, s?: number) => {
     isTransitioning.current = true;
     const computedMinScale = getMinScale();
@@ -84,7 +87,7 @@ export function usePanZoom(
     }, 800);
   }, [getMinScale, getContainerSize, clampTranslate, notifyUpdate]);
 
-  // Wheel zoom
+  // Wheel zoom. Attached manually because React's onWheel listener is passive and cannot preventDefault.
   useEffect(() => {
     const viewport = viewportRef.current;
     if (!viewport) return;
@@ -100,6 +103,7 @@ export function usePanZoom(
       const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
 
+      // Keep the map point under the cursor fixed while zooming.
       const rawX = mouseX - (mouseX - translateX.current) * (newScale / scale.current);
       const rawY = mouseY - (mouseY - translateY.current) * (newScale / scale.current);
       const clamped = clampTranslate(rawX, rawY, newScale);

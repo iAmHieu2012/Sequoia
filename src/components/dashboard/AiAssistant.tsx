@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { TerminalSquare, X, Send, BotMessageSquare, KeyRound } from "lucide-react";
 import CyberBrackets from "@/components/ui/CyberBrackets";
 import CyberInput from "@/components/ui/CyberInput";
@@ -78,8 +78,6 @@ interface AiAssistantProps {
 export default function AiAssistant({ isOpen, setIsOpen }: AiAssistantProps) {
   const [input, setInput] = useState('');
   const [group, setGroup] = useState<GeminiGroupId>(DEFAULT_GEMINI_GROUP);
-  const pulseTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const [, setShowPulse] = useState(false);
 
   const { apiKey, remembered, save: saveKey, clear: clearKey } = useGeminiApiKey();
   const [editingKey, setEditingKey] = useState(false);
@@ -93,22 +91,14 @@ export default function AiAssistant({ isOpen, setIsOpen }: AiAssistantProps) {
 
   const { messages, sendMessage, status, error } = useChat<UIMessage<AssistantMetadata>>({
     transport,
-    onFinish: () => {
-      setShowPulse(true);
-      if (pulseTimerRef.current) clearTimeout(pulseTimerRef.current);
-      pulseTimerRef.current = setTimeout(() => setShowPulse(false), 3000);
-    },
   });
-
-  React.useEffect(() => {
-    return () => { if (pulseTimerRef.current) clearTimeout(pulseTimerRef.current); };
-  }, []);
 
   const isLoading = status === 'streaming' || status === 'submitted';
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || !apiKey) return;
+    // The chosen model group rides along in the request body; BrowserGeminiTransport reads it.
     sendMessage({ text: input }, { body: { group } });
     setInput('');
   };

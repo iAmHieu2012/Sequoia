@@ -1,17 +1,5 @@
-export const THEMES = [
-  { id: "system", name: "DEFAULT_SYSTEM", hex: "#49aeae" },
-  { id: "grey", name: "GREY", hex: "#808080" },
-  { id: "red", name: "RED", hex: "#f14949" },
-  { id: "orange", name: "ORANGE", hex: "#f19d49" },
-  { id: "yellow", name: "YELLOW", hex: "#f1f149" },
-  { id: "green", name: "GREEN", hex: "#49f149" },
-  { id: "turquoise", name: "TURQUOISE", hex: "#49f19d" },
-  { id: "cyan", name: "CYAN", hex: "#49f1f1" },
-  { id: "blue", name: "BLUE", hex: "#4949f1" },
-  { id: "purple", name: "PURPLE", hex: "#9d49f1" },
-  { id: "pink", name: "PINK", hex: "#f149f1" },
-];
-
+// Documents shown in the dashboard's CommandCenterPanel. Each has a themed (_CYBERPUNK) and a
+// plain (_LEGAL) version; keep the facts in both in sync.
 export const PRIVACY_CYBERPUNK = `### [ SECURITY CLEARANCE: LEVEL 4 ] - NODE DATA ARCHIVAL DIRECTIVE
 
 **OVERSEER DIRECTIVE:** By synchronizing with Sequoia Nexus, the Entity (Node) accepts the following protocol for identity signaling and data archival.

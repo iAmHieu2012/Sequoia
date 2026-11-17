@@ -8,13 +8,12 @@ import CyberBrackets from "@/components/ui/CyberBrackets";
 import CyberBadge from "@/components/ui/CyberBadge";
 import styles from './CosmosMapPreview.module.css';
 
-const CANVAS_SIZE = 20000;
-const OFFSET = CANVAS_SIZE / 2;
+import { CANVAS_SIZE, OFFSET } from "@/constants/cosmos";
 
 interface CosmosMapPreviewProps {
-  /** Target X coordinate to fly to initially */
+  /** Fallback view center while the map has no nodes; once nodes load, the view centers on them. */
   targetX: number;
-  /** Target Y coordinate to fly to initially */
+  /** See targetX. */
   targetY: number;
   /** Zoom scale, defaults to 0.2 */
   targetScale?: number;
@@ -26,8 +25,9 @@ interface CosmosMapPreviewProps {
 }
 
 /**
- * A high-performance 2D canvas that renders Cosmos Map nodes and connections.
- * Bypasses React state for pan/zoom rendering to achieve 60fps via usePanZoom hook.
+ * Pannable, zoomable map of article nodes and their connections (DOM nodes + SVG lines).
+ * Pan/zoom never re-render React: usePanZoom reports the transform and onUpdate writes it
+ * straight to the DOM.
  */
 export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, mapId, activeNodeId, className = "" }: CosmosMapPreviewProps) {
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -39,6 +39,7 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
   const { flyTo, handlers } = usePanZoom(viewportRef, {
     onUpdate: (x, y, s, isTransitioning) => {
       if (viewportRef.current) {
+        // Hide node labels when zoomed far out; the grid background moves with the map.
         viewportRef.current.style.setProperty('--label-opacity', s < 0.3 ? '0' : '1');
         viewportRef.current.style.backgroundSize = `${200 * s}px ${200 * s}px`;
         viewportRef.current.style.backgroundPosition = `${x}px ${y}px`;
@@ -51,6 +52,7 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
       if (hudScaleRef.current) {
         hudScaleRef.current.textContent = `${s.toFixed(2)}x`;
       }
+      // HUD shows the view center in stored node coordinates.
       if (hudTargetRef.current && viewportRef.current) {
         const w = viewportRef.current.clientWidth;
         const h = viewportRef.current.clientHeight;
@@ -62,6 +64,7 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
   });
   const { mapData, getNodeStatus } = useCosmosData(mapId);
 
+  // Default view center: the middle of the nodes' bounding box.
   let cx = targetX;
   let cy = targetY;
 
@@ -130,7 +133,7 @@ export default function CosmosMapPreview({ targetX, targetY, targetScale = 0.2, 
             }
           </svg>
 
-          {/* Dynamic Nodes from API */}
+          {/* Nodes. Anomalies (standalone articles) get the coral style; completed articles get teal rings. */}
           {mapData &&
             mapData.nodes.map((node) => {
               const isCompleted = getNodeStatus(node.article_id);

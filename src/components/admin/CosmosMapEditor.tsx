@@ -9,8 +9,7 @@ import { Save } from "lucide-react";
 import { AdminService } from "@/services/admin.service";
 import styles from '../dashboard/CosmosMapPreview.module.css';
 
-const CANVAS_SIZE = 20000;
-const OFFSET = CANVAS_SIZE / 2;
+import { CANVAS_SIZE, OFFSET } from "@/constants/cosmos";
 
 interface CosmosMapEditorProps {
   targetX: number;
@@ -19,10 +18,16 @@ interface CosmosMapEditorProps {
   mapId?: string;
   activeNodeId?: string;
   className?: string;
+  /** Change it to refetch the map from the server. */
   refreshKey?: number;
+  /**
+   * The article being edited in a forge. It is drawn on top of the map, and moving or linking it
+   * goes through the callbacks below instead of the editor's own node list.
+   */
   draftNode?: Partial<CosmosNode>;
   onDraftNodeDrag?: (x: number, y: number) => void;
   onDraftNodeConnectionsChange?: (connections: string[]) => void;
+  /** Hide when the parent saves the node together with something else (e.g. the article). */
   hideSaveButton?: boolean;
 }
 
@@ -45,6 +50,7 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
   const [linkingNodeId, setLinkingNodeId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Latest-value refs: the window listeners and handlers read these without being re-created each render.
   const draftNodeRef = useRef(draftNode);
   // eslint-disable-next-line react-hooks/refs
   draftNodeRef.current = draftNode;
@@ -82,6 +88,7 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
   const { flyTo, handlers } = usePanZoom(viewportRef, { onUpdate });
   const [prevMapData, setPrevMapData] = useState(mapData);
 
+  // Fresh map data from the server replaces local edits (state adjusted during render, no effect needed).
   if (mapData !== prevMapData) {
     setPrevMapData(mapData);
     setLocalNodes(mapData ? mapData.nodes : []);
@@ -164,12 +171,14 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
       flyTo(cx + OFFSET, cy + OFFSET, targetScale);
     };
 
+    // The viewport has no size yet (e.g. its panel is still opening): wait before measuring.
     if (viewportRef.current && viewportRef.current.clientWidth === 0) {
       const t = setTimeout(doFlyTo, 350);
       return () => clearTimeout(t);
     } else {
       doFlyTo();
     }
+    // Only localNodes.length is a dependency, so moving or linking a node does not recenter the view.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetX, targetY, targetScale, flyTo, activeNodeId, localNodes.length, draggingNodeId, draftNode]);
 
@@ -276,14 +285,14 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
               <line 
                 x1={(renderNodes.find(n => n.article_id === linkingNodeId)?.x || 0) + OFFSET} 
                 y1={(renderNodes.find(n => n.article_id === linkingNodeId)?.y || 0) + OFFSET} 
-                x2={1000} // temporary fallback, actual tracking requires window pointermove logic, which is complex, we just skip dynamic line for simplicity
+                x2={1000} // placeholder end point: the line does not follow the pointer yet
                 y2={1000} 
                 className={`${styles.beam} ${styles.anomaly} opacity-50`} 
               />
             )}
           </svg>
 
-          {/* Dynamic Nodes from API */}
+          {/* Nodes, including the draft node */}
           {renderNodes.map((node) => {
               const isCompleted = getNodeStatus(node.article_id);
               const isAnomaly = node.celestial_type === 'anomaly';
@@ -371,7 +380,7 @@ export default function CosmosMapEditor({ targetX, targetY, targetScale = 0.2, m
             className="pointer-events-auto border border-white/20 p-2 flex items-center justify-center cursor-pointer group hover:bg-white hover:text-black transition-colors text-white mr-1"
             onClick={(e) => {
               e.stopPropagation();
-              flyTo(10000, 10000, 0.2);
+              flyTo(OFFSET, OFFSET, 0.2); // the map origin
             }}
             title="Recenter Map"
           >
