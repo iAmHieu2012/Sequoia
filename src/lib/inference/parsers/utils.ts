@@ -1,8 +1,6 @@
 import { BoundingBox, ModelMetadata } from '@/types/playground';
 
-/**
- * Helper to resolve class label safely from metadata
- */
+/** Label for a class id from metadata, or "CLASS <id>" when there is none. */
 export function getLabelName(classId: number, metadata: ModelMetadata): string {
   if (metadata.labels && metadata.labels.length > classId) {
     return metadata.labels[classId];
@@ -10,9 +8,7 @@ export function getLabelName(classId: number, metadata: ModelMetadata): string {
   return `CLASS ${classId}`;
 }
 
-/**
- * Helper to calculate Intersection over Union (IoU) between two bounding boxes.
- */
+/** Intersection over Union (IoU) of two center-format boxes. */
 export function calculateIoU(b1: BoundingBox, b2: BoundingBox): number {
   const x1 = Math.max(b1.cx - b1.w / 2, b2.cx - b2.w / 2);
   const y1 = Math.max(b1.cy - b1.h / 2, b2.cy - b2.h / 2);
@@ -29,10 +25,10 @@ export function calculateIoU(b1: BoundingBox, b2: BoundingBox): number {
 
 /**
  * Standard Non-Maximum Suppression (NMS) for filtering overlapping bounding boxes.
- * Preserves the highest confidence box and removes others that overlap above the iouThreshold.
+ * Keeps the highest-confidence box and drops same-class boxes that overlap it above iouThreshold.
+ * Note: sorts `boxes` in place.
  */
 export function applyNMS(boxes: BoundingBox[], iouThreshold: number, maxDetections = 20): BoundingBox[] {
-  // Sort boxes by confidence in descending order
   boxes.sort((a, b) => b.conf - a.conf);
   
   const kept: BoundingBox[] = [];
@@ -43,7 +39,6 @@ export function applyNMS(boxes: BoundingBox[], iouThreshold: number, maxDetectio
     kept.push(current);
     
     for (let i = active.length - 1; i >= 0; i--) {
-      // Only suppress boxes of the same class
       if (active[i].classId === current.classId) {
         if (calculateIoU(current, active[i]) > iouThreshold) {
           active.splice(i, 1);
@@ -56,8 +51,8 @@ export function applyNMS(boxes: BoundingBox[], iouThreshold: number, maxDetectio
 }
 
 /**
- * Helper to safely extract input width and height from ModelMetadata.input_size.
- * Handles both 2D arrays [H, W] and 4D arrays like [1, H, W, 3] or [1, 3, H, W].
+ * Input width and height from ModelMetadata.input_size, or the defaults when it is missing.
+ * Handles [H, W] and 4D shapes [1, H, W, 3] / [1, 3, H, W] (by input_layout).
  */
 export function getParsedInputSize(
   metadata: ModelMetadata, 

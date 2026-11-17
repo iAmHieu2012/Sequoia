@@ -8,10 +8,9 @@ import { getLabelName, getParsedInputSize } from './utils';
  */
 export class MoveNetParser implements OutputParser {
   parse({ rawData, shape, params, metadata, scaleX, scaleY }: ParseOptions): ParsedDetectionResult {
-    // Dynamically fallback to 256 if not specified
+    // Falls back to 256x256 when metadata has no input size.
     const { width, height } = getParsedInputSize(metadata, 256);
 
-    // MoveNet typically outputs [1, 1, 17, 3]
     if (shape.length !== 4 || shape[3] !== 3) {
       throw new Error(`Unexpected MoveNet tensor shape: ${shape}`);
     }
@@ -23,7 +22,7 @@ export class MoveNetParser implements OutputParser {
     let maxX = -Infinity, maxY = -Infinity;
     let validKeypoints = 0;
 
-    // Default keypoint threshold (optional parameter mapping)
+    // Only keypoints above this confidence count toward the inferred bounding box below.
     const kpThreshold = (params.keypoint_threshold as number) ?? metadata.post_processing?.default_keypoint_threshold ?? 0.2;
 
     for (let i = 0; i < numKeypoints; i++) {
@@ -53,8 +52,8 @@ export class MoveNetParser implements OutputParser {
       }
     }
 
-    // MoveNet only predicts keypoints, it doesn't give a bounding box natively.
-    // We can infer a bounding box from the keypoints for the renderer if needed.
+    // MoveNet only predicts keypoints, so derive a box around the confident ones
+    // to fit the shared detection result shape.
     let cx = 0, cy = 0, boxW = 0, boxH = 0;
     if (validKeypoints > 0) {
       cx = (minX + maxX) / 2;

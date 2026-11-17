@@ -15,6 +15,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 type MobileTab = "stats" | "explore" | "labs" | "ai";
 
+/** Mobile/tablet layout: one section at a time, with the nav at the bottom (portrait) or left (landscape). */
 export default function MobileDashboard() {
   const [mobileTab, setMobileTab] = useState<MobileTab>("stats");
   const { user } = useAuth();

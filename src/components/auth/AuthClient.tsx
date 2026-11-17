@@ -38,6 +38,7 @@ export default function AuthClient({ initialError, next = '/dashboard' }: AuthCl
     clearMessages 
   } = useAuthActions({ initialError, next });
 
+  // Already signed in (or just signed in): leave the login page.
   useEffect(() => {
     if (user) {
       router.push(next);

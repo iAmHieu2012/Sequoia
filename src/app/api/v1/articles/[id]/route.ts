@@ -6,7 +6,6 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
   try {
     const supabase = await createClient();
     
-    // 1. Fetch article metadata
     const { data: article, error: articleError } = await supabase
       .from('articles')
       .select('*')
@@ -20,22 +19,22 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
       throw articleError;
     }
 
+    // Drafts look missing here, even to admins (they use /api/v1/admin/articles/[id]).
     if (!article.is_published) {
       return NextResponse.json({ error: 'Article not found' }, { status: 404 });
     }
 
-    // 2. Fetch article content
     const { data: contentData, error: contentError } = await supabase
       .from('article_contents')
       .select('content')
       .eq('id', params.id)
       .single();
 
+    // PGRST116 = no row: treat a missing content row as empty content.
     if (contentError && contentError.code !== 'PGRST116') {
       throw contentError;
     }
 
-    // Combine metadata and content
     const detail = {
       ...article,
       content: contentData?.content || ''

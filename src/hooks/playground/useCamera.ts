@@ -22,9 +22,11 @@ export function useCamera(
     if (cameraActive && videoRef.current instanceof HTMLVideoElement) {
       setLogs(prev => [...prev, "> ENGAGING OPTICAL SENSOR..."]);
       
+      // Prefer the rear camera on phones.
       navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
         .then(stream => {
           if (!active) {
+            // Camera was turned off (or unmounted) while the permission prompt was open.
             stream.getTracks().forEach(t => t.stop());
             return;
           }

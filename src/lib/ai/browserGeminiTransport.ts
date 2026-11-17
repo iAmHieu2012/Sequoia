@@ -14,14 +14,14 @@ import {
  * Chat transport that calls Google Gemini directly from the browser with the user's own API key.
  * The key never reaches Sequoia's servers: requests go browser -> generativelanguage.googleapis.com.
  *
- * The user picks a model group (GEMINI_MODEL_GROUPS). Within it, a model that is out of quota (429),
- * retired (404) or overloaded (5xx) is put on cooldown in this browser and the next one is used.
+ * The user picks a model group (GEMINI_MODEL_GROUPS). Within it, a failing model is skipped and the
+ * next one is used; see "Cooldowns" below for which failures are remembered across messages.
  */
 
 /**
- * Model groups the user picks from. Inside a group, models are tried newest first; when one is out of
- * quota (429), retired (404) or overloaded (5xx) the next one in the same group is used.
- * Free-tier limits from Google AI Studio's rate-limit page. Edit when Google changes models or limits.
+ * Model groups the user picks from. Inside a group, models are tried in order (newest first).
+ * The trailing comments are free-tier limits from Google AI Studio's rate-limit page.
+ * Edit when Google changes models or limits.
  */
 export const GEMINI_MODEL_GROUPS = {
   lite: {
@@ -99,7 +99,7 @@ function unwrap(error: unknown): ApiError {
   return ((error as { lastError?: unknown })?.lastError ?? error) as ApiError;
 }
 
-/** Seconds from Google's RetryInfo ("82311s"), if present. */
+/** Wait time in ms from Google's RetryInfo `retryDelay` (e.g. "82311s"), if the error has one. */
 function retryDelayMs(err: ApiError): number | null {
   const match = err.responseBody?.match(/"retryDelay"\s*:\s*"(\d+(?:\.\d+)?)s"/);
   return match ? Math.ceil(Number(match[1]) * 1000) : null;
@@ -232,7 +232,7 @@ export class BrowserGeminiTransport implements ChatTransport<UIMessage<Assistant
       abortSignal,
       maxOutputTokens: 4096,
       maxRetries: 0, // no retries: rotation is handled in sendMessages
-      onError: () => {}, // errors are handled by the caller / shown in the chat
+      onError: () => {}, // silence the default console logging; errors arrive as stream parts below
     });
 
     const reader = result.stream.getReader();

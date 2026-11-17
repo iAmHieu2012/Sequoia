@@ -23,7 +23,7 @@ async function seedUsers() {
     throw new Error('Could not determine userId for test@sequoia.ai');
   }
 
-  // Wait for trigger to create profile and progress
+  // Give the on_auth_user_created trigger time to create the user's profile and progress rows.
   await new Promise(resolve => setTimeout(resolve, 1000));
   const now = new Date().toISOString();
   

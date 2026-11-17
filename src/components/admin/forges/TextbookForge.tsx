@@ -24,6 +24,7 @@ interface TextbookForgeProps {
  * Allows assigning authors, cover images, and PDF source URLs.
  */
 export default function TextbookForge({ onClose, onSave, initialData }: TextbookForgeProps) {
+  // The id is the primary key: editable only when creating. Left empty, the server derives it from the title.
   const [entityId, setEntityId] = useState(initialData?.id || '');
   const [title, setTitle] = useState(initialData?.title || '');
   const [description, setDescription] = useState(initialData?.description || '');

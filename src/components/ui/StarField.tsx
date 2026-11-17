@@ -45,6 +45,7 @@ export default function StarField() {
       twinkleOffset: Math.random() * Math.PI * 2,
     }));
 
+    // Counts frames, not seconds, so drift and twinkle run faster on high-refresh displays.
     let time = 0;
 
     const animate = () => {

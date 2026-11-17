@@ -10,6 +10,7 @@ export class ClassificationRenderer implements TaskRenderer {
   render({ ctx, result, canvasWidth, canvasHeight }: RenderOptions): void {
     if (result.type !== 'classification') return;
     
+    // Sizes below are tuned for a 640px canvas and scale with it.
     const scale = Math.max(canvasWidth, canvasHeight) / 640;
     const fontSize = Math.floor(14 * scale);
     const paddingX = Math.floor(10 * scale);

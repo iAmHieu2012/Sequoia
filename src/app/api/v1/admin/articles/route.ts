@@ -12,6 +12,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    // New articles get a slug of the title as their id.
     const docId = body.id || body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     const now = new Date().toISOString();
     
@@ -28,17 +29,18 @@ export async function POST(request: NextRequest) {
       summary: body.summary,
       tags: body.tags?.map((t: string) => t.trim()) || [],
       is_published: body.is_published ?? false,
-      published_at: oldArticle ? undefined : now
+      published_at: oldArticle ? undefined : now // set on first save only; undefined leaves it unchanged
     };
 
     const { error: insertError } = await supabaseAdmin.from('articles').upsert(article);
     if (insertError) throw insertError;
     
-    // Always insert content row even if empty
+    // Content lives in its own table; always write a row (even empty) so reads can join it.
     const content = body.content || "";
     await supabaseAdmin.from('article_contents').upsert({ id: docId, content: content });
 
-    // 3. Handle Cosmos Map Node Sync (Replacing old SQL Trigger and incorporating UI coords)
+    // Keep the article's node in sync on the cosmos map of its topic (or the standalone map),
+    // using the coordinates and connections set in the editor.
     const newNodeData = {
       article_id: docId,
       title: body.title,
@@ -73,6 +75,7 @@ export async function POST(request: NextRequest) {
       }
       await supabaseAdmin.from('cosmos_maps').update({ nodes }).eq('id', newMapId);
     } else if (newMapId === 'standalone-articles') {
+      // Topic maps are created by a DB trigger; the standalone map is created on first use.
       await supabaseAdmin.from('cosmos_maps').insert({
         id: newMapId,
         map_type: 'rogue-anomalies',

@@ -3,9 +3,9 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { ModelMetadata, PlaygroundParams, ParamValue } from '@/types/playground';
 
 /**
- * Hook to manage dynamic inference parameters (e.g., Confidence Threshold, IOU, Sliders).
- * Uses React Refs to ensure the 60fps inference loop always accesses the latest 
- * parameter values without causing expensive React re-renders.
+ * Inference parameters set from the UI (confidence threshold, IoU, etc.).
+ * `params` drives the controls; `paramsRef` mirrors it so the per-frame inference loop
+ * always reads the latest values without being recreated.
  * 
  * @param metadata The loaded model's metadata containing default parameter definitions
  */
@@ -26,6 +26,7 @@ export function usePlaygroundParams(metadata: ModelMetadata | null) {
 
   useEffect(() => {
     if (metadata) {
+      // Intentional: reset to the new model's defaults whenever its metadata arrives.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       initParams(metadata);
     }

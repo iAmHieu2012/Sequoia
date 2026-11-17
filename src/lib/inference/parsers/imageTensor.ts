@@ -11,7 +11,7 @@ export class ImageTensorParser implements OutputParser {
     let height: number, width: number, channels: number;
     let isNCHW = false;
 
-    // Detect format
+    // Guess the layout: a channel-sized dim (1 or 3) right after the batch dim means NCHW.
     if (shape.length === 4) {
       if (shape[1] === 1 || shape[1] === 3) {
         isNCHW = true;
@@ -50,6 +50,8 @@ export class ImageTensorParser implements OutputParser {
       if (max === min) max = min + 1e-5;
     }
 
+    // Heuristic from the first value only: within [-1, 1] means normalized floats (scaled to 0-255,
+    // negatives clamp to 0); otherwise the values are taken as 0-255 already.
     const isFloat = rawData[0] <= 1.0 && rawData[0] >= -1.0;
 
     for (let y = 0; y < height; y++) {
@@ -80,7 +82,7 @@ export class ImageTensorParser implements OutputParser {
         }
 
         if (taskType === 'depth-estimation' && channels === 1) {
-          // Normalize depth to 0-255 grayscale
+          // Min-max normalize depth to 0-255 grayscale
           const norm = (r - min) / (max - min);
           const v = Math.floor(Math.max(0, Math.min(1, norm)) * 255);
           imageData.data[destIdx] = v;

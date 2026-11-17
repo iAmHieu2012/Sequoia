@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { Textbook } from "@/types/dashboard";
 
 interface ModulesTabProps {
-  /** List of interactive textbooks (Modules) */
+  /** Textbooks (Modules) */
   textbooks: Textbook[];
   /** Whether the textbook list is still loading */
   loading: boolean;
@@ -11,7 +11,7 @@ interface ModulesTabProps {
 
 /**
  * Renders the "Modules" tab within the ContentBrowser.
- * Displays a list of interactive textbooks available for the user.
+ * Displays the list of textbooks; each opens its PDF viewer page.
  */
 export default function ModulesTab({ textbooks, loading }: ModulesTabProps) {
   if (loading) return <div className="p-5 text-white/40 font-mono animate-pulse text-xs tracking-widest">LOADING MODULES...</div>;

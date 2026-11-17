@@ -18,11 +18,13 @@ export class SegmentationRenderer implements TaskRenderer {
     const maskOpacity = (params.mask_opacity as number) ?? 0.6;
     
     for (const b of result.boxes) {
-      // Draw mask
+      // YOLOv8-seg mask: sigmoid(coefficients · prototypes), computed only inside the box,
+      // at prototype resolution (usually 160x160), then stretched to the canvas.
       if (b.maskCoeffs && protoData && protoShape) {
         let maskH = 160, maskW = 160, maskChannels = 32;
         let isProtoNCHW = false;
         
+        // [1, 32, H, W] is NCHW; otherwise assume [1, H, W, 32].
         if (protoShape[1] === 32) {
           isProtoNCHW = true;
           maskChannels = protoShape[1];
@@ -83,7 +85,7 @@ export class SegmentationRenderer implements TaskRenderer {
         }
       }
 
-      // Draw bounding box + labels
+      // Bounding box + label
       if (showLabels || showConf) {
         const scale = Math.max(canvasWidth, canvasHeight) / 640;
         const fontSize = Math.floor(10 * scale);

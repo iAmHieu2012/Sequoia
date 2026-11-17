@@ -7,6 +7,7 @@ interface CyberButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>
   href?: string;
 }
 
+/** Chamfered button with a fill that sweeps in on hover. With `href` it renders a Link instead. */
 export default function CyberButton({ 
   children, 
   variant = 'primary',

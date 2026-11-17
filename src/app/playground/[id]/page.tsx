@@ -7,8 +7,8 @@ export const metadata: Metadata = {
 };
 
 /**
- * Server Component for the Playground. 
- * Passes the ID down to the Client Component which handles all WebRTC/Canvas logic.
+ * Server Component for the Playground.
+ * Passes the model ID to PlaygroundClient, which loads the model and runs inference in the browser.
  */
 export default async function PlaygroundPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

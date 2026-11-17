@@ -18,12 +18,13 @@ export class ClassificationParser implements OutputParser {
       if (rawData[i] > maxLogit) maxLogit = rawData[i];
     }
 
-    // Check if the output is already softmaxed (sum is roughly 1.0)
+    // Some models already end in softmax (non-negative, sums to ~1); others emit raw logits.
     const isSoftmax = Math.abs(sum - 1.0) < 0.1 && maxLogit <= 1.0 && rawData.every((v: number) => v >= 0);
 
     let expSum = 0;
     const expScores = new Float32Array(numClasses);
     if (!isSoftmax) {
+      // Subtract the max logit before exp() to avoid overflow.
       for (let i = 0; i < numClasses; i++) {
         const expVal = Math.exp(rawData[i] - maxLogit);
         expScores[i] = expVal;

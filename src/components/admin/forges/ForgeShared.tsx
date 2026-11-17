@@ -2,6 +2,8 @@ import React from 'react';
 import { Save, ChevronLeft, Terminal } from 'lucide-react';
 import CyberButton from "@/components/ui/CyberButton";
 
+// Building blocks shared by every forge (the full-screen create/edit forms in Genesis).
+
 export const ForgeLabel = ({ children }: { children: React.ReactNode }) => (
   <label className="block text-xs font-mono text-white/40 tracking-widest uppercase mb-1">{children}</label>
 );

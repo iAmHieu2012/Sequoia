@@ -13,7 +13,8 @@ interface InputSourceSelectorProps {
 
 /**
  * A toggle switch to select the input source for the AI Inference engine.
- * Allows users to choose between live webcam feed or static file uploads.
+ * Allows users to choose between live webcam feed (CAM) or an uploaded image/video (DATA).
+ * CAM is hidden when the model's metadata does not list 'camera'.
  */
 
 export default function InputSourceSelector({ cameraActive, booting, setCameraActive, supportedModes = ['camera', 'image'] }: InputSourceSelectorProps) {

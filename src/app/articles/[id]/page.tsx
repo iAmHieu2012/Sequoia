@@ -19,8 +19,10 @@ interface Article extends GlobalArticle {
 }
 
 /**
- * Cached function to fetch a specific article and its content from Supabase.
- * Uses React cache to prevent duplicate database calls during a single request lifecycle.
+ * Fetches a published article and its content. Wrapped in React `cache` so generateMetadata
+ * and the page share one query per request.
+ * Uses the service-role client because the page is statically generated (no user cookies);
+ * the is_published filter is what keeps drafts out.
  */
 const getArticle = cache(async (id: string): Promise<Article | null> => {
   try {
@@ -85,8 +87,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 /**
  * The Article Detail Page (Server Component).
- * Fetches and renders a specific article's content in Markdown format.
- * Includes tracking logic for completion status.
+ * Renders an article's Markdown content, with a client-side completion toggle at the end.
  */
 export default async function ArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -100,7 +101,6 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
     <div className="min-h-screen w-screen bg-space-bg text-text-main font-sans relative flex flex-col">
       <CyberGrid />
 
-      {/* Universal Header */}
       <UniversalHeader
         backHref="/dashboard"
         subtitle="ACTIVE_DATAPAD"
@@ -134,7 +134,6 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
               </div>
             </header>
 
-            {/* Nội dung bài viết với Markdown Renderer */}
             <div className="mt-8 w-full relative z-20">
               <MarkdownRenderer content={article.content} />
             </div>

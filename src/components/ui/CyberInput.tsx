@@ -15,7 +15,7 @@ const CyberInput = forwardRef<HTMLInputElement, CyberInputProps>(
           </div>
         )}
         
-        {/* Frame based on the outline panel style in index.html */}
+        {/* Border as an overlay so it follows the chamfered clip-path */}
         <div className="absolute inset-0 border border-white/40 clip-chamfer-tl-br pointer-events-none group-focus-within/input:border-white transition-colors" />
         
         <input

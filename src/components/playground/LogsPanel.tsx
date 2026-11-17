@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import CyberPanel from "@/components/ui/CyberPanel";
 
 interface LogsPanelProps {
-  /** Array of log strings emitted by the Web Worker/Inference Engine */
+  /** Log lines from the model loader, camera and inference hooks */
   logs: string[];
   /** True if the inference engine is currently booting up */
   booting: boolean;

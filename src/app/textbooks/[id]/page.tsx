@@ -10,8 +10,8 @@ import { Textbook } from "@/types/dashboard";
 import { supabaseAdmin } from "@/utils/supabase/admin";
 
 /**
- * Cached function to fetch a specific textbook from Supabase.
- * Uses React cache to prevent duplicate database calls during a single request lifecycle.
+ * Fetches a textbook. Wrapped in React `cache` so generateMetadata and the page share one query.
+ * Uses the service-role client because the page is statically generated (no user cookies).
  */
 const getTextbook = cache(async (id: string): Promise<Textbook | null> => {
   try {
@@ -86,7 +86,6 @@ export default async function TextbookPage({ params }: { params: Promise<{ id: s
     <div className="min-h-screen h-screen w-screen bg-space-bg text-text-main font-sans overflow-hidden relative flex flex-col">
       <CyberGrid />
 
-      {/* Universal Header */}
       <UniversalHeader
         backHref="/dashboard"
         subtitle="ACTIVE_MODULE"

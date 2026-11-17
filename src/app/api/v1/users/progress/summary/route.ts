@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 
+/** Per-topic completed/total counts and per-article completion for standalone articles (published only). */
 export async function GET() {
   try {
     const supabase = await createClient();
@@ -9,7 +10,6 @@ export async function GET() {
 
     const userId = user.id;
 
-    // 1. Get user progress
     const { data: progress } = await supabase
       .from('user_progress')
       .select('completed_article_ids')
@@ -18,7 +18,6 @@ export async function GET() {
 
     const completedSet = new Set(progress?.completed_article_ids || []);
 
-    // 2. Get all published articles
     const { data: allArticles, error: articlesError } = await supabase
       .from('articles')
       .select('id, topic_id')
@@ -26,7 +25,6 @@ export async function GET() {
 
     if (articlesError) throw articlesError;
 
-    // 3. Group by topic and calculate progress
     const topicProgress: Record<string, { total: number; completed: number }> = {};
     const standaloneStatus: Record<string, boolean> = {};
 

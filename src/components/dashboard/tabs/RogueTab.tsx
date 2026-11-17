@@ -14,14 +14,14 @@ interface RogueTabProps {
   setMapTarget: React.Dispatch<React.SetStateAction<TabTarget>>;
   /** Global progress statistics */
   progressSummary: ProgressSummary | null;
-  /** Cached map spatial data for calculating hover target coordinates */
+  /** Node positions of the standalone map, used to fly the map preview to a clicked article */
   mapData: CosmosMap | null;
 }
 
 /**
  * Renders the "Rogue" tab within the ContentBrowser.
  * Displays a list of standalone anomalies (Articles without a specific topic)
- * and triggers Cosmos map panning on hover.
+ * and flies the map preview to an article's node when it is clicked.
  */
 export default function RogueTab({
   rogueArticles, loading, setMapTarget, progressSummary, mapData

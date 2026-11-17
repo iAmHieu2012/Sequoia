@@ -1,6 +1,7 @@
 import React from 'react';
 
 interface CyberProgressBarProps {
+  /** Percent, 0-100 (clamped). */
   progress: number;
   label: string;
   className?: string;
@@ -15,7 +16,6 @@ export function CyberProgressBar({
   showRuler = true,
   theme = 'dark'
 }: CyberProgressBarProps) {
-  // Clamp progress between 0 and 100
   const clampedProgress = Math.max(0, Math.min(100, progress));
 
   const isLight = theme === 'light';
@@ -25,7 +25,7 @@ export function CyberProgressBar({
   const borderClass = isLight ? 'border-space-bg/40' : 'border-white/40';
   const bgClass = isLight ? 'bg-space-bg/5' : 'bg-black/20';
   const fillClass = isLight ? 'bg-space-bg' : 'bg-white';
-  const rulerClass = isLight ? 'ruler-bottom invert' : 'ruler-bottom'; // Using invert for quick black ruler
+  const rulerClass = isLight ? 'ruler-bottom invert' : 'ruler-bottom'; // invert turns the white ruler black
 
   return (
     <div className={`w-full ${className}`}>

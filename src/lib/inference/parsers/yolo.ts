@@ -17,6 +17,7 @@ export class YoloParser implements OutputParser {
     let numFeatures: number, numAnchors: number;
     let isTransposed = false;
     
+    // There are always far more anchors than features, so the larger dim is the anchor dim.
     if (shape[1] > shape[2]) {
       numAnchors = shape[1];
       numFeatures = shape[2];
@@ -61,6 +62,7 @@ export class YoloParser implements OutputParser {
         let boxW = getValue(2, a);
         let boxH = getValue(3, a);
         
+        // Some exports emit coordinates normalized to [0, 1] instead of input pixels.
         const isNormalized = (cx > 0 && cx < 2.0 && boxW < 2.0 && boxW > 0);
         if (isNormalized) {
            cx *= width; cy *= height; boxW *= width; boxH *= height;
@@ -95,6 +97,7 @@ export class YoloParser implements OutputParser {
             kx *= scaleX;
             ky *= scaleY;
             
+            // Out-of-range confidence means a raw logit: apply sigmoid.
             if (kconf < 0 || kconf > 1) kconf = 1 / (1 + Math.exp(-kconf));
             
             box.keypoints.push({x: kx, y: ky, conf: kconf, label: getLabelName(k, metadata)});

@@ -15,17 +15,18 @@ interface TelemetryPanelProps {
   className?: string;
 }
 
-/**
- * A cyberpunk-themed monitoring panel displaying live runtime statistics 
- * such as FPS, memory usage, and inference latencies.
- */
-
+// performance.memory is Chromium-only; other browsers show N/A.
 interface PerformanceWithMemory extends Performance {
   memory?: {
     usedJSHeapSize: number;
   };
 }
 
+/**
+ * A cyberpunk-themed monitoring panel displaying live runtime statistics
+ * such as FPS, memory usage, and inference latencies.
+ * Live values are shown in camera mode only; with an uploaded file they read "--".
+ */
 export default function TelemetryPanel({ telemetry, cameraActive, metadata, model, className = '' }: TelemetryPanelProps) {
   const memUsed = typeof performance !== 'undefined' && (performance as PerformanceWithMemory).memory
     ? String(Math.round((performance as PerformanceWithMemory).memory!.usedJSHeapSize / 1048576))

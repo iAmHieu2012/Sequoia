@@ -4,7 +4,8 @@ import { getLabelName } from './utils';
 
 /**
  * Parser for RTMPose models using SimCC representation.
- * Expected outputs: SimCC X and SimCC Y vectors.
+ * Expected outputs: SimCC X in `rawData` and SimCC Y in `protoData`, each [1, K, bins]
+ * where bins = input size * simcc_split_ratio.
  */
 export class RtmPoseParser implements OutputParser {
   parse({ rawData, metadata, scaleX, scaleY, protoData }: ParseOptions): ParsedResult {
@@ -15,7 +16,6 @@ export class RtmPoseParser implements OutputParser {
     const simccX = rawData;
     const simccY = protoData;
     
-    // Read parameters from metadata with fallbacks
     const numKeypoints = metadata.post_processing?.num_keypoints ?? 21;
     const splitRatio = metadata.post_processing?.simcc_split_ratio ?? 2.0;
 
@@ -51,7 +51,7 @@ export class RtmPoseParser implements OutputParser {
       const kx = argmaxX / splitRatio;
       const ky = argmaxY / splitRatio;
 
-      // Scale directly to canvas coordinates and inject label
+      // Scale to canvas coordinates
       keypoints.push({
         x: kx * scaleX,
         y: ky * scaleY,

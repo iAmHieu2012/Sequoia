@@ -20,13 +20,16 @@ export type AdminTab = "nebulas" | "anomalies" | "models" | "textbooks";
  * Genesis Page (Admin Dashboard Core).
  * Provides a comprehensive, cyberpunk-themed interface for managing Nebulas (Topics),
  * Stars (Articles), AI Models, and Textbooks. Integrates the Cosmos Map Editor for visual mapping.
+ * Non-admins are sent back to /dashboard. That check is only for the UI: the admin API routes
+ * enforce access on their own.
  */
 export default function GenesisClient() {
   interface MapNode { article_id: string; x: number; y: number; [key: string]: unknown; }
   const router = useRouter();
   const { user, isAdmin, loading: authLoading } = useAuth();
-  const hasFetched = useRef(false);
+  const hasFetched = useRef(false); // load once, after auth has resolved
 
+  // Adds nothing to the request (the session travels in cookies); it only refuses to run while signed out.
   const authFetch = useCallback(async (url: string, options: RequestInit = {}) => {
     if (!user) throw new Error("Unauthenticated");
     return fetch(url, options);
@@ -43,12 +46,14 @@ export default function GenesisClient() {
   const [loading, setLoading] = useState(true);
   const [drilldownLoading, setDrilldownLoading] = useState(false);
 
+  // Where the map editor should look: set when hovering or clicking a list item.
   const [hoverTarget, setHoverTarget] = useState<{ x: number, y: number, scale: number, mapId?: string, activeNodeId?: string }>({
     x: 0, y: 0, scale: 0.2
   });
 
   const [isForgeOpen, setIsForgeOpen] = useState(false);
   const [forgeInitialData, setForgeInitialData] = useState<Record<string, unknown> | null>(null);
+  // "stars" = articles inside a topic, "anomalies" = standalone articles.
   const [forgeTab, setForgeTab] = useState<"nebulas" | "stars" | "anomalies" | "models" | "textbooks">("nebulas");
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -157,7 +162,7 @@ export default function GenesisClient() {
           fullItem = { ...fullItem, ...detail };
         }
         
-        // Also find node coordinates
+        // Position and links live on the map node, not on the article record.
         const node = mapNodes.find((n: MapNode) => n.article_id === articleId);
         if (node) {
           fullItem.x = node.x;
@@ -239,7 +244,7 @@ export default function GenesisClient() {
         style={{ backgroundImage: "radial-gradient(circle at center, white 1px, transparent 1px)", backgroundSize: "24px 24px" }}
       />
 
-      {/* Universal Header (Monochrome) */}
+      {/* Header */}
       <header className="flex-shrink-0 relative z-50 flex items-center justify-between px-6 py-4 border-b border-white/10 bg-black/70 backdrop-blur-md">
         <div className="flex items-center gap-6">
           <Link href="/dashboard" className="inline-flex items-center text-xs font-mono tracking-widest uppercase bg-white/10 text-white px-4 py-2 hover:bg-white/40 hover:text-white transition-all duration-300 relative group overflow-hidden">

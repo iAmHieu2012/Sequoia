@@ -5,7 +5,7 @@ import { Textbook } from "@/types/dashboard";
  */
 export const TextbookService = {
   /**
-   * Fetches all active textbooks available in the system.
+   * Fetches all textbooks, ordered by sort_order.
    * @returns A promise that resolves to an array of Textbooks.
    */
   getTextbooks: async (): Promise<Textbook[]> => {

@@ -1,5 +1,6 @@
 import { supabase } from './seed_client';
 
+/** Deletes ALL auth users and all rows in the content tables. */
 async function clean() {
   console.log('Clearing existing databanks...');
   const { data: users } = await supabase.auth.admin.listUsers();
@@ -9,6 +10,7 @@ async function clean() {
     }
   }
   
+  // Supabase refuses a delete without a filter; neq('id', 'dummy') matches every row.
   await supabase.from('topics').delete().neq('id', 'dummy'); 
   await supabase.from('models').delete().neq('id', 'dummy');
   await supabase.from('textbooks').delete().neq('id', 'dummy');

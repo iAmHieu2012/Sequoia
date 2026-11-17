@@ -26,6 +26,7 @@ interface ModelForgeProps {
  * Manages model metadata, file URLs, and versioning details.
  */
 export default function ModelForge({ onClose, onSave, initialData }: ModelForgeProps) {
+  // The id is the primary key: editable only when creating. Left empty, the server derives it from the name.
   const [entityId, setEntityId] = useState(initialData?.id || '');
   const [name, setName] = useState(initialData?.name || '');
   const [description, setDescription] = useState(initialData?.description || '');

@@ -45,7 +45,7 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [title, setTitle] = useState(initialData?.title || '');
-  const [category, setCategory] = useState(initialData?.topic_id || '');
+  const [category, setCategory] = useState(initialData?.topic_id || ''); // topic_id; '' = standalone
   const [summary, setSummary] = useState(initialData?.summary || '');
   const [content, setContent] = useState(initialData?.content || '');
   const [tags, setTags] = useState(initialData?.tags?.join(', ') || '');
@@ -64,6 +64,7 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
     const newText = content.substring(0, start) + prefix + selectedText + suffix + content.substring(end);
     setContent(newText);
     
+    // Wait for React to apply the new value, then restore the selection around the original text.
     setTimeout(() => {
       textarea.focus();
       textarea.setSelectionRange(start + prefix.length, start + prefix.length + selectedText.length);
@@ -77,7 +78,7 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
     setIsUploadingImage(true);
     
     try {
-      // Dynamically import to avoid circular dependencies or server-side issues if any
+      // Loaded on demand: only needed when an image is actually uploaded.
       const { UploadService } = await import('@/services/upload.service');
       const secureUrl = await UploadService.uploadImageToCloudinary(file);
       insertMarkdown(`![${file.name}](${secureUrl})`, '');
@@ -201,6 +202,7 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
                 targetY={!isNaN(parseFloat(y)) ? parseFloat(y) : 0} 
                 targetScale={1.0}
                 mapId={category || 'standalone-articles'}
+                // 'draft-node' stands in for a new article's id until it is saved.
                 activeNodeId={entityId || 'draft-node'}
                 className="w-full h-full"
                 hideSaveButton={true}
@@ -209,7 +211,7 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
                   title: title || 'UNTITLED DRAFT',
                   x: !isNaN(parseFloat(x)) ? parseFloat(x) : 0,
                   y: !isNaN(parseFloat(y)) ? parseFloat(y) : 0,
-                  celestial_type: isAnomaly ? 'anomaly' : 'article',
+                  celestial_type: isAnomaly ? 'anomaly' : 'article', // only 'anomaly' changes how it is drawn
                   connections: connections.split(',').map(c => c.trim()).filter(Boolean)
                 } as React.ComponentProps<typeof CosmosMapEditor>['draftNode']}
                 onDraftNodeDrag={(newX: number, newY: number) => {

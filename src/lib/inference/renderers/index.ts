@@ -38,6 +38,7 @@ const renderers: Record<string, () => TaskRenderer> = {
   'text-detection': () => new OcrRenderer(),
 };
 
+/** Creates a renderer for a model's `task_type`. Throws on unknown task types. */
 export function getRenderer(taskType: string): TaskRenderer {
   const factory = renderers[taskType];
   if (!factory) {

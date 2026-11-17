@@ -11,6 +11,7 @@ interface CyberPanelProps extends React.HTMLAttributes<HTMLDivElement> {
   chamfer?: CyberPanelChamfer;
   decorations?: CyberPanelDecorations;
   stripes?: CyberPanelStripes;
+  /** With stripes, reserves 130px on the striped side so content does not overlap them. */
   padded?: boolean;
   stripeClassName?: string;
 }

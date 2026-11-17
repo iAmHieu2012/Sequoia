@@ -42,7 +42,8 @@ export interface VisualizationConfig {
 }
 
 /**
- * Image normalization parameters required before feeding data into the model.
+ * Per-channel normalization applied after scaling pixels (default scale 1/255): (v - mean) / std.
+ * metadata.json may also set a `scale`; useInference reads it even though it is not typed here.
  */
 export interface NormalizeConfig {
   mean: number[];
@@ -97,7 +98,7 @@ export interface Keypoint {
 }
 
 /**
- * Represents a bounding box detection result.
+ * A detection box in canvas pixels, center format (cx, cy = box center).
  */
 export interface BoundingBox {
   cx: number;
@@ -108,6 +109,7 @@ export interface BoundingBox {
   classId: number;
   label?: string;
   keypoints: Keypoint[];
+  /** Instance segmentation mask coefficients (YOLOv8-seg); null for other tasks. */
   maskCoeffs: Float32Array | null;
 }
 
@@ -142,7 +144,8 @@ export interface ParsedSemanticSegmentationResult {
 }
 
 /**
- * Parsed result for Image-to-Image tasks (e.g., Background Removal).
+ * Parsed result for Image-to-Image tasks (style transfer, depth estimation, super-resolution).
+ * Background removal is a semantic-segmentation result instead.
  */
 export interface ParsedImageToImageResult {
   type: 'image-to-image';
@@ -172,6 +175,7 @@ export interface ParsedPoseResult {
 
 /**
  * Union type for all possible parsed inference results.
+ * `count` in each is what the telemetry panel shows as the detection count.
  */
 export type ParsedResult = 
   | ParsedDetectionResult 

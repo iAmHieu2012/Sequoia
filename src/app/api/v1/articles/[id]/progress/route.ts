@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 
+/** Marks the article complete (or not, with `{ completed: false }`) for the signed-in user. */
 export async function POST(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   try {
@@ -21,6 +22,7 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
 
     let progress = data;
 
+    // PGRST116 = no progress row yet: start from an empty one.
     if (error && error.code !== 'PGRST116') throw error;
     if (!progress) {
       progress = { id: userId, completed_article_ids: [], active_dates: [], current_streak: 0, longest_streak: 0 };

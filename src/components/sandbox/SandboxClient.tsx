@@ -154,10 +154,21 @@ for idx, ratio in enumerate(variance_ratio):
 
 const STORAGE_KEY = "sequoia_python_sandbox_code_v1";
 
+/**
+ * Source of the Web Worker that runs Pyodide. It is started from a Blob URL (see getOrCreateWorker),
+ * so no separate file is needed. Running Python off the main thread keeps the UI responsive,
+ * and TERMINATE can simply kill the worker.
+ *
+ * Messages: page -> worker: init | run | input_response
+ *           worker -> page: log | status | packages | stdout | stderr | input_request | ready | done | exec_error | error
+ */
 const PYODIDE_WORKER_SOURCE = `
 let pyodideReadyPromise = null;
 let pendingInputResolve = null;
 
+// input() cannot block in the browser. The user's code is rewritten so input() becomes
+// "await __sequoia_input__()", which asks the page for a line (input_request) and waits
+// here until the page sends input_response.
 self.__sequoia_request_input = (promptText) => {
   self.postMessage({
     type: 'input_request',
@@ -190,6 +201,9 @@ async def __sequoia_input__(prompt=""):
 
 builtins.__sequoia_input__ = __sequoia_input__
 
+# Rewrites input(...) into await __sequoia_input__(...). A function that now contains an await
+# becomes async and every call to it gets awaited, repeated until nothing changes.
+# The code is left as is when it has a syntax error (Python reports it) or defines its own input().
 def __sequoia_prepare_code__(src: str) -> str:
     try:
         tree = ast.parse(src)
@@ -220,6 +234,7 @@ def __sequoia_prepare_code__(src: str) -> str:
     if not has_input:
         return src
 
+    # Awaits inside nested functions, classes or lambdas belong to those, not to this node.
     def has_direct_await(node):
         for child in ast.iter_child_nodes(node):
             if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)):
@@ -603,6 +618,7 @@ export default function SandboxClient() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // The transparent textarea is what scrolls; the highlight layer and the gutter follow it.
   const handleEditorScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
     const target = e.currentTarget;
     if (highlightWrapperRef.current) {
@@ -621,6 +637,7 @@ export default function SandboxClient() {
       return;
     }
 
+    // Tab inserts 4 spaces instead of moving focus.
     if (e.key === "Tab") {
       e.preventDefault();
       const el = e.currentTarget;
@@ -637,6 +654,7 @@ export default function SandboxClient() {
   };
 
   const lineCount = code.split("\n").length;
+  // performance.memory is Chromium-only; other browsers show N/A.
   const memUsed =
     typeof performance !== "undefined" && (performance as PerformanceWithMemory).memory
       ? String(Math.round((performance as PerformanceWithMemory).memory!.usedJSHeapSize / 1048576))
@@ -820,6 +838,7 @@ export default function SandboxClient() {
                     }}
                     PreTag="div"
                   >
+                    {/* Extra newline keeps this layer as tall as the textarea when the last line is empty */}
                     {code + "\n"}
                   </SyntaxHighlighter>
                 </div>
@@ -1028,6 +1047,7 @@ export default function SandboxClient() {
   );
 }
 
+/** Program output, stdin prompt and plots. Used by both the desktop terminal panel and the mobile output tab. */
 function OutputContent({
   outputs,
   plots,
@@ -1116,6 +1136,7 @@ function OutputContent({
               key={idx}
               className="border border-white/20 bg-black p-2 relative group flex flex-col items-center"
             >
+              {/* A data: URL plot; next/image adds nothing here. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={`data:image/png;base64,${b64}`}

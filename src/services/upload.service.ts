@@ -1,7 +1,11 @@
 /**
- * Service for handling file and image uploads to Cloudinary or external providers.
+ * Service for image uploads to Cloudinary.
  */
 export const UploadService = {
+  /**
+   * Uploads straight from the browser using an unsigned upload preset (no server round-trip).
+   * @returns The image's public HTTPS URL.
+   */
   uploadImageToCloudinary: async (file: File): Promise<string> => {
     const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
     const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;

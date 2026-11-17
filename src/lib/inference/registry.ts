@@ -2,9 +2,8 @@ import { OutputParser, getParser } from './parsers';
 import { TaskRenderer, getRenderer } from './renderers';
 
 /**
- * Global Registry for AI Inference Pipelines.
- * Centralized barrel file that exports the factory functions needed to 
- * resolve and instantiate the correct Parser and Renderer for any given AI task.
+ * Single entry point for the inference pipeline: getParser picks a parser by the model's
+ * output_format, getRenderer picks a renderer by its task_type.
  */
 
 export { getParser, getRenderer };

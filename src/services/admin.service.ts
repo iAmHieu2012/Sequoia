@@ -10,8 +10,8 @@ async function toError(res: Response, fallback: string): Promise<Error> {
 }
 
 /**
- * Service for handling all Admin-level mutations and privileged fetches.
- * Assumes the user is authenticated; the server automatically verifies cookies.
+ * Service for all admin mutations and privileged fetches (/api/v1/admin/*).
+ * Each route checks the session cookie and the is_admin flag, and answers 403 otherwise.
  */
 export const AdminService = {
   // --- ARTICLES ---

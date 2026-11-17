@@ -4,9 +4,8 @@ import { AiModel, ModelMetadata } from '@/types/playground';
 
 /**
  * Hook to manage the lifecycle of an AI Model in the Playground.
- * Fetches the model's DB record, downloads the CDN metadata, 
- * simulates a secure boot sequence (for UI aesthetics), and ultimately 
- * initializes the LiteRT WebAssembly engine and compiles the neural network.
+ * Fetches the model's DB record and its metadata.json from the CDN, plays a cosmetic boot log,
+ * then initializes the LiteRT WebAssembly runtime and compiles the model.
  * 
  * @param modelId The ID of the model to load
  * @param setLogs State setter to push system boot logs to the terminal
@@ -24,8 +23,10 @@ export function useModelLoader(
   const compiledModelRef = useRef<CompiledModel | null>(null);
   const [compiledModelReady, setCompiledModelReady] = useState(false);
   
+  // Load only once per mount (also absorbs React StrictMode's double effect run in dev).
   const initialized = useRef(false);
 
+  /** Cosmetic: prints fake boot lines, then starts the real LiteRT init. */
   function simulateBootSequence(loadedModelData: AiModel) {
     const sequence = [
       "> ALLOCATING TENSORS...",
@@ -53,6 +54,7 @@ export function useModelLoader(
       try {
         await loadLiteRt("https://cdn.jsdelivr.net/npm/@litertjs/core@2.5.3/wasm/");
       } catch (error: unknown) {
+        // The runtime is global: it may already be loaded by an earlier model in this tab. That's fine.
         if (error instanceof Error && !error.message?.includes("already loading") && !error.message?.includes("already loaded")) {
            throw error;
         }
@@ -85,8 +87,7 @@ export function useModelLoader(
         const modelData = data.data;
         if (modelData.metadata_url) {
           try {
-            // const metaRes = await fetch(`${modelData.metadata_url}?t=${Date.now()}`);
-            const metaRes = await fetch(modelData.metadata_url);                                  
+            const metaRes = await fetch(modelData.metadata_url);
 
             const metaJson = await metaRes.json();
             modelData.metadata = metaJson as ModelMetadata;
@@ -107,6 +108,7 @@ export function useModelLoader(
         setLoadError(error instanceof Error && error.message === "not_found" ? "not_found" : "failed");
         setLoading(false);
       });
+  // The helpers above are recreated every render; the `initialized` guard makes this run once anyway.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modelId]);
 

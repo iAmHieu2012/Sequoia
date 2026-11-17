@@ -20,13 +20,14 @@ interface CommandCenterPanelProps {
 }
 
 /**
- * A comprehensive sliding panel that houses user identity configurations
- * and system policies (Privacy, Terms).
+ * Full-screen panel with the user's profile, sign-out, the admin entry (Genesis)
+ * and the Privacy / Terms / About documents.
  */
 export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPanelProps) {
   const router = useRouter();
   const { user, isAdmin } = useAuth();
   const [activeView, setActiveView] = useState<'main' | 'privacy' | 'terms' | 'about'>('main');
+  // "Decrypted" shows the plain-language (_LEGAL) version of a document instead of the themed one.
   const [isDecrypted, setIsDecrypted] = useState(false);
 
     if (!isOpen) return null;
@@ -51,7 +52,7 @@ export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPan
         {/* Scanline overlay for full screen */}
         <div className="absolute inset-0 pointer-events-none z-50 opacity-[0.03] bg-[linear-gradient(to_bottom,transparent_50%,#fff_50%)] bg-[length:100%_4px]" />
         
-        {/* Universal Header */}
+        {/* Header */}
         <header className="flex-shrink-0 relative z-50 flex items-center justify-between px-6 py-4 border-b border-white/10 bg-black/70 backdrop-blur-md">
           <div className="flex items-center gap-6">
             <CyberButton 
@@ -128,7 +129,7 @@ export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPan
                         </CyberBadge>
                       </div>
 
-                      {/* Barcode based on UID */}
+                      {/* Decorative barcode generated from the user id */}
                       {user?.id ? (
                         <div className="flex items-center gap-[2px] h-8 opacity-70 group-hover:opacity-100 transition-opacity w-full overflow-hidden">
                           {user.id.replace(/-/g, '').substring(0, 32).split('').map((char, i) => {

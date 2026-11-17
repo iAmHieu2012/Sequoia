@@ -59,6 +59,7 @@ export default function ViewportPanel({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // The overlay canvas already has the media's native size (set in useInference), so both line up.
     ctx.drawImage(media, 0, 0, width, height);
     ctx.drawImage(overlay, 0, 0, width, height);
 

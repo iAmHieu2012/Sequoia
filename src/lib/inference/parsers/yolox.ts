@@ -14,14 +14,15 @@ export class YoloxParser implements OutputParser {
     const iouThreshold = (params.iou_threshold as number) ?? metadata.post_processing?.default_iou ?? 0.45;
     const maxDetections = (params.max_detections as number) ?? metadata.post_processing?.default_max_detections ?? 100;
     
-    // YOLOX usually outputs [1, N, 85]
+    // YOLOX usually outputs [1, N, 85] (4 box + 1 objectness + 80 COCO classes)
     const numAnchors = shape[1];
     const numFeatures = shape[2];
     const numClasses = numFeatures - 5;
     
     const { width: inputWidth, height: inputHeight } = getParsedInputSize(metadata, 416);
     
-    // Dynamically compute grids based on actual input size
+    // Anchor a maps to one grid cell; cells are listed stride by stride, row-major,
+    // matching the order of the model's output.
     const grids: {x: number, y: number, s: number}[] = [];
     const stridesList = [8, 16, 32];
     for (const s of stridesList) {
@@ -55,6 +56,7 @@ export class YoloxParser implements OutputParser {
       const score = objConf * maxClassConf;
       if (score > threshold) {
         const grid = grids[a];
+        // More anchors than grid cells: metadata input size doesn't match the model.
         if (!grid) break;
         
         const rawCx = rawData[offset + 0];

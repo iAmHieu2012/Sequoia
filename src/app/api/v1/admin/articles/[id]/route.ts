@@ -53,7 +53,7 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
     const { error } = await supabaseAdmin.from('articles').delete().eq('id', docId);
     if (error) throw error;
 
-    // Remove from cosmos_maps nodes (kept in API — requires JSONB array manipulation with UI data)
+    // Remove its node, and every connection pointing to it, from its cosmos map.
     const mapId = topicId || 'standalone-articles';
     const { data: mapData } = await supabaseAdmin.from('cosmos_maps').select('nodes').eq('id', mapId).single();
     if (mapData && mapData.nodes) {

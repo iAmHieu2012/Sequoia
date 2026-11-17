@@ -1,5 +1,5 @@
 /**
- * Represents a learning module or textbook containing multiple chapters.
+ * A textbook: metadata plus a link to its PDF.
  */
 export interface Textbook {
   id: string;
@@ -21,7 +21,7 @@ export interface Topic {
 }
 
 /**
- * Represents an individual learning unit, which can be part of a Topic, Chapter, or standalone (Rogue).
+ * A single article, either inside a Topic or standalone ("rogue", topic_id = null).
  */
 export interface Article {
   is_published?: boolean;

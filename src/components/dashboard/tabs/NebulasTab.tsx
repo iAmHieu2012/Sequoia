@@ -29,14 +29,14 @@ interface NebulasTabProps {
   getNodeStatus: (id: string) => boolean;
   /** Global progress statistics */
   progressSummary: ProgressSummary | null;
-  /** Cached map spatial data for calculating hover target coordinates */
+  /** Node positions of the open map, used to fly the map preview to a clicked article */
   mapData: CosmosMap | null;
 }
 
 /**
  * Renders the "Nebulas" tab within the ContentBrowser.
- * Displays a list of Topics, and allows drilling down into specific Topic Articles.
- * Triggers Cosmos map panning on hover.
+ * Displays a list of Topics; clicking a topic shows its map, EXPLORE drills down into its articles.
+ * Clicking an article flies the map preview to its node.
  */
 export default function NebulasTab({
   topics, articles, loading, drilldownLoading, selectedTopic, setSelectedTopic,

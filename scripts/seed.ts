@@ -1,6 +1,12 @@
 import { execSync } from 'child_process';
 import path from 'path';
 
+/**
+ * Resets the database and seeds demo data by running the seed_* scripts in order.
+ * WARNING: seed_clean deletes every auth user and all content. Never point this at production.
+ * Usage: npx tsx scripts/seed.ts (reads .env.local)
+ */
+
 function runScript(scriptName: string) {
   const scriptPath = path.join(__dirname, scriptName);
   console.log(`\n========================================`);

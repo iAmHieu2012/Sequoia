@@ -11,16 +11,16 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
       return NextResponse.json({ error: 'Admin privileges required' }, { status: 403 });
     }
 
-    // Find all articles belonging to this topic before deletion
+    // Remember the topic's articles: after deletion they become standalone and need nodes on that map.
     const { data: topicArticles } = await supabaseAdmin
       .from('articles')
       .select('id, title')
       .eq('topic_id', params.id);
 
-    // Delete the corresponding cosmos_map first to prevent Foreign Key constraint errors
+    // The topic's map shares its id but has no foreign key to it, so it must be deleted explicitly.
     await supabaseAdmin.from('cosmos_maps').delete().eq('id', params.id);
 
-    // Delete the topic (this cascades to set topic_id = NULL in articles)
+    // ON DELETE SET NULL turns the topic's articles into standalone articles.
     const { error } = await supabaseAdmin.from('topics').delete().eq('id', params.id);
     if (error) throw error;
     

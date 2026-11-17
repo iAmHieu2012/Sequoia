@@ -8,10 +8,13 @@ interface UniversalHeaderProps {
   title: React.ReactNode;
   titleIcon?: React.ReactNode;
   statusLabel?: string;
+  /** false shows a pulsing coral dot next to the status. */
   statusActive?: boolean;
+  /** Despite the name, shown in the center next to the status (md and up only). */
   extraRight?: React.ReactNode;
 }
 
+/** Sticky page header: back button on the left, status in the center, title on the right. */
 export default function UniversalHeader({
   backHref,
   onBack,
@@ -24,7 +27,7 @@ export default function UniversalHeader({
 }: UniversalHeaderProps) {
   return (
     <header className="flex-shrink-0 sticky top-0 z-50 flex items-center justify-between px-4 lg:px-6 py-3 border-b border-white/10 bg-black/70 backdrop-blur-md gap-4">
-      {/* LEFT: ESC */}
+      {/* LEFT: back */}
       <div className="flex items-center w-1/3">
         <CyberButton 
           href={backHref}

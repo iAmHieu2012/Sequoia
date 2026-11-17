@@ -15,6 +15,7 @@ export default function DashboardHeader({ error }: { error?: string | null }) {
   const { user } = useAuth();
 
   useEffect(() => {
+    // Set the time only after mount; a server-rendered time would not match the client's.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentTime(new Date());
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);

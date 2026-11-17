@@ -60,6 +60,7 @@ export function useInference({
 }: UseInferenceProps) {
   const requestRef = useRef<number | undefined>(undefined);
   
+  // Offscreen canvas at the model's input size (not a Web Worker): frames are downscaled here and read back.
   const workerCtxRef = useRef<CanvasRenderingContext2D | null>(null);
   const floatBufferRef = useRef<Float32Array | null>(null);
   const firstFrameLoggedRef = useRef(false);
@@ -104,6 +105,7 @@ export function useInference({
     const isActive = cameraActiveRef.current || fileUrlRef.current;
     if (!mediaSource || !displayCanvas || !compiledModel || !isActive || !currentModel) return;
     
+    // Video has no frame yet (readyState < HAVE_CURRENT_DATA): try again next frame.
     if (mediaSource instanceof HTMLVideoElement && mediaSource.readyState < 2) {
       requestRef.current = requestAnimationFrame(processFrame);
       return;
@@ -116,6 +118,7 @@ export function useInference({
     let height: number, width: number;
     let isNCHW = false;
 
+    // Use the layout from metadata if given; otherwise a channel-sized dim (1 or 3) after the batch dim means NCHW.
     if (metadataRef.current?.input_layout) {
       isNCHW = metadataRef.current.input_layout === 'nchw';
       height = isNCHW ? shape[2] : shape[1];
@@ -161,6 +164,7 @@ export function useInference({
       scale = Number((currentModel.metadata.normalize as Record<string, unknown>).scale);
     }
 
+    // RGBA pixels -> float input: (value * scale - mean) / std, planar for NCHW or interleaved for NHWC.
     if (isNCHW) {
       const planeSize = width * height;
       for (let i = 0, p = 0; i < imageData.data.length; i += 4, p++) {
@@ -213,6 +217,8 @@ export function useInference({
         let outTensor = outputs[0];
         let pTensor = outputs.length > 1 ? outputs[1] : null;
         
+        // Two-output models: for YOLOv8-seg the 4D tensor holds the mask prototypes and the 3D one the
+        // detections, in either order. Other pairs (SSD boxes/scores, SimCC x/y) keep the model's order.
         if (outputs.length > 1) {
           const dim0 = outputs[0].type.layout.dimensions;
           const dim1 = outputs[1].type.layout.dimensions;
@@ -238,6 +244,7 @@ export function useInference({
         const mw = mediaSource instanceof HTMLVideoElement ? mediaSource.videoWidth : (mediaSource as HTMLImageElement).naturalWidth;
         const mh = mediaSource instanceof HTMLVideoElement ? mediaSource.videoHeight : (mediaSource as HTMLImageElement).naturalHeight;
         
+        // Draw at the media's native resolution; CSS scales the canvas to fit.
         displayCanvas.width = mw || 640;
         displayCanvas.height = mh || 640;
         const dCtx = displayCanvas.getContext('2d');
@@ -260,6 +267,7 @@ export function useInference({
           const renderer = rendererRef.current.renderer;
           
             const task = metadataRef.current.task;
+            // These tasks draw a whole new image, so hide the source element under the canvas.
             const isReplacementTask = 
               ['image-to-image', 'style-transfer', 'depth-estimation', 'super-resolution'].includes(task) || 
               (task === 'image-segmentation' && metadataRef.current.visualization.type === 'background_removal');
@@ -297,6 +305,7 @@ export function useInference({
             }
         }
       } finally {
+        // LiteRT tensors live in WASM memory and must be freed by hand.
         for (const out of outputs) out.delete();
       }
     } catch (error) {
@@ -310,6 +319,7 @@ export function useInference({
     }
     
     requestRef.current = requestAnimationFrame(processFrame);
+  // processFrame reads everything through refs and schedules itself, so it keeps one identity for the hook's lifetime.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); 
 
@@ -322,7 +332,7 @@ export function useInference({
     };
   }, [compiledModelReady, cameraActive, fileUrl, booting, processFrame]);
 
-  // Full cleanup on unmount
+  // On unmount only: stop the loop and free the compiled model's WASM memory.
   useEffect(() => {
     return () => {
       if (requestRef.current) cancelAnimationFrame(requestRef.current);

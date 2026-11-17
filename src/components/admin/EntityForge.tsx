@@ -21,6 +21,8 @@ export interface EntityForgeProps {
  * EntityForge Component
  * Acts as a Factory/Router to render the appropriate creation/editing Form (Forge)
  * depending on the active tab (Article, Topic, Model, or Textbook).
+ * Each forge is keyed by the item's id, so switching items remounts it and its form state
+ * is initialized again from initialData.
  */
 export default function EntityForge({ activeTab, onClose, onSave, initialData, topics = [] }: EntityForgeProps) {
   switch (activeTab) {

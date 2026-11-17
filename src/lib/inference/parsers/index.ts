@@ -31,6 +31,7 @@ const parsers: Record<string, () => OutputParser> = {
   'rtmpose_simcc': () => new RtmPoseParser(),
 };
 
+/** Creates a parser for a model's `output_format` (see ModelMetadata). Throws on unknown formats. */
 export function getParser(outputFormat: string): OutputParser {
   const factory = parsers[outputFormat];
   if (!factory) {

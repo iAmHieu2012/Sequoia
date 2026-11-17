@@ -16,6 +16,7 @@ interface MarkdownRendererProps {
   content: string;
 }
 
+/** Slug from a heading's text. Must match the TOC id rule below so the anchor links work. */
 function getHeadingId(children: React.ReactNode): string {
   const text = React.Children.toArray(children)
     .reduce((str: string, child: React.ReactNode) => {
@@ -29,14 +30,15 @@ function getHeadingId(children: React.ReactNode): string {
 }
 
 /**
- * Renders Markdown content with support for GFM, Math (KaTeX), Mermaid diagrams, and custom UI components.
- * Automatically generates a Table of Contents (TOC) from heading tags.
+ * Renders Markdown content with support for GFM, Math (KaTeX), Mermaid diagrams and callouts (`> [!TYPE] Title`).
+ * Builds a Table of Contents from the h2/h3 headings.
  */
 export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   const [isTocExpanded, setIsTocExpanded] = React.useState(true);
 
   const toc = React.useMemo(() => {
     const headings = [];
+    // Strip code fences first so lines like "## comment" inside code are not taken as headings.
     const contentWithoutCode = content.replace(/```[\s\S]*?```/g, '');
     const regex = /^(#{2,3})\s+(.+)$/gm;
     let match;
@@ -357,5 +359,6 @@ function MermaidBlock({ chart }: { chart: string }) {
     return () => { isMounted = false; };
   }, [chart]);
 
+  // The SVG comes from mermaid with securityLevel "strict", which sanitizes the diagram text.
   return <div dangerouslySetInnerHTML={{ __html: svgContent }} className="my-8 flex justify-center w-full" />;
 }

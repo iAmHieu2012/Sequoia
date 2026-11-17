@@ -26,6 +26,7 @@ export default function TopicForge({ onClose, onSave, initialData }: TopicForgeP
   const [sortOrder, setSortOrder] = useState(initialData?.sort_order?.toString() || '99');
 
   const handleSave = () => {
+    // id is undefined for a new topic; the server then derives it from the name.
     const parsedOrder = parseInt(sortOrder, 10);
     onSave({ id: initialData?.id, name, description, sort_order: !isNaN(parsedOrder) ? parsedOrder : 99 });
   };

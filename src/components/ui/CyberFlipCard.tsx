@@ -16,6 +16,7 @@ interface CyberFlipCardProps {
 
 import CyberPanel from './CyberPanel';
 
+/** Stat card that slides to a second value: on hover on desktop, on tap on mobile. */
 export default function CyberFlipCard({
   frontTitle,
   frontValue,

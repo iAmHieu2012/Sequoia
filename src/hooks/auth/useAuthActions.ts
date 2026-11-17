@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 
 /**
- * Translates raw Supabase error messages into system-specific uppercase error codes.
+ * Translates known Supabase error messages into uppercase error codes; unknown messages pass through.
  */
 export const mapSupabaseError = (errorMessage: string): string => {
   if (errorMessage.includes('Invalid login credentials')) return 'INVALID_CREDENTIALS';
@@ -12,11 +12,11 @@ export const mapSupabaseError = (errorMessage: string): string => {
 };
 
 /**
+ * Supabase auth flows: email/password login and registration, Google OAuth, and password reset.
+ * Manages its own loading, error, and success message states.
+ *
  * `initialError`: message to show on load (e.g. a failed Google sign-in passed back by /auth/callback).
  * `next`: same-site path to go to after signing in (already validated with safeNext).
- *
- * Orchestrates Supabase authentication flows including Email/Password login, registration, Google OAuth, and password resets.
- * Manages its own loading, error, and success message states.
  */
 export function useAuthActions({ initialError, next = '/dashboard' }: { initialError?: string; next?: string } = {}) {
   const [error, setError] = useState(initialError ?? '');

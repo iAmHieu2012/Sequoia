@@ -30,7 +30,7 @@ interface ContentBrowserProps {
   topics: Topic[];
   /** List of standalone articles (Rogue Papers) */
   rogueArticles: Article[];
-  /** List of interactive textbooks (Modules) */
+  /** Textbooks (Modules tab) */
   textbooks: Textbook[];
   /** Articles belonging to the currently selected Topic */
   articles: Article[];
@@ -57,7 +57,8 @@ interface ContentBrowserProps {
 /**
  * The primary navigation sidebar for the Dashboard.
  * Allows users to browse through Nebulas (Topics), Rogue (Papers), and Modules (Textbooks).
- * Handles fetching its own structural map data via CosmosService.
+ * Fetches the node positions of the map that belongs to the open list, so clicking an
+ * article can fly the map preview to its node.
  */
 export default function ContentBrowser({
   activeTab, setActiveTab, topics, rogueArticles, textbooks, articles,
@@ -66,6 +67,7 @@ export default function ContentBrowser({
   progressSummary
 }: ContentBrowserProps) {
   const [mapData, setMapData] = useState<CosmosMap | null>(null);
+  // Rogue uses the standalone map; Nebulas uses the selected topic's map; Modules has none.
   const currentMapId = activeTab === "rogue" ? "standalone-articles" : (activeTab === "nebulas" && selectedTopic ? selectedTopic.id : undefined);
 
   useEffect(() => {

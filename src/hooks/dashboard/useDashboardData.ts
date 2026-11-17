@@ -8,9 +8,8 @@ import { ModelService } from '@/services/model.service';
 import { UserService } from '@/services/user.service';
 
 /**
- * Custom hook to manage the fetching and state of all core Dashboard data.
- * Aggregates Topics, Standalone Articles, Textbooks, AI Models, and User Progress.
- * @param activeTab Current active tab ID to conditionally fetch heavy resources
+ * Fetches all dashboard data: topics, standalone articles, textbooks, AI models and the progress summary.
+ * @param activeTab Switching tabs retries the models request while the list is still empty (e.g. after an error).
  */
 export function useDashboardData(activeTab: string) {
   const { user } = useAuth();
@@ -55,7 +54,7 @@ export function useDashboardData(activeTab: string) {
     return () => { isMounted = false; };
   }, []);
 
-  // Fetch AI Models
+  // Models load separately so a failure here only affects the modules tab.
   useEffect(() => {
     let isMounted = true;
     if (models.length === 0) {

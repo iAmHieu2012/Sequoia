@@ -16,8 +16,9 @@ import CosmosMapPreview from "@/components/dashboard/CosmosMapPreview";
 import { useDashboardContext } from "@/contexts/DashboardContext";
 
 /**
- * Client-side orchestrator for the Desktop Dashboard view.
- * Handles tab navigation, map rendering targets, and layout management.
+ * Desktop layout: the explore zone (stats, content browser, map preview) on the left and the
+ * command zone (labs, sandbox, AI assistant) on the right. Opening the assistant collapses the
+ * explore zone so the chat takes the full width. All state comes from DashboardContext.
  */
 export default function DesktopDashboard() {
   const { user } = useAuth();

@@ -1,12 +1,12 @@
+"""Downloads the YOLOv8 Nano models and exports them to LiteRT (.tflite) in ./exported_models."""
 import os
 from ultralytics import YOLO
 
 def export_models():
-    # Tạo thư mục chứa model sau khi export
     output_dir = "exported_models"
     os.makedirs(output_dir, exist_ok=True)
 
-    # Danh sách các model YOLOv8 siêu nhẹ (Nano) cần tải và convert
+    # YOLOv8 Nano variants to download and convert
     models_to_export = [
         {"name": "yolov8n.pt", "task": "Object Detection"},
         {"name": "yolov8n-cls.pt", "task": "Image Classification"},
@@ -19,13 +19,11 @@ def export_models():
         task_name = item["task"]
         print(f"\n[{task_name}] Đang tải và nạp mô hình: {model_name}...")
         
-        # Hàm YOLO() sẽ tự động tải file .pt từ internet về nếu chưa có
+        # YOLO() downloads the .pt weights if they are not already present
         model = YOLO(model_name)
         
         print(f"[{task_name}] Đang bắt đầu convert sang LiteRT...")
-        # Export sang LiteRT format
-        # Có thể thêm int8=True nếu muốn giảm một nửa dung lượng (tuy nhiên cần có data calibration)
-        # Ở đây mình dùng cấu hình mặc định
+        # Default (float) export. int8=True would roughly halve the size but needs calibration data.
         export_path = model.export(format='litert')
         
         print(f"[{task_name}] Thành công! File LiteRT được lưu tại: {export_path}")

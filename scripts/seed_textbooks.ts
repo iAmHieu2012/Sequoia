@@ -4,7 +4,7 @@ async function seedTextbooks() {
   console.log('Seeding Textbooks...');
 
   const textbooks = [
-    // --- NỀN TẢNG & TOÁN HỌC (FOUNDATIONS & MATH) ---
+    // --- FOUNDATIONS & MATH ---
     {
       id: "mathematics-for-machine-learning",
       title: "Mathematics for Machine Learning",
@@ -33,7 +33,7 @@ async function seedTextbooks() {
       sort_order: 3
     },
 
-    // --- HỌC MÁY CỐT LÕI (PROBABILISTIC ML) ---
+    // --- PROBABILISTIC ML ---
     {
       id: "probabilistic-machine-learning-an-introduction",
       title: "Probabilistic Machine Learning: An Introduction",
@@ -53,7 +53,7 @@ async function seedTextbooks() {
       sort_order: 5
     },
 
-    // --- TỐI ƯU HÓA VÀ RA QUYẾT ĐỊNH (OPTIMIZATION & DECISION MAKING) ---
+    // --- OPTIMIZATION & DECISION MAKING ---
     {
       id: "algorithms-for-optimization",
       title: "Algorithms for Optimization",
@@ -82,7 +82,7 @@ async function seedTextbooks() {
       sort_order: 8
     },
 
-    // --- HỌC SÂU (DEEP LEARNING) ---
+    // --- DEEP LEARNING ---
     {
       id: "deep-learning",
       title: "Deep Learning",
@@ -102,7 +102,7 @@ async function seedTextbooks() {
       sort_order: 10
     },
 
-    // --- XỬ LÝ NGÔN NGỮ & HỆ THỐNG & ĐẠO ĐỨC (NLP & SYSTEMS & ETHICS) ---
+    // --- NLP, SYSTEMS & ETHICS ---
     {
       id: "speech-and-language-processing",
       title: "Speech and Language Processing",
@@ -140,7 +140,7 @@ async function seedTextbooks() {
       sort_order: 14
     },
 
-    // --- HỌC TĂNG CƯỜNG VÀ TÁC TỬ (REINFORCEMENT LEARNING & AGENTS) ---
+    // --- REINFORCEMENT LEARNING & AGENTS ---
     {
       id: "reinforcement-learning-an-introduction",
       title: "Reinforcement Learning: An Introduction",
@@ -179,7 +179,6 @@ async function seedTextbooks() {
     }
   ];
 
-  // Upsert toàn bộ array
   const { error: txtErr } = await supabase.from('textbooks').upsert(textbooks);
   
   if (txtErr) {

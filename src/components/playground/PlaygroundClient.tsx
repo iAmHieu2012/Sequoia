@@ -14,7 +14,7 @@ interface PlaygroundClientProps {
 }
 
 /**
- * Client component for the Playground. Handles all WebRTC, Canvas, and interaction state.
+ * Client component for the Playground: lays out the panels; all state comes from usePlayground.
  */
 export default function PlaygroundClient({ modelId }: PlaygroundClientProps) {
   const {

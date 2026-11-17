@@ -12,15 +12,15 @@ import { ProgressSummary } from "@/types/dashboard";
 interface StatsBarProps {
   /** The authenticated user object */
   user: User | null;
-  /** Summary of progress across textbooks, topics, and standalone nodes */
+  /** Completed/total counts per topic and for standalone articles */
   progressSummary: ProgressSummary | null;
   /** Detailed user progress including current streak */
   userProgress: UserProgress | null;
 }
 
 /**
- * Renders the top statistics bar displaying user progress, decoded signals,
- * anomalies detected, active codexes, and learning streaks.
+ * Top statistics bar: overall progress (hover/tap splits it into decoded vs unknown articles)
+ * and the current / peak learning streak. Shows placeholders when signed out.
  */
 export default function StatsBar({
   user,
