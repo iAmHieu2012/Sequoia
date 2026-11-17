@@ -28,12 +28,15 @@ export interface UserProgress {
 }
 
 /**
- * Custom hook to fetch and cache Cosmos Map spatial data and User Progress.
+ * Fetches a Cosmos map's node layout and the user's progress.
+ * Each cache remembers which map / user it belongs to, so stale data is never shown after a switch.
  * @param mapId The ID of the map to load
  * @param refreshKey A trigger value to force a refetch
  * @param skipProgressFetch If true, ignores fetching the user's progress
+ * @param recordActivity If true, loads progress by recording today's visit (updates the streak)
+ *   instead of a plain read. Only the dashboard sets this.
  */
-export function useCosmosData(mapId?: string, refreshKey?: number, skipProgressFetch: boolean = false) {
+export function useCosmosData(mapId?: string, refreshKey?: number, skipProgressFetch: boolean = false, recordActivity: boolean = false) {
   const { user } = useAuth();
   const [mapCache, setMapCache] = useState<{ id: string | undefined, data: CosmosMap | null }>({ id: undefined, data: null });
   const [progressCache, setProgressCache] = useState<{ userId: string | undefined, data: UserProgress | null }>({ userId: undefined, data: null });
@@ -65,8 +68,9 @@ export function useCosmosData(mapId?: string, refreshKey?: number, skipProgressF
     let isMounted = true;
     const fetchProgress = async () => {
       try {
-        const localDate = new Date().toLocaleDateString('en-CA');
-        const data = await UserService.getUserProgress(localDate);
+        const data = recordActivity
+          ? await UserService.recordActivity()
+          : await UserService.getUserProgress();
         if (isMounted) setProgressCache({ userId: user.id, data });
       } catch (err) {
         if (isMounted) setError('Failed to fetch user progress');
@@ -75,7 +79,7 @@ export function useCosmosData(mapId?: string, refreshKey?: number, skipProgressF
     };
     fetchProgress();
     return () => { isMounted = false; };
-  }, [user, skipProgressFetch]);
+  }, [user, skipProgressFetch, recordActivity]);
 
   const getNodeStatus = useCallback((article_id: string) => {
     if (!userProgress) return false;

@@ -6,13 +6,29 @@ import { ProgressSummary } from "@/types/dashboard";
  */
 export const UserService = {
   /**
-   * Fetches the learning progress and streak data for the authenticated user.
-   * @param localDate The user's local date string (YYYY-MM-DD) for streak calculation.
+   * Fetches the learning progress and streak data for the authenticated user (read-only).
    * @returns A promise resolving to the user's progress data, or null.
    */
-  getUserProgress: async (localDate: string): Promise<UserProgress | null> => {
-    const res = await fetch(`/api/v1/users/progress?localDate=${localDate}`);
+  getUserProgress: async (): Promise<UserProgress | null> => {
+    const res = await fetch('/api/v1/users/progress');
     if (!res.ok) throw new Error('Failed to fetch user progress');
+    const json = await res.json();
+    return json.data || null;
+  },
+
+  /**
+   * Records today as an active day for the streak.
+   * @returns The updated progress, or null.
+   */
+  recordActivity: async (): Promise<UserProgress | null> => {
+    // YYYY-MM-DD in the user's timezone, so the streak follows their calendar day.
+    const localDate = new Date().toLocaleDateString('en-CA');
+    const res = await fetch('/api/v1/users/activity', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ localDate }),
+    });
+    if (!res.ok) throw new Error('Failed to record activity');
     const json = await res.json();
     return json.data || null;
   },

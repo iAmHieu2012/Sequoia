@@ -31,8 +31,7 @@ export default function ArticleProgressToggle({ article_id }: ArticleProgressTog
       let isMounted = true;
       const fetchProgress = async () => {
         try {
-          const localDate = new Date().toLocaleDateString('en-CA');
-          const data = await UserService.getUserProgress(localDate);
+          const data = await UserService.getUserProgress();
           if (data && data.completed_article_ids && isMounted) {
             setIsCompleted(data.completed_article_ids.includes(article_id));
           } else if (isMounted) {

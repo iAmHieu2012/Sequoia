@@ -7,6 +7,7 @@ import { Topic, Article, Textbook, ProgressSummary } from "@/types/dashboard";
 import { TopicService } from "@/services/topic.service";
 import { TabTarget } from "@/components/dashboard/ContentBrowser";
 
+/** "rogue" lists standalone articles (not in any topic); "modules" lists AI models. */
 export type TabId = "nebulas" | "rogue" | "modules";
 
 export interface AiModel {
@@ -51,6 +52,7 @@ interface DashboardContextType {
 
 const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
 
+/** Shared dashboard state: active tab, map position, fetched content and the topic drill-down. */
 export function DashboardProvider({ children }: { children: ReactNode }) {
   const [activeTab, setActiveTab] = useState<TabId>("nebulas");
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
@@ -68,13 +70,15 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     modelsError
   } = useDashboardData(activeTab);
 
-  const { userProgress, getNodeStatus, error: cosmosError } = useCosmosData();
+  // Opening the dashboard is what counts as a visit for the streak.
+  const { userProgress, getNodeStatus, error: cosmosError } = useCosmosData(undefined, undefined, false, true);
 
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [articles, setArticles] = useState<Article[]>([]);
   const [drilldownLoading, setDrilldownLoading] = useState(false);
 
-  // Derived state during render: Initialize mapId when topics are loaded
+  // Default the map to the first topic once topics load. Setting state during render
+  // (React's "adjust state when props change" pattern) avoids an extra effect pass.
   if (topics.length > 0 && !mapTarget.mapId) {
     setMapTarget({ ...mapTarget, mapId: topics[0].id });
   }

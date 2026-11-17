@@ -72,9 +72,8 @@ Lỗi: một chuỗi trong `error`.
 | GET | `/users/me` | User |
 | GET | `/users/progress` | User |
 | GET | `/users/progress/summary` | User |
+| POST | `/users/activity` | User |
 | POST | `/articles/:id/progress` | User |
-| POST | `/uploads/presigned-url` | User |
-| POST | `/cosmos/progress/:mapId/decode` | User (chưa dùng) |
 | GET | `/admin/articles/standalone` | Admin |
 | GET | `/admin/topics/:id/articles` | Admin |
 | GET | `/admin/articles/:id` | Admin |
@@ -284,17 +283,9 @@ Trả về object user của Supabase Auth (`id`, `email`, `user_metadata`, `app
 
 ---
 
-### 3.2. GET `/api/v1/users/progress?localDate=YYYY-MM-DD` — Tiến trình học tập
+### 3.2. GET `/api/v1/users/progress` — Tiến trình học tập
 
-Trả về tiến trình của user đang đăng nhập.
-
-| Query | Bắt buộc | Mô tả |
-| --- | --- | --- |
-| `localDate` | Không | Ngày hôm nay theo giờ máy người dùng. Nếu có và khác ngày hoạt động gần nhất, server cập nhật streak và ghi vào database |
-
-> **Lưu ý:** dù là GET, endpoint này **có ghi dữ liệu** (cập nhật streak) ở lần gọi đầu tiên trong ngày khi có `localDate`.
-
-Quy tắc streak: ngày kế tiếp ngày hoạt động gần nhất → `current_streak + 1`; cách hơn 1 ngày → reset về `1`; `longest_streak` luôn là giá trị lớn nhất đã đạt.
+Trả về tiến trình của user đang đăng nhập. Chỉ đọc, không ghi gì. Chưa có dữ liệu thì trả tiến trình rỗng. Việc cập nhật streak nằm ở 3.5.
 
 #### Response 200
 
@@ -357,25 +348,23 @@ Gọi khi người dùng bấm "MARK DECODED" hoặc "REVERT STATUS" ở cuối 
 
 ---
 
-### 3.5. POST `/api/v1/uploads/presigned-url` — URL upload (Supabase Storage)
+### 3.5. POST `/api/v1/users/activity` — Ghi nhận ngày hoạt động (streak)
 
-Tạo signed upload URL cho Supabase Storage.
+Dashboard gọi mỗi lần mở. Chỉ lần gọi đầu tiên trong ngày làm thay đổi dữ liệu; các lần sau chỉ trả về tiến trình hiện tại.
 
 #### Request Body
 
 ```json
-{ "bucket": "uploads", "path": "user_<id>/<timestamp>" }
+{ "localDate": "2026-07-31" }
 ```
 
-Cả hai field đều tùy chọn (giá trị mặc định như trên).
+`localDate` là ngày hôm nay theo giờ máy người dùng, dạng `YYYY-MM-DD`. Sai định dạng thì trả `400`.
 
-> Hiện frontend không gọi endpoint này. Ảnh bài viết được upload thẳng lên Cloudinary.
+Quy tắc streak: ngày kế tiếp ngày hoạt động gần nhất → `current_streak + 1`; cách hơn 1 ngày → reset về `1`; `longest_streak` luôn là giá trị lớn nhất đã đạt.
 
----
+#### Response 200
 
-### 3.6. POST `/api/v1/cosmos/progress/:mapId/decode` — (chưa dùng)
-
-Endpoint giữ chỗ, chưa có logic. Chỉ trả về một message xác nhận.
+Tiến trình sau khi cập nhật, cùng dạng với 3.2.
 
 ---
 
