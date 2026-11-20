@@ -1,6 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 import * as dotenv from 'dotenv';
 import path from 'path';
+import { getAdminAuth } from '../src/lib/firebase/admin';
+
+/** Clients shared by the scripts: Supabase with the service role key, and Firebase Admin. Reads .env.local. */
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
@@ -15,3 +18,6 @@ if (!supabaseUrl || !supabaseKey) {
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: { autoRefreshToken: false, persistSession: false }
 });
+
+/** Firebase Admin Auth; needs FIREBASE_SERVICE_ACCOUNT (the service account JSON). */
+export const firebaseAuth = () => getAdminAuth();

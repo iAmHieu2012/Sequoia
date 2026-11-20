@@ -5,7 +5,7 @@ import { ClipboardCheck, ClipboardX, Activity } from "lucide-react";
 import CyberFlipCard from "@/components/ui/CyberFlipCard";
 import CyberPanel from "@/components/ui/CyberPanel";
 import { CyberProgressBar } from "@/components/ui/CyberProgressBar";
-import { type User } from "@supabase/supabase-js";
+import { type AppUser as User } from "@/contexts/AuthContext";
 import { UserProgress } from "@/hooks/cosmos/useCosmosData";
 import { ProgressSummary } from "@/types/dashboard";
 

@@ -13,6 +13,7 @@ import CyberPanel from "@/components/ui/CyberPanel";
 import { useAuth } from "@/contexts/AuthContext";
 import { Topic, Article, Textbook, AiModel } from "@/types/dashboard";
 import { AdminService } from "@/services/admin.service";
+import { apiFetch } from "@/lib/apiFetch";
 
 export type AdminTab = "nebulas" | "anomalies" | "models" | "textbooks";
 
@@ -29,10 +30,10 @@ export default function GenesisClient() {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const hasFetched = useRef(false); // load once, after auth has resolved
 
-  // Adds nothing to the request (the session travels in cookies); it only refuses to run while signed out.
+  // Adds the Firebase ID token; refuses to run while signed out.
   const authFetch = useCallback(async (url: string, options: RequestInit = {}) => {
     if (!user) throw new Error("Unauthenticated");
-    return fetch(url, options);
+    return apiFetch(url, options);
   }, [user]);
   const [activeTab, setActiveTab] = useState<AdminTab>("nebulas");
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);

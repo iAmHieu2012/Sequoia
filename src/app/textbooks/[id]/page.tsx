@@ -7,15 +7,15 @@ import { Metadata } from "next";
 import { cache } from "react";
 
 import { Textbook } from "@/types/dashboard";
-import { supabaseAdmin } from "@/utils/supabase/admin";
+import { supabasePublic } from "@/utils/supabase/public";
 
 /**
  * Fetches a textbook. Wrapped in React `cache` so generateMetadata and the page share one query.
- * Uses the service-role client because the page is statically generated (no user cookies).
+ * Uses the anon client; textbooks are public.
  */
 const getTextbook = cache(async (id: string): Promise<Textbook | null> => {
   try {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabasePublic
       .from('textbooks')
       .select('*')
       .eq('id', id)
@@ -38,7 +38,7 @@ const getTextbook = cache(async (id: string): Promise<Textbook | null> => {
 
 export async function generateStaticParams() {
   try {
-    const { data } = await supabaseAdmin.from('textbooks').select('id');
+    const { data } = await supabasePublic.from('textbooks').select('id');
     if (data) {
       return data.map(t => ({ id: t.id }));
     }

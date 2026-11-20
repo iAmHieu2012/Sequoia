@@ -29,7 +29,15 @@ npm run dev
 npx supabase start
 ```
 
-Chạy file migration: `supabase/migrations/00_reset_and_init.sql`.
+Chạy file migration: `supabase/migrations/00_init.sql`.
+
+Đăng nhập dùng Firebase (Email/Password và Google). Cách cấu hình Firebase và các biến môi trường xem ở `docs/operations/deployment.md`.
+
+Nạp lại dữ liệu đã export từ Supabase dashboard (các file CSV trong `supabase/export/`):
+
+```bash
+npx tsx scripts/import_export.ts
+```
 
 ### 3. Seed Data
 

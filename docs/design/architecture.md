@@ -18,8 +18,11 @@ graph TB
         API["Next.js API Routes<br/>(/api/v1/* — Business Logic)"]
     end
 
+    subgraph Firebase
+        AUTH["Firebase Auth"]
+    end
+
     subgraph Supabase
-        AUTH["Supabase Auth"]
         POSTGRES["PostgreSQL Database"]
     end
 
@@ -32,7 +35,7 @@ graph TB
 
     WEB -->|"Login/Register"| AUTH
 
-    API -->|"Verify Session"| AUTH
+    API -->|"Verify ID token (firebase-admin)"| AUTH
     API <-->|"Read/Write Data (service_role)"| POSTGRES
 
     WEB -->|"Download Model (Public)"| CDN
@@ -52,7 +55,7 @@ graph TB
 - **Next.js là trung tâm điều phối** — Web Frontend và API Routes cùng deploy trong một ứng dụng, giảm overhead vận hành.
 - **AI inference chạy hoàn toàn on-device** — API không xử lý inference, chỉ cung cấp metadata và URL tải model.
 - **Client tải model trực tiếp từ CDN** — API không proxy dữ liệu lớn qua server để giảm tải bandwidth và latency.
-- **Supabase Auth là nguồn xác thực duy nhất** — cả client lẫn API đều dựa vào Supabase JWT.
+- **Firebase Auth là nguồn xác thực duy nhất** — client đăng nhập bằng Firebase, API kiểm tra Firebase ID token. Supabase chỉ làm database.
 
 ---
 
@@ -66,7 +69,7 @@ graph TB
 | **Web AI Runtime** | LiteRT Web SDK (WebGPU, fallback WebAssembly) | Chạy model AI trực tiếp trên trình duyệt |
 | **Web API** | Next.js API Routes | RESTful API, business logic, xác thực |
 | **Database** | PostgreSQL (Supabase) | Relational database với RLS, triggers, JSONB |
-| **Authentication** | Supabase Auth | Quản lý user, hỗ trợ email/password và Google Sign-In |
+| **Authentication** | Firebase Auth | Quản lý user, hỗ trợ email/password và Google Sign-In |
 | **Model Storage** | Public CDN (jsDelivr / Hugging Face) | Host model files, miễn phí, globally distributed |
 | **Image Storage** | Cloudinary | Upload và serve hình ảnh bài viết |
 
@@ -77,7 +80,7 @@ graph TB
 | Thư viện / Công cụ | Mục đích |
 | --------------------- | ---------- |
 | React / Next.js (App Router) | Framework UI chính, SSR + API Routes |
-| @supabase/ssr | Auth session management (cookie-based) |
+| firebase / firebase-admin | Đăng nhập trên client, kiểm tra ID token trên server |
 | KaTeX | Render công thức toán LaTeX trong bài viết |
 | react-markdown + remark-gfm | Render Markdown content |
 | LiteRT Web SDK | Load và chạy `.tflite` model qua WebGPU (fallback WebAssembly) |
@@ -91,41 +94,36 @@ graph TB
 sequenceDiagram
     actor User
     participant Client as Client (Web)
-    participant SupaAuth as Supabase Auth
+    participant FB as Firebase Auth
     participant API as Next.js API Routes
     participant DB as PostgreSQL
 
     User->>Client: Nhấn đăng nhập (Email/Google)
-    Client->>SupaAuth: signInWithPassword()<br/>hoặc signInWithOAuth()
-    SupaAuth-->>Client: Session (access_token + refresh_token)
-    
-    Note over Client: Web: Session lưu trong cookie<br/>bởi @supabase/ssr.<br/>Token tự động refresh.
-    
-    Client->>API: GET /api/v1/articles/123<br/>Cookie: sb-access-token=...
-    
-    API->>API: createClient() từ cookie
-    API->>SupaAuth: getUser() — verify session
-    
-    alt Session hợp lệ
-        SupaAuth-->>API: User object (id, email, app_metadata)
-        API->>DB: Query dữ liệu (service_role bypass RLS)
+    Client->>FB: signInWithEmailAndPassword()<br/>hoặc signInWithPopup(Google)
+    FB-->>Client: User + ID token (hết hạn sau ~1 giờ)
+
+    Note over Client: Firebase giữ phiên trong trình duyệt<br/>và tự làm mới token.
+
+    Client->>API: POST /api/v1/users/me<br/>Authorization: Bearer <ID token>
+    API->>API: requireUser() — verifyIdToken (firebase-admin)
+    API->>DB: Upsert users + user_progress (service_role)
+
+    Client->>API: GET /api/v1/users/progress<br/>Authorization: Bearer <ID token>
+
+    alt Token hợp lệ
+        API->>DB: Query theo uid (service_role)
         API-->>Client: 200 OK + Response Data
-    else Session hết hạn
-        SupaAuth-->>API: Session expired
+    else Thiếu / sai / hết hạn token
         API-->>Client: 401 Unauthorized
-        Client->>SupaAuth: refreshSession()
-        SupaAuth-->>Client: New Session
-        Client->>API: Retry request
-    else Session không hợp lệ
-        SupaAuth-->>API: Invalid session
-        API-->>Client: 401 Unauthorized
+    else Route admin, thiếu claim admin
+        API-->>Client: 403 Forbidden
     end
 ```
 
 **Ghi chú quan trọng:**
 
-- Supabase access token có **thời hạn 1 giờ**. `@supabase/ssr` tự động refresh token.
-- API Routes **không lưu session** — mỗi request đều verify session độc lập (stateless).
+- Firebase ID token có **thời hạn 1 giờ**. `apiFetch` gọi `getIdToken()` trước mỗi request, hàm này tự làm mới token khi sắp hết hạn.
+- API Routes **không lưu session** — mỗi request đều verify token độc lập (stateless).
 - Một số endpoint public (đọc bài viết, xem danh sách) **không yêu cầu auth**.
 
 ---
@@ -227,28 +225,25 @@ Code hiện tại ([useModelLoader.ts](../../src/hooks/playground/useModelLoader
 
 ## 6. Bảo mật defense-in-depth
 
-### 6.1. Mô hình hai lớp bảo vệ
+### 6.1. Mô hình bảo vệ
 
 ```mermaid
 graph TB
-    CLIENT["Client Request<br/>(Cookie/JWT)"] --> API_LAYER
+    CLIENT["Client Request<br/>(Authorization: Bearer ID token)"] --> API_LAYER
+    PUBLIC["Truy cập bằng anon key<br/>(trang tĩnh, API công khai)"] --> RLS_LAYER
 
-    subgraph API_LAYER["Lớp 1: Next.js API Routes"]
-        VERIFY["Verify Supabase Session<br/>(getUser())"]
-        PERMISSION["Kiểm tra permissions<br/>(is_admin, ownership)"]
-        VALIDATE["Validate input data<br/>(type, size, format)"]
-        
+    subgraph API_LAYER["Next.js API Routes"]
+        VERIFY["requireUser / requireAdmin<br/>(firebase-admin verifyIdToken)"]
+        PERMISSION["Lọc theo uid, kiểm tra claim admin"]
+        VALIDATE["Validate input data"]
+
         VERIFY --> PERMISSION --> VALIDATE
     end
 
-    API_LAYER --> RLS_LAYER
+    API_LAYER -->|"service_role"| DATA
 
-    subgraph RLS_LAYER["Lớp 2: PostgreSQL RLS"]
-        AUTH_CHECK["auth.uid() IS NOT NULL"]
-        OWNER_CHECK["auth.uid()::text = id"]
-        ADMIN_CHECK["is_admin() function"]
-        
-        AUTH_CHECK --> OWNER_CHECK --> ADMIN_CHECK
+    subgraph RLS_LAYER["PostgreSQL RLS (anon)"]
+        READ_ONLY["Chỉ SELECT nội dung đã xuất bản<br/>Không đọc users/user_progress, không ghi"]
     end
 
     RLS_LAYER --> DATA["PostgreSQL Data"]
@@ -259,19 +254,21 @@ graph TB
     style DATA fill:#f59e0b,stroke:#d97706,color:#fff
 ```
 
-### 6.2. Tại sao cần cả hai lớp?
+### 6.2. Ai bảo vệ cái gì?
 
-| Kịch bản tấn công | Lớp 1 (API Routes) | Lớp 2 (RLS) |
-| ------------------- | --------------- | ------------------------ |
-| Request không có session | ✅ Reject tại auth check | ✅ `auth.uid()` trả NULL |
-| Session hợp lệ nhưng truy cập data của user khác | ✅ Kiểm tra ownership trong business logic | ✅ `auth.uid()::text = id` |
-| Bypass API, dùng anon key truy cập thẳng Supabase | ❌ Không bảo vệ được | ✅ RLS vẫn enforce |
-| Bug trong business logic bỏ sót kiểm tra | ❌ Có thể bị miss | ✅ RLS vẫn chặn |
+| Kịch bản | Bảo vệ bởi |
+| --- | --- |
+| Request tới API không có token / token giả | `requireUser` trả `401` |
+| User thường gọi route admin | `requireAdmin` trả `403` |
+| Đọc hoặc ghi tiến độ của người khác | API luôn lọc theo `uid` lấy từ token, không lấy từ request |
+| Bỏ qua API, dùng anon key gọi thẳng Supabase | RLS: chỉ đọc được nội dung đã xuất bản, không ghi được gì |
+
+Vì API dùng `service_role` (bỏ qua RLS), mọi route chạm dữ liệu người dùng hoặc ghi dữ liệu **bắt buộc** gọi `requireUser` / `requireAdmin` trước.
 
 ### 6.3. Nguyên tắc bảo mật bổ sung
 
 - **HTTPS everywhere** — Vercel tự cung cấp SSL.
-- **`SUPABASE_SERVICE_ROLE_KEY` chỉ dùng phía server** — không bao giờ import trong Client Components.
+- **`SUPABASE_SERVICE_ROLE_KEY` và `FIREBASE_SERVICE_ACCOUNT` chỉ dùng phía server** — không bao giờ import trong Client Components.
 - **Input validation** — API validate mọi input trước khi xử lý.
 - **CORS** — Chỉ cho phép origin của web client.
 - **Model files là public** — Không chứa dữ liệu nhạy cảm.
@@ -328,4 +325,4 @@ Sequoia/
 | camelCase | `useAuth.ts`, `adminService.ts` | TypeScript files, hooks |
 | PascalCase | `GenesisClient.tsx`, `PlaygroundCard.tsx` | React components |
 | kebab-case | `user-flows.md`, `api-contract.md` | Documentation files |
-| snake_case | `seed_models.ts`, `00_reset_and_init.sql` | Seed scripts, SQL migrations |
+| snake_case | `seed_models.ts`, `00_init.sql` | Seed scripts, SQL migrations |

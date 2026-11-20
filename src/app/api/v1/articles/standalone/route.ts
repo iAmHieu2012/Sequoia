@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
+import { supabasePublic } from '@/utils/supabase/public';
 
 export async function GET() {
   try {
-    const supabase = await createClient();
-    const { data, error } = await supabase
+    const { data, error } = await supabasePublic
       .from('articles')
       .select('*')
       .is('topic_id', null)

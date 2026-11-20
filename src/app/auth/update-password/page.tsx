@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   description: "Set a new password for your Sequoia account.",
 };
 
-export default function UpdatePasswordPage() {
-  return <UpdatePasswordClient />;
+/** Target of Firebase's password reset email (`?mode=resetPassword&oobCode=...`). */
+export default async function UpdatePasswordPage({ searchParams }: { searchParams: Promise<{ oobCode?: string }> }) {
+  const { oobCode } = await searchParams;
+  return <UpdatePasswordClient oobCode={oobCode} />;
 }

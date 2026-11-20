@@ -109,8 +109,7 @@ Các bảng này giữ nguyên tính trừu tượng của một CMS giáo dục
 ### 2.1. `users`
 | Column | Type | Constraint | Description |
 | --- | --- | --- | --- |
-| `id` | `TEXT` | PRIMARY KEY | Trùng với Supabase Auth UID |
-| `uid` | `TEXT` | UNIQUE NOT NULL | Supabase Auth UID |
+| `id` | `TEXT` | PRIMARY KEY | Firebase UID. Dòng được tạo bởi `POST /api/v1/users/me` khi đăng nhập |
 | `email` | `TEXT` | | Email đăng ký |
 | `display_name` | `TEXT` | | Tên hiển thị |
 | `photo_url` | `TEXT` | | URL ảnh đại diện |
@@ -225,7 +224,7 @@ Các trigger tự động duy trì tính toàn vẹn dữ liệu:
 | Trigger | Bảng | Thời điểm | Chức năng |
 | --- | --- | --- | --- |
 | `set_*_updated_at` | users, articles, textbooks, models | BEFORE UPDATE | Tự động set `updated_at = now()` |
-| `on_auth_user_created` | auth.users | AFTER INSERT | Tự tạo row `users` + `user_progress` khi signup |
+| _(không có trigger)_ | | | Row `users` + `user_progress` do `POST /api/v1/users/me` tạo khi đăng nhập lần đầu |
 | `trg_update_topic_article_count` | articles | AFTER INSERT/DELETE/UPDATE OF topic_id | Đếm lại `COUNT(*)` và cập nhật `topics.article_count` |
 | `trg_sync_topic_to_cosmos_map` | topics | AFTER INSERT | Tự tạo row `cosmos_maps` rỗng cho topic mới |
 | `trg_cleanup_article_from_progress` | articles | AFTER DELETE | Xóa article_id khỏi mảng `completed_article_ids` trong `user_progress` |

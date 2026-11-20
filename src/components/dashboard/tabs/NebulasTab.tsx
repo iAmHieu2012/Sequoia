@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Rocket, ArrowRight } from "lucide-react";
 import { Topic, Article, ProgressSummary } from "@/types/dashboard";
-import { type User } from "@supabase/supabase-js";
+import { type AppUser as User } from "@/contexts/AuthContext";
 import React from "react";
 import { TabTarget } from "../ContentBrowser";
 import { CosmosMap } from "@/hooks/cosmos/useCosmosData";

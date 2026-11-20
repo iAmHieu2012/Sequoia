@@ -1,13 +1,38 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
+import { requireUser } from '@/lib/auth/server';
+import { supabaseAdmin } from '@/utils/supabase/admin';
 
-export async function GET() {
+/** The signed-in user, from their Firebase token. */
+export async function GET(request: Request) {
+  const auth = await requireUser(request);
+  if (auth instanceof NextResponse) return auth;
+  return NextResponse.json({ data: auth });
+}
+
+/**
+ * Creates or refreshes the user's profile row from their Firebase token, and creates an empty
+ * progress row the first time. AuthContext calls this whenever the user signs in.
+ */
+export async function POST(request: Request) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error } = await supabase.auth.getUser();
-    if (error || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    
-    return NextResponse.json({ data: user  });
+    const auth = await requireUser(request);
+    if (auth instanceof NextResponse) return auth;
+
+    const { error: userError } = await supabaseAdmin.from('users').upsert({
+      id: auth.uid,
+      email: auth.email,
+      display_name: auth.name,
+      photo_url: auth.picture,
+    });
+    if (userError) throw userError;
+
+    // ignoreDuplicates: never overwrite existing progress.
+    const { error: progressError } = await supabaseAdmin
+      .from('user_progress')
+      .upsert({ id: auth.uid }, { onConflict: 'id', ignoreDuplicates: true });
+    if (progressError) throw progressError;
+
+    return NextResponse.json({ data: { id: auth.uid } });
   } catch (error: unknown) {
     return NextResponse.json({ error: (error instanceof Error ? error.message : "Unknown error") }, { status: 500 });
   }

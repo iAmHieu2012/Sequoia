@@ -81,7 +81,7 @@ export default function DashboardHeader({ error }: { error?: string | null }) {
               <div className="flex-col items-end text-right hidden sm:flex mr-4 relative z-10">
                 <span className="text-xs font-mono text-space-bg/70 tracking-widest font-bold">ID_ENTITY</span>
                 <span className="text-xs font-mono font-black tracking-widest">
-                  {user.user_metadata?.name?.toUpperCase() || user.email?.split('@')[0].toUpperCase() || 'USER_NODE'}
+                  {user.name?.toUpperCase() || user.email?.split('@')[0].toUpperCase() || 'USER_NODE'}
                 </span>
               </div>
               

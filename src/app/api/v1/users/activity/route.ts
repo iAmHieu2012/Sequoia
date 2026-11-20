@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
+import { requireUser } from '@/lib/auth/server';
+import { supabaseAdmin } from '@/utils/supabase/admin';
 
 /**
  * Records a day as active for the signed-in user and updates the streak.
@@ -8,9 +9,8 @@ import { createClient } from '@/utils/supabase/server';
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const auth = await requireUser(request);
+    if (auth instanceof NextResponse) return auth;
 
     const body = await request.json().catch(() => null);
     const localDate = typeof body?.localDate === 'string' ? body.localDate : '';
@@ -19,8 +19,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'localDate must be YYYY-MM-DD' }, { status: 400 });
     }
 
-    const userId = user.id;
-    const { data, error } = await supabase
+    const userId = auth.uid;
+    const { data, error } = await supabaseAdmin
       .from('user_progress')
       .select('*')
       .eq('id', userId)
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     if (currentStreak > longestStreak) longestStreak = currentStreak;
     if (!activeDates.includes(localDate)) activeDates.push(localDate);
 
-    const { data: updatedProgress, error: updateError } = await supabase
+    const { data: updatedProgress, error: updateError } = await supabaseAdmin
       .from('user_progress')
       .upsert({
         ...progress,

@@ -1,57 +1,80 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { User } from "@supabase/supabase-js";
-import { createClient } from "@/utils/supabase/client";
+import { onIdTokenChanged, signOut as firebaseSignOut } from "firebase/auth";
+import { getFirebaseAuth } from "@/lib/firebase/client";
+import { apiFetch } from "@/lib/apiFetch";
+
+/** The signed-in user as the app sees it (from Firebase). */
+export interface AppUser {
+  id: string; // Firebase UID, also the id of the user's rows in Supabase
+  email: string | null;
+  name: string | null;
+  photoUrl: string | null;
+}
 
 interface AuthContextType {
-  user: User | null;
+  user: AppUser | null;
   isAdmin: boolean;
   loading: boolean;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isAdmin: false,
   loading: true,
+  signOut: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
 
 /**
- * AuthContext Provider
- * Manages global authentication state using Supabase.
- * Exposes the current user, loading state, and an isAdmin boolean derived from app_metadata.
+ * Global authentication state from Firebase.
+ * isAdmin comes from the `admin` custom claim in the ID token (set with scripts/make_admin.ts).
+ *
+ * Listens to onIdTokenChanged rather than onAuthStateChanged so that a refreshed token also
+ * refreshes the user: after registration the display name is set and the token is forced to
+ * refresh, and new claims (admin) show up the next time the token renews.
  */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
 
   useEffect(() => {
-    const fetchSession = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user ?? null);
-      setIsAdmin(user?.app_metadata?.is_admin === true);
-      setLoading(false);
-    };
+    return onIdTokenChanged(getFirebaseAuth(), async (fbUser) => {
+      if (!fbUser) {
+        setUser(null);
+        setIsAdmin(false);
+        setLoading(false);
+        return;
+      }
 
-    fetchSession();
+      // Create/refresh the profile row before exposing the user, so the user's first
+      // requests (streak, progress) never run before their row exists.
+      try {
+        await apiFetch("/api/v1/users/me", { method: "POST" });
+      } catch (error) {
+        console.error("Failed to sync user profile:", error);
+      }
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setIsAdmin(session?.user?.app_metadata?.is_admin === true);
+      const token = await fbUser.getIdTokenResult();
+      setUser({
+        id: fbUser.uid,
+        email: fbUser.email,
+        name: fbUser.displayName,
+        photoUrl: fbUser.photoURL,
+      });
+      setIsAdmin(token.claims.admin === true);
       setLoading(false);
     });
+  }, []);
 
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [supabase]);
+  const signOut = () => firebaseSignOut(getFirebaseAuth());
 
   return (
-    <AuthContext.Provider value={{ user, isAdmin, loading }}>
+    <AuthContext.Provider value={{ user, isAdmin, loading, signOut }}>
       {children}
     </AuthContext.Provider>
   );

@@ -22,14 +22,13 @@ API sử dụng URL path versioning: `/api/v1/...`. Khi có breaking changes, ve
 
 ### Authentication
 
-Các endpoint yêu cầu xác thực sử dụng **Supabase Auth Session** (cookie-based):
+Các endpoint yêu cầu xác thực nhận **Firebase ID token** qua header:
 
 ```text
-# Tự động gửi qua cookie bởi @supabase/ssr
-Cookie: sb-<project-ref>-auth-token=...
+Authorization: Bearer <Firebase ID token>
 ```
 
-Session được verify bởi Next.js API Routes (lớp 1) trước khi xử lý request.
+Client gửi token bằng `apiFetch` (`src/lib/apiFetch.ts`). API kiểm tra token bằng `firebase-admin` (`requireUser` / `requireAdmin` trong `src/lib/auth/server.ts`). Thiếu hoặc sai token trả `401`; không phải admin ở route admin trả `403`.
 
 ### Response Format
 
@@ -277,9 +276,10 @@ Trả về một model (cùng cấu trúc như phần tử trong 2.8). `404` n�
 
 ## 3. Auth-Required Endpoints
 
-### 3.1. GET `/api/v1/users/me` — Thông tin user
+### 3.1. `/api/v1/users/me` — Thông tin user
 
-Trả về object user của Supabase Auth (`id`, `email`, `user_metadata`, `app_metadata`, ...).
+- **GET:** trả về thông tin lấy từ token: `{ uid, email, name, picture, isAdmin }`.
+- **POST:** tạo hoặc cập nhật dòng `users` từ token, và tạo `user_progress` rỗng nếu chưa có. Client gọi mỗi lần đăng nhập (AuthContext).
 
 ---
 
@@ -368,9 +368,9 @@ Tiến trình sau khi cập nhật, cùng dạng với 3.2.
 
 ---
 
-## 4. Admin Endpoints (Yêu cầu `is_admin` claim)
+## 4. Admin Endpoints (Yêu cầu claim `admin`)
 
-Tất cả admin endpoints đều kiểm tra `user.app_metadata.is_admin === true`, sai thì trả `403`.
+Tất cả admin endpoints đều gọi `requireAdmin`: token phải hợp lệ và có custom claim `admin: true`, nếu không trả `401`/`403`.
 
 ### 4.1. GET `/api/v1/admin/articles/standalone` — Bài lẻ (gồm bài nháp)
 
@@ -562,8 +562,8 @@ Ghi đè **toàn bộ** danh sách node của bản đồ (dùng bởi nút SAVE
 ## 5. Authentication Note
 
 > [!NOTE]
-> Dự án Sequoia sử dụng kiến trúc **Supabase Auth trực tiếp trên Client (Frontend)**. Do đó, Backend không cung cấp API Đăng nhập hay Đăng ký.
-> Thay vào đó, Frontend sử dụng Supabase Client SDK để đăng nhập bằng Email/Password hoặc Google OAuth. Sau khi đăng nhập thành công, session được lưu trong cookie, và tự động gửi kèm khi gọi API.
+> Sequoia dùng **Firebase Auth trực tiếp trên Client**, nên Backend không có API đăng nhập hay đăng ký.
+> Frontend dùng Firebase SDK để đăng nhập bằng Email/Password hoặc Google (popup). Firebase giữ phiên đăng nhập trong trình duyệt; mỗi request tới API gửi kèm ID token qua header `Authorization`.
 
 ---
 

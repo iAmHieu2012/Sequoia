@@ -1,20 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
+import { requireUser } from '@/lib/auth/server';
+import { supabaseAdmin } from '@/utils/supabase/admin';
 
 /** Marks the article complete (or not, with `{ completed: false }`) for the signed-in user. */
 export async function POST(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const auth = await requireUser(request);
+    if (auth instanceof NextResponse) return auth;
 
     const body = await request.json();
     const completed = body.completed !== undefined ? body.completed : true;
-    const userId = user.id;
+    const userId = auth.uid;
     const articleId = params.id;
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('user_progress')
       .select('*')
       .eq('id', userId)
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
     if (completed) currentCompleted.add(articleId);
     else currentCompleted.delete(articleId);
 
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabaseAdmin
       .from('user_progress')
       .upsert({
         ...progress,

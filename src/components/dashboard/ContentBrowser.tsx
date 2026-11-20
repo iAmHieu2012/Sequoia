@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { type User } from "@supabase/supabase-js";
+import { type AppUser as User } from "@/contexts/AuthContext";
 import CyberPanel from "@/components/ui/CyberPanel";
 import NebulasTab from "./tabs/NebulasTab";
 import RogueTab from "./tabs/RogueTab";

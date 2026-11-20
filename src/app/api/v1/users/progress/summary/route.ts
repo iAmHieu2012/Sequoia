@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
+import { requireUser } from '@/lib/auth/server';
+import { supabaseAdmin } from '@/utils/supabase/admin';
 
 /** Per-topic completed/total counts and per-article completion for standalone articles (published only). */
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const auth = await requireUser(request);
+    if (auth instanceof NextResponse) return auth;
 
-    const userId = user.id;
+    const userId = auth.uid;
 
-    const { data: progress } = await supabase
+    const { data: progress } = await supabaseAdmin
       .from('user_progress')
       .select('completed_article_ids')
       .eq('id', userId)
@@ -18,7 +18,7 @@ export async function GET() {
 
     const completedSet = new Set(progress?.completed_article_ids || []);
 
-    const { data: allArticles, error: articlesError } = await supabase
+    const { data: allArticles, error: articlesError } = await supabaseAdmin
       .from('articles')
       .select('id, topic_id')
       .eq('is_published', true);

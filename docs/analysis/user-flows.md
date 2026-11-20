@@ -90,13 +90,13 @@ flowchart TD
     D1 -->|"Có"| D2["Nhập email + password"]
     D1 -->|"Chưa"| D3["Chuyển sang tab Đăng ký"]
     D3 --> D4["Nhập email + password + xác nhận"]
-    D4 --> D5["Supabase Auth signUp"]
+    D4 --> D5["Firebase createUserWithEmailAndPassword"]
     D5 --> D6{"Thành công?"}
     D6 -->|"Không"| D7["Hiển thị lỗi:<br/>Email đã tồn tại /<br/>Password quá yếu"]
     D7 --> D4
     D6 -->|"Có"| F["Supabase trả về Session (JWT)"]
 
-    D2 --> D8["Supabase Auth signInWithPassword"]
+    D2 --> D8["Firebase signInWithEmailAndPassword"]
     D8 --> D9{"Thành công?"}
     D9 -->|"Không"| D10["Hiển thị lỗi:<br/>Sai email/password"]
     D10 --> D2
@@ -105,11 +105,11 @@ flowchart TD
     E --> E1["Mở Google Sign-In popup/intent"]
     E1 --> E2{"User chọn tài khoản?"}
     E2 -->|"Hủy"| E3["Quay lại Auth screen"]
-    E2 -->|"Chọn"| E4["Supabase Auth signInWithOAuth"]
+    E2 -->|"Chọn"| E4["Firebase signInWithPopup (Google)"]
     E4 --> F
 
-    F --> G["Session tự động quản lý bởi<br/>@supabase/ssr (cookie-based)"]
-    G --> H["Trigger on_auth_user_created<br/>tự tạo row users + user_progress"]
+    F --> G["Firebase giữ phiên trên trình duyệt<br/>API nhận ID token qua header"]
+    G --> H["POST /api/v1/users/me<br/>tự tạo row users + user_progress"]
     H --> I["Redirect về trang<br/>trước đó"]
 ```
 

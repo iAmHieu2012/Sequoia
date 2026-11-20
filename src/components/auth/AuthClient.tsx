@@ -13,13 +13,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import Image from "next/image";
 
 interface AuthClientProps {
-  /** Error to show on load (passed back from /auth/callback) */
-  initialError?: string;
   /** Same-site path to go to after signing in */
   next?: string;
 }
 
-export default function AuthClient({ initialError, next = '/dashboard' }: AuthClientProps) {
+export default function AuthClient({ next = '/dashboard' }: AuthClientProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -36,7 +34,7 @@ export default function AuthClient({ initialError, next = '/dashboard' }: AuthCl
     handleGoogleSignIn, 
     handleResetPassword,
     clearMessages 
-  } = useAuthActions({ initialError, next });
+  } = useAuthActions({ next });
 
   // Already signed in (or just signed in): leave the login page.
   useEffect(() => {

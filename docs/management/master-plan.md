@@ -22,7 +22,7 @@ Nguyên tắc: nội dung ngắn gọn, không đi sâu vào tiểu tiết. Mỗ
 - Code blocks với syntax highlighting: bài viết AI/ML chứa code Python, cần hiển thị đẹp với syntax highlighting và nút copy.
 - Tìm kiếm full-text: tìm kiếm xuyên suốt bài viết, chủ đề. Sử dụng PostgreSQL full-text search hoặc ILIKE cho MVP.
 - Model Playground có tính giáo dục: hiển thị confidence score, cho phép điều chỉnh threshold, hiển thị inference time và model size. MVP hỗ trợ mô hình YOLO ở định dạng LiteRT.
-- Đăng ký và đăng nhập tài khoản (Supabase Auth).
+- Đăng ký và đăng nhập tài khoản (Firebase Auth).
 - Dark mode.
 
 **Tính năng triển khai sau — ưu tiên gần (ảnh hưởng kiến trúc):**
@@ -72,7 +72,7 @@ Nguyên tắc: chuẩn bị đầy đủ để các thành phần Web và AI tư
 
 **Phía backend:** Next.js App Router đóng vai trò full-stack — API Routes (`/api/v1/...`) chứa toàn bộ business logic, xác thực, và CRUD. Điều này đảm bảo Web Frontend và API cùng deploy chung, giảm thiểu overhead vận hành.
 
-**Cơ sở dữ liệu và xác thực:** Sử dụng Supabase. PostgreSQL lưu trữ dữ liệu người dùng và bài viết. Supabase Auth xử lý đăng nhập. API Routes sử dụng Supabase Admin Client (`service_role` key) để thao tác database.
+**Cơ sở dữ liệu và xác thực:** Sử dụng Supabase. PostgreSQL lưu trữ dữ liệu người dùng và bài viết. Firebase Auth xử lý đăng nhập; API kiểm tra Firebase ID token. API Routes sử dụng Supabase Admin Client (`service_role` key) để thao tác database.
 
 **Kiểm soát truy cập dữ liệu:** Next.js API Routes là lớp bảo vệ chính, xử lý toàn bộ logic phân quyền trước khi đọc/ghi PostgreSQL. PostgreSQL RLS (Row Level Security) vẫn được cấu hình như lớp phòng thủ thứ hai (defense-in-depth).
 

@@ -9,7 +9,7 @@ import { Metadata } from "next";
 import { cache } from "react";
 
 import { Article as GlobalArticle } from "@/types/dashboard";
-import { supabaseAdmin } from "@/utils/supabase/admin";
+import { supabasePublic } from "@/utils/supabase/public";
 
 /**
  * Extended Article type for the detail view, including the full Markdown content.
@@ -21,12 +21,11 @@ interface Article extends GlobalArticle {
 /**
  * Fetches a published article and its content. Wrapped in React `cache` so generateMetadata
  * and the page share one query per request.
- * Uses the service-role client because the page is statically generated (no user cookies);
- * the is_published filter is what keeps drafts out.
+ * Uses the anon client: RLS only lets it see published articles, so drafts never get a page.
  */
 const getArticle = cache(async (id: string): Promise<Article | null> => {
   try {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabasePublic
       .from('articles')
       .select('*, article_contents(content)')
       .eq('id', id)
@@ -51,7 +50,7 @@ export async function generateStaticParams() {
   const ids: { id: string }[] = [];
 
   try {
-    const { data } = await supabaseAdmin.from('articles').select('id').eq('is_published', true);
+    const { data } = await supabasePublic.from('articles').select('id').eq('is_published', true);
     if (data) {
       data.forEach(a => ids.push({ id: a.id }));
     }

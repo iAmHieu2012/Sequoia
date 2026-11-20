@@ -105,10 +105,10 @@ Tìm kiếm xuyên suốt bài viết (Stars), chủ đề (Nebulas). Người d
 ### 3.9. Hồ sơ Phi hành gia (Đăng ký / Đăng nhập)
 
 **Mô tả:**
-Hệ thống xác thực người dùng qua Supabase Auth (Email/Password, Google OAuth).
+Hệ thống xác thực người dùng qua Firebase Auth (Email/Password, Google).
 
 **Tiêu chí hoàn thành:**
-- Session JWT được quản lý tự động bởi `@supabase/ssr` (cookie-based).
+- Firebase giữ phiên đăng nhập trên trình duyệt; API nhận Firebase ID token qua header `Authorization`.
 - Next.js API Routes kiểm tra session trước khi xử lý request cần auth.
 - Nội dung bài viết không yêu cầu đăng nhập để truy cập, nhưng việc lưu tiến trình (Cosmos Progress) bắt buộc đăng nhập.
 
@@ -121,7 +121,7 @@ Hệ thống xác thực người dùng qua Supabase Auth (Email/Password, Googl
 
 ### 4.1. Trạm Kiểm soát (Admin CMS) ✅ Đã hoàn thành
 - Giao diện quản trị Web (Genesis Core) để tạo, sửa, xóa dữ liệu Vũ trụ (Stars, Nebulas).
-- Bảo vệ bởi `is_admin` claim trong `app_metadata` của Supabase Auth.
+- Bảo vệ bởi custom claim `admin` của Firebase, kiểm tra ở từng API route.
 
 ### 4.2. Lưu Tọa độ (Bookmark)
 - Người dùng đăng nhập có thể lưu tọa độ Ngôi sao để dễ dàng quay lại.
@@ -151,7 +151,7 @@ Hệ thống xác thực người dùng qua Supabase Auth (Email/Password, Googl
 - **Backend:** Next.js App Router (API Routes) đóng vai trò full-stack, quản lý xác thực và logic.
 - **Client:** React/Next.js (Web).
 - **AI Runtime:** LiteRT (TFLite) chạy on-device. Giới hạn model size < 50MB.
-- **Database & Auth:** Supabase PostgreSQL + Supabase Auth.
+- **Database & Auth:** Supabase PostgreSQL + Firebase Auth.
 - **Storage:** Public CDN (jsDelivr / Hugging Face) cho models + Cloudinary cho images.
 - **Bảo mật:** Không lưu secret trên client. Next.js API là lớp bảo vệ lớp 1, PostgreSQL RLS là lớp 2.
 

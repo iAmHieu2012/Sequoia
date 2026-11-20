@@ -29,7 +29,15 @@ The web application (Frontend + API) will be accessible at `http://localhost:300
 npx supabase start
 ```
 
-Apply the migration file: `supabase/migrations/00_reset_and_init.sql`.
+Apply the migration file: `supabase/migrations/00_init.sql`.
+
+Authentication uses Firebase (Email/Password and Google). See `docs/operations/deployment.md` for the Firebase setup and the environment variables.
+
+To reload data exported from the Supabase dashboard (CSV files in `supabase/export/`):
+
+```bash
+npx tsx scripts/import_export.ts
+```
 
 ### 3. Seed Data
 
@@ -40,5 +48,5 @@ npx tsx scripts/seed.ts
 ### 4. Grant admin rights
 
 ```bash
-npx tsx scripts/make_admin.ts you@example.com
+npx tsx scripts/make_admin.ts you@example.com   # sign in on the site once first
 ```

@@ -5,7 +5,6 @@ import { User, LogOut, GitBranch, Shield, FileText, ChevronRight, ChevronLeft, X
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
-import { createClient } from "@/utils/supabase/client";
 import CyberPanel from "@/components/ui/CyberPanel";
 import CyberButton from "@/components/ui/CyberButton";
 import CyberBadge from "@/components/ui/CyberBadge";
@@ -25,7 +24,7 @@ interface CommandCenterPanelProps {
  */
 export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPanelProps) {
   const router = useRouter();
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
   const [activeView, setActiveView] = useState<'main' | 'privacy' | 'terms' | 'about'>('main');
   // "Decrypted" shows the plain-language (_LEGAL) version of a document instead of the themed one.
   const [isDecrypted, setIsDecrypted] = useState(false);
@@ -33,8 +32,7 @@ export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPan
     if (!isOpen) return null;
 
   const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
+    await signOut();
     onClose();
   };
 
@@ -107,8 +105,8 @@ export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPan
                     <div className="relative w-20 h-20 bg-space-bg border border-white/40 flex items-center justify-center shrink-0 group-hover:border-white group-hover:shadow-[0_0_15px_rgba(255,255,255,0.3)] transition-all duration-300 z-10">
                       <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-white -translate-x-1 -translate-y-1" />
                       <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-white translate-x-1 translate-y-1" />
-                      {user?.user_metadata?.avatar_url ? (
-                        <Image src={user.user_metadata.avatar_url} alt="Avatar" width={80} height={80} unoptimized className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:brightness-110 transition-all duration-300" />
+                      {user?.photoUrl ? (
+                        <Image src={user.photoUrl} alt="Avatar" width={80} height={80} unoptimized className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:brightness-110 transition-all duration-300" />
                       ) : (
                         <User className="w-8 h-8 text-white/40" />
                       )}
@@ -118,7 +116,7 @@ export default function CommandCenterPanel({ isOpen, onClose }: CommandCenterPan
                       <div className="flex items-end justify-between border-b border-white/10 pb-2 mb-3">
                         <div className="flex flex-col">
                           <span className="font-mono text-white font-bold uppercase tracking-widest text-xl drop-shadow-[0_0_5px_rgba(255,255,255,0.3)] truncate">
-                            {user?.user_metadata?.name || user?.email?.split('@')[0] || "GUEST_USER"}
+                            {user?.name || user?.email?.split('@')[0] || "GUEST_USER"}
                           </span>
                           <span className="font-mono text-white/40 text-xs uppercase tracking-widest truncate mt-1">
                             {user?.email || "NO_AUTH_EMAIL"}

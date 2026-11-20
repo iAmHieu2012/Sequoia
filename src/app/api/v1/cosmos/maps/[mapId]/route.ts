@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
+import { getAuthUser } from '@/lib/auth/server';
+import { supabasePublic } from '@/utils/supabase/public';
 
 interface MapNode {
   article_id: string;
@@ -10,8 +11,7 @@ interface MapNode {
 export async function GET(request: NextRequest, props: { params: Promise<{ mapId: string }> }) {
   const params = await props.params;
   try {
-    const supabase = await createClient();
-    const { data, error } = await supabase
+    const { data, error } = await supabasePublic
       .from('cosmos_maps')
       .select('*')
       .eq('id', params.mapId)
@@ -24,16 +24,15 @@ export async function GET(request: NextRequest, props: { params: Promise<{ mapId
 
     // Hide draft articles from non-admins. Admins need every node, because the
     // Genesis map editor saves the full node list back and would drop drafts otherwise.
-    const { data: { user } } = await supabase.auth.getUser();
-    const isAdmin = user?.app_metadata?.is_admin === true;
+    const viewer = await getAuthUser(request);
     const nodes: MapNode[] = Array.isArray(data.nodes) ? data.nodes : [];
 
-    if (!isAdmin && nodes.length > 0) {
-      const { data: published, error: articlesError } = await supabase
+    if (!viewer?.isAdmin && nodes.length > 0) {
+      // The anon client only sees published articles, so this returns exactly the visible ones.
+      const { data: published, error: articlesError } = await supabasePublic
         .from('articles')
         .select('id')
-        .in('id', nodes.map(n => n.article_id))
-        .eq('is_published', true);
+        .in('id', nodes.map(n => n.article_id));
       if (articlesError) throw articlesError;
 
       const publishedIds = new Set((published ?? []).map(a => a.id));

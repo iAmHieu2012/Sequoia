@@ -5,9 +5,9 @@ export const PRIVACY_CYBERPUNK = `### [ SECURITY CLEARANCE: LEVEL 4 ] - NODE DAT
 **OVERSEER DIRECTIVE:** By synchronizing with Sequoia Nexus, the Entity (Node) accepts the following protocol for identity signaling and data archival.
 
 #### 1. SIGNAL EXTRACTION (DATA COLLECTION):
-- **Basic Identification:** Upon completion of the Initiation sequence, the system seals your Email, Display Name, Lifeform Identifier (Supabase UID), and - if you link a Google account - your avatar image.
+- **Basic Identification:** Upon completion of the Initiation sequence, the system seals your Email, Display Name, Lifeform Identifier (Firebase UID), and - if you link a Google account - your avatar image.
 - **Neural Footprints:** The Datapads you mark as DECODED and the cycles (dates) you were active are archived in the PostgreSQL Data Core to compute your Orbital Streak. Nothing else about your navigation is recorded.
-- **Session Protocols:** Encrypted session tokens are stored as cookies to keep your uplink authenticated.
+- **Session Protocols:** Encrypted session tokens are kept in your terminal (browser storage) to keep your uplink authenticated.
 - **Local Buffers:** Code written in the Python Sandbox stays in your own terminal (browser storage) and is never transmitted to the Core.
 
 #### 2. OFF-GRID RELAYS (THIRD-PARTY TRANSMISSION):
@@ -25,12 +25,12 @@ export const PRIVACY_CYBERPUNK = `### [ SECURITY CLEARANCE: LEVEL 4 ] - NODE DAT
 export const PRIVACY_LEGAL = `### PRIVACY POLICY
 
 **Effective Date:** January 1, 2026
-**Last Updated:** November 17, 2026
+**Last Updated:** November 18, 2026
 
 #### 1. INFORMATION WE COLLECT
-- **Account Information:** When you register, we store your Email Address, Display Name, and a unique authentication identifier (Supabase UID). If you sign in with Google, we also store your Google profile picture URL.
+- **Account Information:** When you register, we store your Email Address, Display Name, and a unique authentication identifier (Firebase UID). If you sign in with Google, we also store your Google profile picture URL.
 - **Learning Progress:** The articles you mark as completed and the dates you were active, used to show your progress and streak.
-- **Session Data:** Authentication cookies that keep you signed in.
+- **Session Data:** Sign-in tokens, kept in your browser's storage, that keep you signed in.
 - **Stored only on your device:** Code you write in the Python Sandbox, and your Gemini API key if you add one, are saved in your browser's storage and are not sent to our servers. You can remove the key at any time from the AI Assistant.
 
 We do not use analytics or advertising trackers.
@@ -42,7 +42,8 @@ We do not use analytics or advertising trackers.
 #### 3. DATA SHARING AND DISCLOSURE
 - **Zero-Sell Policy:** We do not sell, rent, or trade your personal information to advertisers, data brokers, or any third party.
 - **Service Providers:** We rely on the following providers to operate the Service:
-  - **Supabase** - stores your account and learning progress.
+  - **Firebase Authentication (Google)** - handles sign-in and stores your email, display name and sign-in method.
+  - **Supabase** - stores your profile and learning progress.
   - **Google Gemini** - if you use the AI Assistant, your browser sends your messages directly to Google Gemini using the Gemini API key you provide, under your own agreement with Google. The messages and the key do not pass through our servers and we do not store them.
   - **Cloudinary** - hosts images used in articles.
   - **jsDelivr and Hugging Face** - deliver AI model files and the Python runtime to your browser.
@@ -127,6 +128,6 @@ At its core, the project revolutionizes how we interact with information: transf
 #### TECHNICAL ARCHITECTURE (TECH STACK):
 - **Frontend:** Next.js, React, TailwindCSS, and native Canvas API for fluid spatial rendering and cyberpunk UI/UX.
 - **Backend:** Next.js App Router (API Routes) handling robust API endpoints and full-stack integration.
-- **Infrastructure:** Supabase Authentication & PostgreSQL ensuring seamless, real-time data synchronization.
+- **Infrastructure:** Firebase Authentication for sign-in and Supabase PostgreSQL for data.
 
 Sequoia was built with a profound passion for Sci-Fi/Cyberpunk aesthetics, aiming to deliver a premium, game-like user experience within a functional, modern web application.`;

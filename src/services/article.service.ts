@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/apiFetch";
 import { Article } from "@/types/dashboard";
 
 /**
@@ -9,7 +10,7 @@ export const ArticleService = {
    * @returns A promise that resolves to an array of standalone Articles.
    */
   getStandaloneArticles: async (): Promise<Article[]> => {
-    const res = await fetch('/api/v1/articles/standalone');
+    const res = await apiFetch('/api/v1/articles/standalone');
     if (!res.ok) throw new Error('Failed to fetch standalone articles');
     const json = await res.json();
     return json.data || [];
@@ -22,7 +23,7 @@ export const ArticleService = {
    * @returns A promise that resolves when the update is successful.
    */
   updateArticleProgress: async (articleId: string, completed: boolean): Promise<void> => {
-    const res = await fetch(`/api/v1/articles/${articleId}/progress`, {
+    const res = await apiFetch(`/api/v1/articles/${articleId}/progress`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

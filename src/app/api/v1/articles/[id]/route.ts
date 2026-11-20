@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
+import { supabasePublic } from '@/utils/supabase/public';
 
 export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   try {
-    const supabase = await createClient();
     
-    const { data: article, error: articleError } = await supabase
+    const { data: article, error: articleError } = await supabasePublic
       .from('articles')
       .select('*')
       .eq('id', params.id)
@@ -24,7 +23,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
       return NextResponse.json({ error: 'Article not found' }, { status: 404 });
     }
 
-    const { data: contentData, error: contentError } = await supabase
+    const { data: contentData, error: contentError } = await supabasePublic
       .from('article_contents')
       .select('content')
       .eq('id', params.id)

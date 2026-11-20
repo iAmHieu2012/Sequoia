@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/apiFetch";
 import { UserProgress } from "@/hooks/cosmos/useCosmosData";
 import { ProgressSummary } from "@/types/dashboard";
 
@@ -10,7 +11,7 @@ export const UserService = {
    * @returns A promise resolving to the user's progress data, or null.
    */
   getUserProgress: async (): Promise<UserProgress | null> => {
-    const res = await fetch('/api/v1/users/progress');
+    const res = await apiFetch('/api/v1/users/progress');
     if (!res.ok) throw new Error('Failed to fetch user progress');
     const json = await res.json();
     return json.data || null;
@@ -23,7 +24,7 @@ export const UserService = {
   recordActivity: async (): Promise<UserProgress | null> => {
     // YYYY-MM-DD in the user's timezone, so the streak follows their calendar day.
     const localDate = new Date().toLocaleDateString('en-CA');
-    const res = await fetch('/api/v1/users/activity', {
+    const res = await apiFetch('/api/v1/users/activity', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ localDate }),
@@ -38,7 +39,7 @@ export const UserService = {
    * @returns A promise resolving to the ProgressSummary object, or null.
    */
   getUserProgressSummary: async (): Promise<ProgressSummary | null> => {
-    const res = await fetch('/api/v1/users/progress/summary');
+    const res = await apiFetch('/api/v1/users/progress/summary');
     if (!res.ok) throw new Error('Failed to fetch progress summary');
     const json = await res.json();
     return json.data || null;

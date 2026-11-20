@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
+import { supabasePublic } from '@/utils/supabase/public';
 
 export async function GET() {
   try {
-    const supabase = await createClient();
-    const { data, error } = await supabase.from('models').select('*');
+    const { data, error } = await supabasePublic.from('models').select('*');
     if (error) throw error;
     return NextResponse.json({ data: data });
   } catch (error: unknown) {
