@@ -1,21 +1,14 @@
 import type { Metadata } from "next";
-import { Inter, Science_Gothic, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
 
+// Body text, and also the display face for the SEQUOIA logo (`font-display`, see globals.css).
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
-});
-
-const scienceGothic = Science_Gothic({
-  weight: "400",
-  variable: "--font-science-gothic",
-  subsets: ["latin"],
-  display: "swap",
-  adjustFontFallback: false,
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -48,7 +41,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${scienceGothic.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <head>
         <meta name="theme-color" content="#020202" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

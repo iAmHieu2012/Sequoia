@@ -3,7 +3,7 @@
 @plugin "tailwindcss-animate";
 @theme {
   --font-sans: var(--font-inter);
-  --font-display: var(--font-science-gothic);
+  --font-display: var(--font-inter);
   --font-mono: var(--font-jetbrains-mono);
 
   --color-space-bg: #020202;
