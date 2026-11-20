@@ -96,8 +96,8 @@ export default function MobileDashboard() {
           
           {mobileTab === "labs" && (
             <div className="flex-1 min-h-0 flex flex-col gap-4 animate-in fade-in duration-300">
-              <InferenceLabs models={models} loadingModels={loadingModels} error={modelsError} />
               <SandboxLink />
+              <InferenceLabs models={models} loadingModels={loadingModels} error={modelsError} />
             </div>
           )}
           {mobileTab === "ai" && (
