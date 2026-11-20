@@ -7,19 +7,9 @@ import NebulasTab from "./tabs/NebulasTab";
 import RogueTab from "./tabs/RogueTab";
 import ModulesTab from "./tabs/ModulesTab";
 
-import { Topic, Article, Textbook, ProgressSummary } from "@/types/dashboard";
+import { Topic, Article, Textbook, ProgressSummary, TabId, TabTarget } from "@/types/dashboard";
 import { CosmosMap } from "@/hooks/cosmos/useCosmosData";
 import { CosmosService } from "@/services/cosmos.service";
-
-type TabId = "nebulas" | "rogue" | "modules";
-
-export interface TabTarget {
-  x: number;
-  y: number;
-  scale: number;
-  mapId: string | undefined;
-  activeNodeId?: string;
-}
 
 interface ContentBrowserProps {
   /** Currently active tab ID */

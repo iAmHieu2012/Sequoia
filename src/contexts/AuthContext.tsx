@@ -43,7 +43,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Each callback gets a number; a slower, older callback (e.g. still syncing when the
+    // user signs out) must not overwrite the result of a newer one.
+    let latest = 0;
+
     return onIdTokenChanged(getFirebaseAuth(), async (fbUser) => {
+      const run = ++latest;
+
       if (!fbUser) {
         setUser(null);
         setIsAdmin(false);
@@ -60,12 +66,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const token = await fbUser.getIdTokenResult();
-      setUser({
+      if (run !== latest) return;
+
+      const next: AppUser = {
         id: fbUser.uid,
         email: fbUser.email,
         name: fbUser.displayName,
         photoUrl: fbUser.photoURL,
-      });
+      };
+      // Hourly token refreshes keep the same object, so components depending on `user`
+      // do not refetch for nothing.
+      setUser(prev =>
+        prev && prev.id === next.id && prev.email === next.email &&
+        prev.name === next.name && prev.photoUrl === next.photoUrl
+          ? prev
+          : next
+      );
       setIsAdmin(token.claims.admin === true);
       setLoading(false);
     });

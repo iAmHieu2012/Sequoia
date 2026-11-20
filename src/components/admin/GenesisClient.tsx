@@ -30,11 +30,6 @@ export default function GenesisClient() {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const hasFetched = useRef(false); // load once, after auth has resolved
 
-  // Adds the Firebase ID token; refuses to run while signed out.
-  const authFetch = useCallback(async (url: string, options: RequestInit = {}) => {
-    if (!user) throw new Error("Unauthenticated");
-    return apiFetch(url, options);
-  }, [user]);
   const [activeTab, setActiveTab] = useState<AdminTab>("nebulas");
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -70,11 +65,11 @@ export default function GenesisClient() {
     if (showLoading) setLoading(true);
     try {
       const [tRes, rRes, mRes, txRes, mapRes] = await Promise.all([
-        authFetch("/api/v1/topics").catch(() => null),
-        authFetch("/api/v1/admin/articles/standalone").catch(() => null),
-        authFetch("/api/v1/models").catch(() => null),
-        authFetch("/api/v1/textbooks").catch(() => null),
-        authFetch("/api/v1/cosmos/maps/standalone-articles").catch(() => null)
+        apiFetch("/api/v1/topics").catch(() => null),
+        apiFetch("/api/v1/admin/articles/standalone").catch(() => null),
+        apiFetch("/api/v1/models").catch(() => null),
+        apiFetch("/api/v1/textbooks").catch(() => null),
+        apiFetch("/api/v1/cosmos/maps/standalone-articles").catch(() => null)
       ]);
       if (tRes && tRes.ok) {
         const data = (await tRes.json()).data || [];
@@ -99,15 +94,15 @@ export default function GenesisClient() {
     } finally {
       setLoading(false);
     }
-  }, [activeTab, authFetch]);
+  }, [activeTab]);
 
   const fetchTopicArticles = async (topic: Topic) => {
     setSelectedTopic(topic);
     setDrilldownLoading(true);
     try {
       const [artRes, mapRes] = await Promise.all([
-        authFetch(`/api/v1/admin/topics/${topic.id}/articles`),
-        authFetch(`/api/v1/cosmos/maps/${topic.id}`).catch(() => null)
+        apiFetch(`/api/v1/admin/topics/${topic.id}/articles`),
+        apiFetch(`/api/v1/cosmos/maps/${topic.id}`).catch(() => null)
       ]);
       if (artRes.ok) setArticles((await artRes.json()).data || []);
       if (mapRes && mapRes.ok) setMapNodes((await mapRes.json()).data?.nodes || []);
@@ -136,7 +131,7 @@ export default function GenesisClient() {
     setHoverTarget({ x: targetX, y: targetY, scale: 1.5, mapId, activeNodeId: article.id });
     setSelectedArticleContent('LOADING_DATA_STREAM...');
     try {
-      const res = await authFetch(`/api/v1/admin/articles/${article.id}`);
+      const res = await apiFetch(`/api/v1/admin/articles/${article.id}`);
       if (res.ok) {
         const data = await res.json();
         setSelectedArticleContent(data.data.content || '');
@@ -157,7 +152,7 @@ export default function GenesisClient() {
     if (tab === 'stars' || tab === 'anomalies') {
       try {
         const articleId = item.id;
-        const res = await authFetch(`/api/v1/admin/articles/${articleId}`);
+        const res = await apiFetch(`/api/v1/admin/articles/${articleId}`);
         if (res.ok) {
           const detail = (await res.json()).data;
           fullItem = { ...fullItem, ...detail };
@@ -296,7 +291,7 @@ export default function GenesisClient() {
                     setHoverTarget({ x: 0, y: 0, scale: 0.2, mapId: topics.length > 0 ? topics[0].id : undefined, activeNodeId: undefined });
                   } else if (tab.id === 'anomalies') {
                     setHoverTarget({ x: 0, y: 0, scale: 0.2, mapId: 'standalone-articles', activeNodeId: undefined });
-                    authFetch("/api/v1/cosmos/maps/standalone-articles")
+                    apiFetch("/api/v1/cosmos/maps/standalone-articles")
                       .then(r => r.json())
                       .then(d => setMapNodes(d.data?.nodes || []))
                       .catch(() => setMapNodes([]));

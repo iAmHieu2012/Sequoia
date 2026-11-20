@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Rocket } from "lucide-react";
 import { Article, ProgressSummary } from "@/types/dashboard";
 import React from "react";
-import { TabTarget } from "../ContentBrowser";
+import { TabTarget } from "@/types/dashboard";
 import { CosmosMap } from "@/hooks/cosmos/useCosmosData";
 
 interface RogueTabProps {

@@ -3,12 +3,9 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { useCosmosData, UserProgress } from "@/hooks/cosmos/useCosmosData";
 import { useDashboardData } from "@/hooks/dashboard/useDashboardData";
-import { Topic, Article, Textbook, ProgressSummary } from "@/types/dashboard";
+import { Topic, Article, Textbook, ProgressSummary, TabId, TabTarget } from "@/types/dashboard";
 import { TopicService } from "@/services/topic.service";
-import { TabTarget } from "@/components/dashboard/ContentBrowser";
 
-/** "rogue" lists standalone articles (not in any topic); "modules" lists AI models. */
-export type TabId = "nebulas" | "rogue" | "modules";
 
 export interface AiModel {
   id: string;

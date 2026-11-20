@@ -3,7 +3,7 @@ import { Rocket, ArrowRight } from "lucide-react";
 import { Topic, Article, ProgressSummary } from "@/types/dashboard";
 import { type AppUser as User } from "@/contexts/AuthContext";
 import React from "react";
-import { TabTarget } from "../ContentBrowser";
+import { TabTarget } from "@/types/dashboard";
 import { CosmosMap } from "@/hooks/cosmos/useCosmosData";
 
 interface NebulasTabProps {

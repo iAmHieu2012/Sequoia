@@ -49,6 +49,18 @@ export interface ProgressSummary {
   standalone: Record<string, boolean>;
 }
 
+/** Dashboard content tabs. "rogue" lists standalone articles (not in any topic); "modules" lists textbooks. */
+export type TabId = "nebulas" | "rogue" | "modules";
+
+/** Where the dashboard's cosmos map preview should look, and which map it shows. */
+export interface TabTarget {
+  x: number;
+  y: number;
+  scale: number;
+  mapId: string | undefined;
+  activeNodeId?: string;
+}
+
 /**
  * Represents an executable AI Model that can be run in the Inference Lab.
  */
