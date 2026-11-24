@@ -6,6 +6,7 @@ import MarkdownRenderer from '@/components/ui/MarkdownRenderer';
 import CyberPanel from '@/components/ui/CyberPanel';
 import { ForgeLabel, ForgeInput, ForgeTextarea, ForgeHeader, ForgeWrapper } from './ForgeShared';
 import CosmosMapEditor from '../CosmosMapEditor';
+import MarkdownTextarea from './MarkdownTextarea';
 
 type ViewMode = 'edit' | 'split' | 'preview';
 type ArticleSubTab = 'general' | 'map' | 'content';
@@ -272,11 +273,11 @@ export default function ArticleForge({ onClose, onSave, initialData, isAnomaly =
 
             <div className="flex-1 flex flex-col lg:flex-row gap-4 min-h-0">
               {(viewMode === 'edit' || viewMode === 'split') && (
-                <textarea
+                <MarkdownTextarea
                   ref={textareaRef}
                   value={content}
                   onChange={e => setContent(e.target.value)}
-                  className="flex-1 w-full bg-black/70 border border-white/40 p-4 text-sm text-white/70 outline-none font-mono resize-none min-h-0"
+                  className="flex-1 w-full min-h-0"
                   placeholder="> INITIATING MARKDOWN DATA STREAM..."
                 />
               )}

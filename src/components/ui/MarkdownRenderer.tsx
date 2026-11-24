@@ -245,16 +245,18 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
             return (
               <figure className="my-10 flex flex-col items-center relative group">
                 <div className="absolute -inset-1 bg-gradient-to-r from-white/10 via-transparent to-white/10 opacity-0 group-hover:opacity-100 transition-opacity blur-md z-0" />
-                <div className="relative z-10 border border-panel-border bg-black/60 p-1 w-full">
-                  <Image 
-                    src={(src as string) || ''} 
-                    alt={alt || ''} 
-                    width={0} 
-                    height={0} 
-                    sizes="100vw" 
-                    unoptimized 
-                    style={{ width: '100%', height: 'auto' }} 
-                    className="max-w-3xl object-contain opacity-90 group-hover:opacity-100 transition-opacity" 
+                {/* The frame hugs the image: small images keep their natural size,
+                    large ones shrink to the column width and 70% of the viewport height. */}
+                <div className="relative z-10 border border-panel-border bg-black/60 p-1 w-fit max-w-full">
+                  <Image
+                    src={(src as string) || ''}
+                    alt={alt || ''}
+                    width={0}
+                    height={0}
+                    sizes="100vw"
+                    unoptimized
+                    style={{ width: 'auto', height: 'auto', maxWidth: '100%', maxHeight: '70vh' }}
+                    className="block m-0 object-contain opacity-90 group-hover:opacity-100 transition-opacity"
                   />
                 </div>
                 {alt && (
