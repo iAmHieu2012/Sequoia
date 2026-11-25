@@ -11,7 +11,7 @@ async function seedTextbooks() {
       description: "The fundamental mathematical tools needed to understand machine learning.",
       authors: ["Marc Peter Deisenroth", "A. Aldo Faisal", "Cheng Soon Ong"],
       cover_image_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-assets@main/covers/mathematics-for-machine-learning.jpg",
-      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/09d4646ba5c44e70bc38666374927ecbb4d573bd/pdfs/mathematics-for-machine-learning.pdf",
+      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/0d8ce0f88d8951320fe12102276f12024c17591a/pdfs/mathematics-for-machine-learning.pdf",
       sort_order: 1
     },
     {
@@ -20,7 +20,7 @@ async function seedTextbooks() {
       description: "The definitive and most comprehensive introduction to the theory and practice of artificial intelligence.",
       authors: ["Stuart Russell", "Peter Norvig"],
       cover_image_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-assets@main/covers/artificial-intelligence-a-modern-approach.jpg",
-      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/09d4646ba5c44e70bc38666374927ecbb4d573bd/pdfs/artificial-intelligence-a-modern-approach.pdf",
+      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/0d8ce0f88d8951320fe12102276f12024c17591a/pdfs/artificial-intelligence-a-modern-approach.pdf",
       sort_order: 2
     },
     {
@@ -29,7 +29,7 @@ async function seedTextbooks() {
       description: "A graduate-level introduction to concepts and algorithmic tools in machine learning.",
       authors: ["Mehryar Mohri", "Afshin Rostamizadeh", "Ameet Talwalkar"],
       cover_image_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-assets@main/covers/foundations-of-machine-learning.jpg",
-      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/09d4646ba5c44e70bc38666374927ecbb4d573bd/pdfs/foundations-of-machine-learning.pdf",
+      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/0d8ce0f88d8951320fe12102276f12024c17591a/pdfs/foundations-of-machine-learning.pdf",
       sort_order: 3
     },
 
@@ -40,7 +40,7 @@ async function seedTextbooks() {
       description: "A comprehensive introduction to machine learning that uses probabilistic models and inference as a unifying approach.",
       authors: ["Kevin P. Murphy"],
       cover_image_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-assets@main/covers/probabilistic-machine-learning-an-introduction.jpg",
-      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/09d4646ba5c44e70bc38666374927ecbb4d573bd/pdfs/probabilistic-machine-learning-an-introduction.pdf",
+      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/0d8ce0f88d8951320fe12102276f12024c17591a/pdfs/probabilistic-machine-learning-an-introduction.pdf",
       sort_order: 4
     },
     {
@@ -49,7 +49,7 @@ async function seedTextbooks() {
       description: "Advanced topics in probabilistic machine learning, continuing from the introductory text.",
       authors: ["Kevin P. Murphy"],
       cover_image_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-assets@main/covers/probabilistic-machine-learning-advanced-topics.jpg",
-      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/09d4646ba5c44e70bc38666374927ecbb4d573bd/pdfs/probabilistic-machine-learning-advanced-topics.pdf",
+      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/0d8ce0f88d8951320fe12102276f12024c17591a/pdfs/probabilistic-machine-learning-advanced-topics.pdf",
       sort_order: 5
     },
 
@@ -60,7 +60,7 @@ async function seedTextbooks() {
       description: "A comprehensive introduction to optimization with a focus on practical algorithms.",
       authors: ["Mykel J. Kochenderfer", "Tim A. Wheeler"],
       cover_image_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-assets@main/covers/algorithms-for-optimization.jpg",
-      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/09d4646ba5c44e70bc38666374927ecbb4d573bd/pdfs/algorithms-for-optimization.pdf",
+      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/0d8ce0f88d8951320fe12102276f12024c17591a/pdfs/algorithms-for-optimization.pdf",
       sort_order: 6
     },
     {
@@ -69,7 +69,7 @@ async function seedTextbooks() {
       description: "A broad introduction to algorithms for decision making under uncertainty.",
       authors: ["Mykel J. Kochenderfer", "Tim A. Wheeler", "Kyle Wray"],
       cover_image_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-assets@main/covers/algorithms-for-decision-making.jpg",
-      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/09d4646ba5c44e70bc38666374927ecbb4d573bd/pdfs/algorithms-for-decision-making.pdf",
+      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/0d8ce0f88d8951320fe12102276f12024c17591a/pdfs/algorithms-for-decision-making.pdf",
       sort_order: 7
     },
     {
@@ -78,7 +78,7 @@ async function seedTextbooks() {
       description: "Techniques and algorithms for validating complex systems and models.",
       authors: ["Mykel J. Kochenderfer"],
       cover_image_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-assets@main/covers/algorithms-for-validation.jpg",
-      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/09d4646ba5c44e70bc38666374927ecbb4d573bd/pdfs/algorithms-for-validation.pdf",
+      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/0d8ce0f88d8951320fe12102276f12024c17591a/pdfs/algorithms-for-validation.pdf",
       sort_order: 8
     },
 
@@ -89,7 +89,7 @@ async function seedTextbooks() {
       description: "The foundational textbook on Deep Learning, covering mathematical background, modern techniques, and research.",
       authors: ["Ian Goodfellow", "Yoshua Bengio", "Aaron Courville"],
       cover_image_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-assets@main/covers/deep-learning.jpg",
-      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/09d4646ba5c44e70bc38666374927ecbb4d573bd/pdfs/deep-learning.pdf",
+      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/0d8ce0f88d8951320fe12102276f12024c17591a/pdfs/deep-learning.pdf",
       sort_order: 9
     },
     {
@@ -98,7 +98,7 @@ async function seedTextbooks() {
       description: "An intuitive and highly visual introduction to modern deep learning architectures and mechanics.",
       authors: ["Simon J.D. Prince"],
       cover_image_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-assets@main/covers/understanding-deep-learning.jpg",
-      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/09d4646ba5c44e70bc38666374927ecbb4d573bd/pdfs/understanding-deep-learning.pdf",
+      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/0d8ce0f88d8951320fe12102276f12024c17591a/pdfs/understanding-deep-learning.pdf",
       sort_order: 10
     },
 
@@ -109,7 +109,7 @@ async function seedTextbooks() {
       description: "The classic textbook for Natural Language Processing (NLP), computational linguistics, and speech recognition.",
       authors: ["Dan Jurafsky", "James H. Martin"],
       cover_image_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-assets@main/covers/speech-and-language-processing.jpg",
-      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/09d4646ba5c44e70bc38666374927ecbb4d573bd/pdfs/speech-and-language-processing.pdf",
+      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/0d8ce0f88d8951320fe12102276f12024c17591a/pdfs/speech-and-language-processing.pdf",
       sort_order: 11
     },
     {
@@ -118,7 +118,7 @@ async function seedTextbooks() {
       description: "Bridging the gap between ML models and production-ready software systems.",
       authors: ["Vijay Janapa Reddi"],
       cover_image_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-assets@main/covers/introduction-to-machine-learning-systems.jpg",
-      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/09d4646ba5c44e70bc38666374927ecbb4d573bd/pdfs/introduction-to-machine-learning-systems.pdf",
+      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/0d8ce0f88d8951320fe12102276f12024c17591a/pdfs/introduction-to-machine-learning-systems.pdf",
       sort_order: 12
     },
     {
@@ -127,7 +127,7 @@ async function seedTextbooks() {
       description: "Designing, deploying, and maintaining machine learning pipelines in large-scale environments.",
       authors: ["Vijay Janapa Reddi"],
       cover_image_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-assets@main/covers/machine-learning-systems-at-scale.jpg",
-      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/09d4646ba5c44e70bc38666374927ecbb4d573bd/pdfs/machine-learning-systems-at-scale.pdf",
+      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/0d8ce0f88d8951320fe12102276f12024c17591a/pdfs/machine-learning-systems-at-scale.pdf",
       sort_order: 13
     },
     {
@@ -136,7 +136,7 @@ async function seedTextbooks() {
       description: "Exploring the social consequences of machine learning and how to build fairer systems.",
       authors: ["Solon Barocas", "Moritz Hardt", "Arvind Narayanan"],
       cover_image_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-assets@main/covers/fairness-and-machine-learning-limitations-and-opportunities.jpg",
-      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/09d4646ba5c44e70bc38666374927ecbb4d573bd/pdfs/fairness-and-machine-learning-limitations-and-opportunities.pdf",
+      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/0d8ce0f88d8951320fe12102276f12024c17591a/pdfs/fairness-and-machine-learning-limitations-and-opportunities.pdf",
       sort_order: 14
     },
 
@@ -147,7 +147,7 @@ async function seedTextbooks() {
       description: "The gold standard introduction to reinforcement learning concepts and algorithms.",
       authors: ["Richard S. Sutton", "Andrew G. Barto"],
       cover_image_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-assets@main/covers/reinforcement-learning-an-introduction.jpg",
-      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/09d4646ba5c44e70bc38666374927ecbb4d573bd/pdfs/reinforcement-learning-an-introduction.pdf",
+      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/0d8ce0f88d8951320fe12102276f12024c17591a/pdfs/reinforcement-learning-an-introduction.pdf",
       sort_order: 15
     },
     {
@@ -156,7 +156,7 @@ async function seedTextbooks() {
       description: "Advanced RL focusing on the full distribution of future rewards rather than just the expected value.",
       authors: ["Marc G. Bellemare", "Will Dabney", "Mark Rowland"],
       cover_image_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-assets@main/covers/distributional-reinforcement-learning.jpg",
-      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/09d4646ba5c44e70bc38666374927ecbb4d573bd/pdfs/distributional-reinforcement-learning.pdf",
+      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/0d8ce0f88d8951320fe12102276f12024c17591a/pdfs/distributional-reinforcement-learning.pdf",
       sort_order: 16
     },
     {
@@ -165,7 +165,7 @@ async function seedTextbooks() {
       description: "Foundations and algorithms for training multiple interacting autonomous agents.",
       authors: ["Stefano V. Albrecht", "Filippos Christianos", "Lukas Schäfer"],
       cover_image_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-assets@main/covers/multi-agent-reinforcement-learning.jpg",
-      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/09d4646ba5c44e70bc38666374927ecbb4d573bd/pdfs/multi-agent-reinforcement-learning.pdf",
+      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/0d8ce0f88d8951320fe12102276f12024c17591a/pdfs/multi-agent-reinforcement-learning.pdf",
       sort_order: 17
     },
     {
@@ -174,8 +174,19 @@ async function seedTextbooks() {
       description: "An exploration of long-term planning, autonomous agents, and their role in the future of AI.",
       authors: ["Marjorie McShane, Sergei Nirenburg, Jesse English"],
       cover_image_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-assets@main/covers/agents-in-the-long-game-of-ai.jpg",
-      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/09d4646ba5c44e70bc38666374927ecbb4d573bd/pdfs/agents-in-the-long-game-of-ai.pdf",
+      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/0d8ce0f88d8951320fe12102276f12024c17591a/pdfs/agents-in-the-long-game-of-ai.pdf",
       sort_order: 18
+    },
+
+    // --- LINEAR PROGRAMMING ---
+    {
+      id: "linear-programming-foundations-and-extensions",
+      title: "Linear Programming: Foundations and Extensions",
+      description: "A rigorous introduction to linear programming, covering the simplex method, duality, interior-point methods, and their extensions.",
+      authors: ["Robert J. Vanderbei"],
+      cover_image_url: "https://cdn.jsdelivr.net/gh/iAmHieu2012/sequoia-assets@main/covers/linear-programming-foundations-and-extensions.jpg",
+      pdf_url: "https://rawcdn.githack.com/iAmHieu2012/sequoia-assets/0d8ce0f88d8951320fe12102276f12024c17591a/pdfs/linear-programming-foundations-and-extensions.pdf",
+      sort_order: 19
     }
   ];
 
