@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth/server';
-import { supabaseAdmin } from '@/utils/supabase/admin';
+import { supabaseService } from '@/utils/supabase/service';
 import { revalidatePath } from 'next/cache';
 
 export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
     const auth = await requireAdmin(request);
     if (auth instanceof NextResponse) return auth;
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabaseService
       .from('articles')
       .select('*, article_contents(content)')
       .eq('id', params.id)
@@ -41,15 +41,15 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
     if (auth instanceof NextResponse) return auth;
 
     // Fetch the article to know its topic_id before deleting
-    const { data: article } = await supabaseAdmin.from('articles').select('topic_id').eq('id', docId).single();
+    const { data: article } = await supabaseService.from('articles').select('topic_id').eq('id', docId).single();
     const topicId = article?.topic_id;
 
-    const { error } = await supabaseAdmin.from('articles').delete().eq('id', docId);
+    const { error } = await supabaseService.from('articles').delete().eq('id', docId);
     if (error) throw error;
 
     // Remove its node, and every connection pointing to it, from its cosmos map.
     const mapId = topicId || 'standalone-articles';
-    const { data: mapData } = await supabaseAdmin.from('cosmos_maps').select('nodes').eq('id', mapId).single();
+    const { data: mapData } = await supabaseService.from('cosmos_maps').select('nodes').eq('id', mapId).single();
     if (mapData && mapData.nodes) {
       const updatedNodes = mapData.nodes
         .filter((n: Record<string, unknown>) => n.article_id !== docId)
@@ -57,7 +57,7 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
           ...n,
           connections: Array.isArray(n.connections) ? n.connections.filter((id: string) => id !== docId) : []
         }));
-      await supabaseAdmin.from('cosmos_maps').update({ nodes: updatedNodes }).eq('id', mapId);
+      await supabaseService.from('cosmos_maps').update({ nodes: updatedNodes }).eq('id', mapId);
     }
 
     revalidatePath(`/articles/${docId}`);

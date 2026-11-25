@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth/server';
-import { supabaseAdmin } from '@/utils/supabase/admin';
+import { supabaseService } from '@/utils/supabase/service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       sort_order: body.sort_order,
     };
 
-    const { error: insertError } = await supabaseAdmin.from('textbooks').upsert(textbook);
+    const { error: insertError } = await supabaseService.from('textbooks').upsert(textbook);
     if (insertError) throw insertError;
     
     return NextResponse.json({ data: textbook  });

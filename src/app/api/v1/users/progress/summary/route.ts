@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireUser } from '@/lib/auth/server';
-import { supabaseAdmin } from '@/utils/supabase/admin';
+import { supabaseService } from '@/utils/supabase/service';
 
 /** Per-topic completed/total counts and per-article completion for standalone articles (published only). */
 export async function GET(request: Request) {
@@ -10,7 +10,7 @@ export async function GET(request: Request) {
 
     const userId = auth.uid;
 
-    const { data: progress } = await supabaseAdmin
+    const { data: progress } = await supabaseService
       .from('user_progress')
       .select('completed_article_ids')
       .eq('id', userId)
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
 
     const completedSet = new Set(progress?.completed_article_ids || []);
 
-    const { data: allArticles, error: articlesError } = await supabaseAdmin
+    const { data: allArticles, error: articlesError } = await supabaseService
       .from('articles')
       .select('id, topic_id')
       .eq('is_published', true);

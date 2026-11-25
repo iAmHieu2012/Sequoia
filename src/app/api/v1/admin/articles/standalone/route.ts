@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth/server';
-import { supabaseAdmin } from '@/utils/supabase/admin';
+import { supabaseService } from '@/utils/supabase/service';
 
 export async function GET(request: Request) {
   try {
     const auth = await requireAdmin(request);
     if (auth instanceof NextResponse) return auth;
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabaseService
       .from('articles')
       .select('*')
       .is('topic_id', null)

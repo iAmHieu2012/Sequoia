@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth/server';
-import { supabaseAdmin } from '@/utils/supabase/admin';
+import { supabaseService } from '@/utils/supabase/service';
 import { revalidatePath } from 'next/cache';
 
 export async function POST(request: NextRequest) {
@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     const now = new Date().toISOString();
     
     // Fetch old article to check if it's an update and if topic changed (needed for cosmos map sync)
-    const { data: oldArticle } = await supabaseAdmin.from('articles').select('topic_id').eq('id', docId).single();
+    const { data: oldArticle } = await supabaseService.from('articles').select('topic_id').eq('id', docId).single();
     const isNew = !oldArticle;
     const oldTopicId = oldArticle?.topic_id;
     const newTopicId = body.topic_id || null;
@@ -29,12 +29,12 @@ export async function POST(request: NextRequest) {
       published_at: oldArticle ? undefined : now // set on first save only; undefined leaves it unchanged
     };
 
-    const { error: insertError } = await supabaseAdmin.from('articles').upsert(article);
+    const { error: insertError } = await supabaseService.from('articles').upsert(article);
     if (insertError) throw insertError;
     
     // Content lives in its own table; always write a row (even empty) so reads can join it.
     const content = body.content || "";
-    await supabaseAdmin.from('article_contents').upsert({ id: docId, content: content });
+    await supabaseService.from('article_contents').upsert({ id: docId, content: content });
 
     // Keep the article's node in sync on the cosmos map of its topic (or the standalone map),
     // using the coordinates and connections set in the editor.
@@ -52,15 +52,15 @@ export async function POST(request: NextRequest) {
 
     if (!isNew && oldMapId !== newMapId) {
       // Remove from old map
-      const { data: oldMapData } = await supabaseAdmin.from('cosmos_maps').select('nodes').eq('id', oldMapId).single();
+      const { data: oldMapData } = await supabaseService.from('cosmos_maps').select('nodes').eq('id', oldMapId).single();
       if (oldMapData) {
         const updatedOldNodes = (oldMapData.nodes || []).filter((n: Record<string, unknown>) => n.article_id !== docId);
-        await supabaseAdmin.from('cosmos_maps').update({ nodes: updatedOldNodes }).eq('id', oldMapId);
+        await supabaseService.from('cosmos_maps').update({ nodes: updatedOldNodes }).eq('id', oldMapId);
       }
     }
 
     // Add or Update in new map
-    const { data: newMapData } = await supabaseAdmin.from('cosmos_maps').select('nodes').eq('id', newMapId).single();
+    const { data: newMapData } = await supabaseService.from('cosmos_maps').select('nodes').eq('id', newMapId).single();
     if (newMapData) {
       const nodes = newMapData.nodes || [];
       const existingIdx = nodes.findIndex((n: Record<string, unknown>) => n.article_id === docId);
@@ -70,10 +70,10 @@ export async function POST(request: NextRequest) {
       } else {
         nodes.push(newNodeData);
       }
-      await supabaseAdmin.from('cosmos_maps').update({ nodes }).eq('id', newMapId);
+      await supabaseService.from('cosmos_maps').update({ nodes }).eq('id', newMapId);
     } else if (newMapId === 'standalone-articles') {
       // Topic maps are created by a DB trigger; the standalone map is created on first use.
-      await supabaseAdmin.from('cosmos_maps').insert({
+      await supabaseService.from('cosmos_maps').insert({
         id: newMapId,
         map_type: 'rogue-anomalies',
         theme: 'nebula',

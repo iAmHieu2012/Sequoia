@@ -44,7 +44,7 @@ const TABLES: TableSpec[] = [
   {
     name: 'models',
     columns: {
-      id: 'text', name: 'text', description: 'nullable', task_type: 'nullable', file_url: 'nullable', metadata_url: 'nullable',
+      id: 'text', name: 'text', description: 'nullable', task_type: 'nullable', metadata_url: 'nullable',
       file_size_bytes: 'int', version: 'text', format: 'text', created_at: 'text', updated_at: 'text',
     },
   },

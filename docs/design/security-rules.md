@@ -10,7 +10,7 @@ Tài liệu này quy định cách Sequoia xác thực người dùng và bảo 
   - `anon`: đọc nội dung công khai (trang tĩnh, API công khai). RLS giới hạn nó ở nội dung đã xuất bản.
   - `service_role`: API sau khi đã kiểm tra quyền. Bỏ qua RLS.
 
-Hệ quả: **an toàn của dữ liệu người dùng và mọi thao tác ghi phụ thuộc vào việc mọi route gọi `requireUser` / `requireAdmin` trước khi dùng `supabaseAdmin`.**
+Hệ quả: **an toàn của dữ liệu người dùng và mọi thao tác ghi phụ thuộc vào việc mọi route gọi `requireUser` / `requireAdmin` trước khi dùng `supabaseService`.**
 
 ## 2. Quyền admin
 
@@ -50,8 +50,8 @@ Hệ quả: **an toàn của dữ liệu người dùng và mọi thao tác ghi 
 
 ## 5. Checklist review trước khi deploy
 
-1. [ ] Mọi route đọc/ghi dữ liệu người dùng gọi `requireUser`, mọi route admin gọi `requireAdmin`, trước khi dùng `supabaseAdmin`?
-2. [ ] Route công khai dùng `supabasePublic` (anon), không dùng `supabaseAdmin`?
+1. [ ] Mọi route đọc/ghi dữ liệu người dùng gọi `requireUser`, mọi route admin gọi `requireAdmin`, trước khi dùng `supabaseService`?
+2. [ ] Route công khai dùng `supabasePublic` (anon), không dùng `supabaseService`?
 3. [ ] Mọi bảng đều bật RLS, và `anon` không có quyền ghi?
 4. [ ] `SUPABASE_SERVICE_ROLE_KEY` và `FIREBASE_SERVICE_ACCOUNT` chỉ có ở server, không có tiền tố `NEXT_PUBLIC_`?
 5. [ ] Claim `admin` chỉ được đặt bằng `scripts/make_admin.ts`?

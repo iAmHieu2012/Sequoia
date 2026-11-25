@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth/server';
-import { supabaseAdmin } from '@/utils/supabase/admin';
+import { supabaseService } from '@/utils/supabase/service';
 
 export async function DELETE(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -9,22 +9,22 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
     if (auth instanceof NextResponse) return auth;
 
     // Remember the topic's articles: after deletion they become standalone and need nodes on that map.
-    const { data: topicArticles } = await supabaseAdmin
+    const { data: topicArticles } = await supabaseService
       .from('articles')
       .select('id, title')
       .eq('topic_id', params.id);
 
     // The topic's map shares its id but has no foreign key to it, so it must be deleted explicitly.
-    await supabaseAdmin.from('cosmos_maps').delete().eq('id', params.id);
+    await supabaseService.from('cosmos_maps').delete().eq('id', params.id);
 
     // ON DELETE SET NULL turns the topic's articles into standalone articles.
-    const { error } = await supabaseAdmin.from('topics').delete().eq('id', params.id);
+    const { error } = await supabaseService.from('topics').delete().eq('id', params.id);
     if (error) throw error;
     
     // If there were articles, migrate them to the standalone-articles map
     if (topicArticles && topicArticles.length > 0) {
       const mapId = 'standalone-articles';
-      const { data: mapData } = await supabaseAdmin
+      const { data: mapData } = await supabaseService
         .from('cosmos_maps')
         .select('nodes')
         .eq('id', mapId)
@@ -41,7 +41,7 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
           connections: []
         }));
         
-        await supabaseAdmin
+        await supabaseService
           .from('cosmos_maps')
           .update({ nodes: [...currentNodes, ...newNodes] })
           .eq('id', mapId);

@@ -12,7 +12,6 @@ interface ModelForgeProps {
     name?: string;
     description?: string;
     task_type?: string;
-    file_url?: string;
     metadata_url?: string;
     version?: string;
     format?: string;
@@ -23,7 +22,7 @@ interface ModelForgeProps {
 /**
  * ModelForge Component
  * Form for creating and editing AI Models in the Labs section.
- * Manages model metadata, file URLs, and versioning details.
+ * Manages the catalog entry. The model file's URL lives in metadata.json (`model_url`).
  */
 export default function ModelForge({ onClose, onSave, initialData }: ModelForgeProps) {
   // The id is the primary key: editable only when creating. Left empty, the server derives it from the name.
@@ -31,7 +30,6 @@ export default function ModelForge({ onClose, onSave, initialData }: ModelForgeP
   const [name, setName] = useState(initialData?.name || '');
   const [description, setDescription] = useState(initialData?.description || '');
   const [taskType, setTaskType] = useState(initialData?.task_type || '');
-  const [fileUrl, setFileUrl] = useState(initialData?.file_url || '');
   const [metadataUrl, setMetadataUrl] = useState(initialData?.metadata_url || '');
   const [version, setVersion] = useState(initialData?.version || '1.0');
   const [format, setFormat] = useState(initialData?.format || 'litert');
@@ -39,7 +37,7 @@ export default function ModelForge({ onClose, onSave, initialData }: ModelForgeP
 
   const handleSave = () => {
     onSave({ 
-      id: entityId, name, description, task_type: taskType, file_url: fileUrl, metadata_url: metadataUrl, version, format, 
+      id: entityId, name, description, task_type: taskType, metadata_url: metadataUrl, version, format, 
       file_size_bytes: parseInt(fileSizeBytes) || 0 
     });
   };
@@ -78,11 +76,7 @@ export default function ModelForge({ onClose, onSave, initialData }: ModelForgeP
             </div>
           </div>
           <div>
-            <ForgeLabel>FILE_URL (GITHUB RAW)</ForgeLabel>
-            <ForgeInput value={fileUrl} onChange={e => setFileUrl(e.target.value)} placeholder="https://..." />
-          </div>
-          <div>
-            <ForgeLabel>METADATA_URL (GITHUB RAW)</ForgeLabel>
+            <ForgeLabel>METADATA_URL (also holds the model file URL)</ForgeLabel>
             <ForgeInput value={metadataUrl} onChange={e => setMetadataUrl(e.target.value)} placeholder="https://..." />
           </div>
           <div>

@@ -143,12 +143,12 @@ sequenceDiagram
     Client->>API: GET /api/v1/models/{modelId}
     API->>DB: SELECT * FROM models WHERE id = $1
     DB-->>API: Model info
-    API-->>Client: 200 OK + Model metadata<br/>{ name, version, size,<br/>fileUrl, metadataUrl }
+    API-->>Client: 200 OK + Model metadata<br/>{ name, version, size,<br/>metadataUrl }
 
     Client->>CDN: GET {metadataUrl}
     CDN-->>Client: metadata.json
 
-    Client->>CDN: GET {fileUrl}<br/>(Public access, không cần auth)
+    Client->>CDN: GET {metadata.model_url}<br/>(Public access, không cần auth)
     CDN-->>Client: Model file (.tflite)
 
     Client->>Client: Load model vào LiteRT runtime

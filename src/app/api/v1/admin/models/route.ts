@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth/server';
-import { supabaseAdmin } from '@/utils/supabase/admin';
+import { supabaseService } from '@/utils/supabase/service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,14 +15,13 @@ export async function POST(request: NextRequest) {
       name: body.name,
       description: body.description,
       task_type: body.task_type,
-      file_url: body.file_url,
       metadata_url: body.metadata_url,
       version: body.version,
       format: body.format,
       file_size_bytes: body.file_size_bytes,
     };
 
-    const { error: insertError } = await supabaseAdmin.from('models').upsert(model);
+    const { error: insertError } = await supabaseService.from('models').upsert(model);
     if (insertError) throw insertError;
     
     return NextResponse.json({ data: model  });

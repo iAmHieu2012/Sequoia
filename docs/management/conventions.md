@@ -55,7 +55,7 @@ Bắt buộc sử dụng JSDoc/TSDoc cho:
 - Các React Hooks tùy chỉnh (Custom hooks).
 - Các hàm Utility phức tạp.
 - Các Service class (AdminService, UploadService).
-- Các Supabase utility functions (createClient, supabaseAdmin).
+- Các Supabase utility functions (createClient, supabaseService).
 
 **Ví dụ TSDoc:**
 

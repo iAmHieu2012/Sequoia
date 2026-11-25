@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireUser } from '@/lib/auth/server';
-import { supabaseAdmin } from '@/utils/supabase/admin';
+import { supabaseService } from '@/utils/supabase/service';
 
 /**
  * Returns the signed-in user's progress (read-only).
@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     const auth = await requireUser(request);
     if (auth instanceof NextResponse) return auth;
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabaseService
       .from('user_progress')
       .select('*')
       .eq('id', auth.uid)

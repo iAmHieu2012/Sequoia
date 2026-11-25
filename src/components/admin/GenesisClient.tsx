@@ -527,8 +527,8 @@ export default function GenesisClient() {
                         <span className="text-white">{Math.round((model.file_size_bytes || 0) / 1024 / 1024)} MB</span>
                       </div>
                       <div className="flex justify-between items-center text-xs font-mono tracking-widest uppercase mt-1">
-                        <span className="text-white/40">FILE_URL:</span>
-                        <span className="text-white/40 truncate max-w-[200px]" title={model.file_url}>{model.file_url || 'N/A'}</span>
+                        <span className="text-white/40">METADATA:</span>
+                        <span className="text-white/40 truncate max-w-[200px] normal-case" title={model.metadata_url}>{model.metadata_url || 'N/A'}</span>
                       </div>
                     </div>
                     <p className="text-sm font-mono text-white/70 leading-relaxed">{model.description}</p>

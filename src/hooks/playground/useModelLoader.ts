@@ -62,7 +62,10 @@ export function useModelLoader(
       
       setLogs(prev => [...prev, "> DOWNLOADING MODEL DATA..."]);
       
-      const loadedModel = await loadAndCompile(modelData.file_url);
+      // Where the .tflite lives is declared only in metadata.json (`model_url`).
+      const modelUrl = modelData.metadata?.model_url;
+      if (!modelUrl) throw new Error("No model_url in metadata.json");
+      const loadedModel = await loadAndCompile(modelUrl);
       compiledModelRef.current = loadedModel;
       setCompiledModelReady(true);
       

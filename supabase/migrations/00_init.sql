@@ -105,7 +105,6 @@ CREATE TABLE public.models (
     name TEXT NOT NULL,
     description TEXT,
     task_type TEXT,
-    file_url TEXT,
     metadata_url TEXT,
     file_size_bytes BIGINT NOT NULL DEFAULT 0,
     version TEXT NOT NULL DEFAULT '1.0',

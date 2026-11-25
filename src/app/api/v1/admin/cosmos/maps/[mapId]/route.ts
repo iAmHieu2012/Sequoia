@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth/server';
-import { supabaseAdmin } from '@/utils/supabase/admin';
+import { supabaseService } from '@/utils/supabase/service';
 
 export async function PUT(request: NextRequest, props: { params: Promise<{ mapId: string }> }) {
   const params = await props.params;
@@ -11,7 +11,7 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ mapId
     const body = await request.json();
     const nodes = body.nodes || [];
 
-    const { data, error: updateError } = await supabaseAdmin.from('cosmos_maps').update({ nodes }).eq('id', params.mapId).select();
+    const { data, error: updateError } = await supabaseService.from('cosmos_maps').update({ nodes }).eq('id', params.mapId).select();
     if (updateError) throw updateError;
     
     if (!data || data.length === 0) {

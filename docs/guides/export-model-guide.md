@@ -72,7 +72,7 @@ Hệ thống quản lý model thông qua repository `sequoia-models` trên GitHu
 1. Clone repository `sequoia-models` về máy cục bộ.
 2. Tạo một thư mục mới mang tên mô hình (ví dụ: `yolov8n-detect`).
 3. Copy file `.tflite` vừa xuất ở Bước 1 vào thư mục này.
-4. Tạo thêm một file `metadata.json` để chứa thông tin, nhãn (labels), và cấu hình của mô hình.
+4. Tạo thêm một file `metadata.json` để chứa thông tin, nhãn (labels), cấu hình của mô hình, và **`model_url`**: URL tải file `.tflite` (file trong repo này qua jsDelivr, hoặc Hugging Face). App chỉ lấy link model từ trường này.
 
 Cấu trúc thư mục của repo `sequoia-models` sẽ trông như sau:
 
@@ -100,23 +100,21 @@ git push origin main
 
 ## 5. Bước 4: Cập nhật Supabase PostgreSQL
 
-Để client (Web/App) biết thông tin và đường dẫn tải mô hình, bạn cần cập nhật bảng `models` trên Supabase. Chúng ta sẽ sử dụng CDN jsDelivr (hoặc raw github url) để trỏ trực tiếp tới file trong repo `sequoia-models`.
+Bảng `models` trên Supabase chỉ chứa thông tin danh mục (tên, mô tả, task, dung lượng) và `metadata_url` trỏ tới `metadata.json` qua jsDelivr. Link file `.tflite` nằm trong `metadata.json` (`model_url`), không nằm trong bảng. Thêm model qua form ở Genesis, hoặc bằng SQL:
 
 ```sql
-INSERT INTO models (id, name, description, task_type, file_url, file_size_bytes, version, format, metadata_url)
+INSERT INTO models (id, name, description, task_type, file_size_bytes, version, format, metadata_url)
 VALUES (
   'yolov8n-detect',
   'YOLOv8 Nano',
   'Mô hình nhận diện vật thể nhẹ và nhanh nhất của YOLOv8.',
   'object-detection',
-  'https://cdn.jsdelivr.net/gh/USERNAME/sequoia-models/yolov8n-detect/yolov8n_int8.tflite',
   3200000,
   '1.0',
   'litert',
   'https://cdn.jsdelivr.net/gh/USERNAME/sequoia-models/yolov8n-detect/metadata.json'
 )
 ON CONFLICT (id) DO UPDATE SET
-  file_url = EXCLUDED.file_url,
   metadata_url = EXCLUDED.metadata_url,
   file_size_bytes = EXCLUDED.file_size_bytes,
   version = EXCLUDED.version;

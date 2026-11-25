@@ -68,7 +68,6 @@ erDiagram
         TEXT name
         TEXT description
         TEXT task_type
-        TEXT file_url
         TEXT metadata_url
         BIGINT file_size_bytes
         TEXT version
@@ -167,8 +166,7 @@ Các bảng này giữ nguyên tính trừu tượng của một CMS giáo dục
 | `name` | `TEXT` | NOT NULL | Tên model |
 | `description` | `TEXT` | | Mô tả mô hình |
 | `task_type` | `TEXT` | | Loại tác vụ (vd: object-detection) |
-| `file_url` | `TEXT` | | URL tải file `.tflite` |
-| `metadata_url` | `TEXT` | | URL trỏ tới file metadata.json trên CDN |
+| `metadata_url` | `TEXT` | | URL trỏ tới file metadata.json trên CDN. URL của file `.tflite` nằm trong metadata (`model_url`), không lưu trong bảng |
 | `file_size_bytes` | `BIGINT` | DEFAULT 0 | Dung lượng file byte |
 | `version` | `TEXT` | DEFAULT '1.0' | Phiên bản |
 | `format` | `TEXT` | DEFAULT 'litert' | Định dạng (vd: litert, tflite) |

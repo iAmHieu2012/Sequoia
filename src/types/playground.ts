@@ -61,6 +61,8 @@ export interface ModelMetadata {
   variant: string;
   dataset: string;
   format: string;
+  /** URL of the .tflite file. The single source for where the model lives. */
+  model_url?: string;
   version: string;
 
   labels: string[];

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth/server';
-import { supabaseAdmin } from '@/utils/supabase/admin';
+import { supabaseService } from '@/utils/supabase/service';
 
 export async function DELETE(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -8,7 +8,7 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
     const auth = await requireAdmin(request);
     if (auth instanceof NextResponse) return auth;
 
-    const { error } = await supabaseAdmin.from('models').delete().eq('id', params.id);
+    const { error } = await supabaseService.from('models').delete().eq('id', params.id);
     if (error) throw error;
     
     return NextResponse.json({ success: true });

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireUser } from '@/lib/auth/server';
-import { supabaseAdmin } from '@/utils/supabase/admin';
+import { supabaseService } from '@/utils/supabase/service';
 
 /** Marks the article complete (or not, with `{ completed: false }`) for the signed-in user. */
 export async function POST(request: NextRequest, props: { params: Promise<{ id: string }> }) {
@@ -14,7 +14,7 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
     const userId = auth.uid;
     const articleId = params.id;
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabaseService
       .from('user_progress')
       .select('*')
       .eq('id', userId)
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
     if (completed) currentCompleted.add(articleId);
     else currentCompleted.delete(articleId);
 
-    const { error: updateError } = await supabaseAdmin
+    const { error: updateError } = await supabaseService
       .from('user_progress')
       .upsert({
         ...progress,

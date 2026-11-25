@@ -12,7 +12,6 @@ export interface AiModel {
   name: string;
   description: string;
   task_type: string;
-  file_url: string;
   version: string;
   format: string;
 }

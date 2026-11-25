@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireUser } from '@/lib/auth/server';
-import { supabaseAdmin } from '@/utils/supabase/admin';
+import { supabaseService } from '@/utils/supabase/service';
 
 /**
  * Records a day as active for the signed-in user and updates the streak.
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = auth.uid;
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabaseService
       .from('user_progress')
       .select('*')
       .eq('id', userId)
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     if (currentStreak > longestStreak) longestStreak = currentStreak;
     if (!activeDates.includes(localDate)) activeDates.push(localDate);
 
-    const { data: updatedProgress, error: updateError } = await supabaseAdmin
+    const { data: updatedProgress, error: updateError } = await supabaseService
       .from('user_progress')
       .upsert({
         ...progress,

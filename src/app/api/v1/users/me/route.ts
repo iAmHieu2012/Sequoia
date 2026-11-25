@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireUser } from '@/lib/auth/server';
-import { supabaseAdmin } from '@/utils/supabase/admin';
+import { supabaseService } from '@/utils/supabase/service';
 
 /** The signed-in user, from their Firebase token. */
 export async function GET(request: Request) {
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     const auth = await requireUser(request);
     if (auth instanceof NextResponse) return auth;
 
-    const { error: userError } = await supabaseAdmin.from('users').upsert({
+    const { error: userError } = await supabaseService.from('users').upsert({
       id: auth.uid,
       email: auth.email,
       display_name: auth.name,
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     if (userError) throw userError;
 
     // ignoreDuplicates: never overwrite existing progress.
-    const { error: progressError } = await supabaseAdmin
+    const { error: progressError } = await supabaseService
       .from('user_progress')
       .upsert({ id: auth.uid }, { onConflict: 'id', ignoreDuplicates: true });
     if (progressError) throw progressError;
