@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect, Dispatch, SetStateAction } from 'react';
-import { loadLiteRt, loadAndCompile, CompiledModel } from '@litertjs/core';
+import { loadLiteRt, CompiledModel } from '@litertjs/core';
+import { compileModel, gpuName, type Accelerator } from '@/lib/inference/accelerator';
 import { AiModel, ModelMetadata } from '@/types/playground';
 
 /**
  * Hook to manage the lifecycle of an AI Model in the Playground.
  * Fetches the model's DB record and its metadata.json from the CDN, plays a cosmetic boot log,
- * then initializes the LiteRT WebAssembly runtime and compiles the model.
+ * then initializes the LiteRT runtime and compiles the model on WebGPU when the browser has a usable
+ * GPU, otherwise on WASM. Add `?accel=wasm` to the playground URL to force WASM (for comparisons).
  * 
  * @param modelId The ID of the model to load
  * @param setLogs State setter to push system boot logs to the terminal
@@ -22,6 +24,7 @@ export function useModelLoader(
   
   const compiledModelRef = useRef<CompiledModel | null>(null);
   const [compiledModelReady, setCompiledModelReady] = useState(false);
+  const [accelerator, setAccelerator] = useState<Accelerator | null>(null);
   
   // Load only once per mount (also absorbs React StrictMode's double effect run in dev).
   const initialized = useRef(false);
@@ -50,7 +53,7 @@ export function useModelLoader(
 
   async function initLiteRtModel(modelData: AiModel) {
     try {
-      setLogs(prev => [...prev, "> INITIALIZING LiteRT WASM ENGINE..."]);
+      setLogs(prev => [...prev, "> INITIALIZING LiteRT RUNTIME..."]);
       try {
         await loadLiteRt("https://cdn.jsdelivr.net/npm/@litertjs/core@2.5.3/wasm/");
       } catch (error: unknown) {
@@ -65,11 +68,19 @@ export function useModelLoader(
       // Where the .tflite lives is declared only in metadata.json (`model_url`).
       const modelUrl = modelData.metadata?.model_url;
       if (!modelUrl) throw new Error("No model_url in metadata.json");
-      const loadedModel = await loadAndCompile(modelUrl);
+      const prefer: Accelerator = new URLSearchParams(window.location.search).get("accel") === "wasm" ? "wasm" : "webgpu";
+      const { model: loadedModel, accelerator: used, fallbackReason } = await compileModel(modelUrl, prefer);
       compiledModelRef.current = loadedModel;
+      setAccelerator(used);
       setCompiledModelReady(true);
-      
-      setLogs(prev => [...prev, "> MODEL COMPILED SUCCESSFULLY."]);
+
+      setLogs(prev => [
+        ...prev,
+        "> MODEL COMPILED SUCCESSFULLY.",
+        used === "webgpu"
+          ? `> ACCELERATOR: WEBGPU${gpuName() ? ` (${gpuName()!.toUpperCase()})` : ""}`
+          : `> ACCELERATOR: WASM (CPU)${fallbackReason ? ` - ${fallbackReason}` : ""}`,
+      ]);
     } catch (error: unknown) {
       console.error(error);
       setLogs(prev => [...prev, "> ERROR: LiteRT COMPILE FAILED."]);
@@ -117,5 +128,5 @@ export function useModelLoader(
 
 
 
-  return { model, loading, loadError, booting, compiledModelRef, compiledModelReady };
+  return { model, loading, loadError, booting, compiledModelRef, compiledModelReady, accelerator };
 }

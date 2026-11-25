@@ -2,6 +2,7 @@ import { Activity, Box } from "lucide-react";
 import CyberPanel from "@/components/ui/CyberPanel";
 import { PlaygroundTelemetry, ModelMetadata } from "@/types/playground";
 import { AiModel } from "@/types/playground";
+import type { Accelerator } from "@/lib/inference/accelerator";
 
 interface TelemetryPanelProps {
   /** The live telemetry data (fps, inference time, etc) from the inference hook */
@@ -12,6 +13,8 @@ interface TelemetryPanelProps {
   metadata: ModelMetadata | null;
   /** The active AI model configuration */
   model: AiModel;
+  /** Where the model runs: WebGPU or WASM (CPU); null while compiling */
+  accelerator?: Accelerator | null;
   className?: string;
 }
 
@@ -27,7 +30,7 @@ interface PerformanceWithMemory extends Performance {
  * such as FPS, memory usage, and inference latencies.
  * Live values are shown in camera mode only; with an uploaded file they read "--".
  */
-export default function TelemetryPanel({ telemetry, cameraActive, metadata, model, className = '' }: TelemetryPanelProps) {
+export default function TelemetryPanel({ telemetry, cameraActive, metadata, model, accelerator, className = '' }: TelemetryPanelProps) {
   const memUsed = typeof performance !== 'undefined' && (performance as PerformanceWithMemory).memory
     ? String(Math.round((performance as PerformanceWithMemory).memory!.usedJSHeapSize / 1048576))
     : 'N/A';
@@ -38,6 +41,7 @@ export default function TelemetryPanel({ telemetry, cameraActive, metadata, mode
         TELEMETRY
       </div>
       
+      <TelemetryRow label="ACCELERATOR" value={accelerator ? (accelerator === "webgpu" ? "WEBGPU" : "WASM") : "--"} />
       <TelemetryRow label="FPS" value={cameraActive ? String(telemetry.fps) : '--'} icon={<Activity className="w-3 h-3 text-white/40" />} />
       <TelemetryRow label="INFERENCE" value={cameraActive ? String(telemetry.inferenceTime) : '--'} unit="ms" />
       <TelemetryRow label="AVG_INFERENCE" value={cameraActive ? String(telemetry.avgInferenceTime) : '--'} unit="ms" />

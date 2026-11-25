@@ -19,6 +19,7 @@ interface PlaygroundClientProps {
 export default function PlaygroundClient({ modelId }: PlaygroundClientProps) {
   const {
     model,
+    accelerator,
     metadata,
     loading,
     loadError,
@@ -79,7 +80,7 @@ export default function PlaygroundClient({ modelId }: PlaygroundClientProps) {
         {/* DESKTOP Left Column */}
         <div className="w-80 flex-col gap-4 shrink-0 hidden lg:flex">
           <LogsPanel logs={logs} booting={booting} />
-          <TelemetryPanel telemetry={telemetry} cameraActive={cameraActive} metadata={metadata} model={model} />
+          <TelemetryPanel telemetry={telemetry} cameraActive={cameraActive} metadata={metadata} model={model} accelerator={accelerator} />
         </div>
 
         {/* VIEWPORT (Top on mobile, Middle on desktop) */}
@@ -162,6 +163,7 @@ export default function PlaygroundClient({ modelId }: PlaygroundClientProps) {
                 <TelemetryPanel 
                   className="w-full shrink-0"
                   telemetry={telemetry} 
+                  accelerator={accelerator}
                   cameraActive={cameraActive} 
                   metadata={metadata} 
                   model={model} 
