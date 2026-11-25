@@ -35,25 +35,34 @@ export function gpuName(): string | null {
   return [info.vendor, info.architecture].filter(Boolean).join(' ') || info.description || null;
 }
 
+async function download(url: string): Promise<Uint8Array> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Model download failed (HTTP ${res.status})`);
+  return new Uint8Array(await res.arrayBuffer());
+}
+
 /**
- * Downloads a .tflite once and compiles it on WebGPU when available, otherwise on WASM.
+ * Compiles a .tflite on WebGPU when available, otherwise on WASM.
  * If WebGPU compilation fails (an op the GPU backend does not support), it falls back to WASM.
  * `prefer: 'wasm'` skips WebGPU (used by the ?accel=wasm switch).
+ * `webgpuUrl`: a build of the same model tuned for WebGPU, used instead of `url` on WebGPU.
+ * The file is downloaded once when the same file serves both attempts.
  */
 export async function compileModel(
   url: string,
   prefer: Accelerator = 'webgpu',
+  webgpuUrl?: string,
 ): Promise<{ model: CompiledModel; accelerator: Accelerator; fallbackReason?: string }> {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Model download failed (HTTP ${res.status})`);
-  const bytes = new Uint8Array(await res.arrayBuffer());
-
+  let bytes: Uint8Array | null = null;
   let fallbackReason: string | undefined;
+
   if (prefer === 'webgpu') {
     if (await ensureWebGpu()) {
       try {
-        // slice(): compiling may take ownership of the buffer, keep the original for the WASM fallback.
-        const model = await loadAndCompile(bytes.slice(), { accelerator: 'webgpu' });
+        const gpuBytes = await download(webgpuUrl ?? url);
+        if (!webgpuUrl) bytes = gpuBytes;
+        // slice(): compiling may take ownership of the buffer; keep the original for the WASM fallback.
+        const model = await loadAndCompile(gpuBytes.slice(), { accelerator: 'webgpu' });
         return { model, accelerator: 'webgpu' };
       } catch (error) {
         console.warn('WebGPU compile failed, falling back to WASM:', error);
@@ -64,6 +73,6 @@ export async function compileModel(
     }
   }
 
-  const model = await loadAndCompile(bytes, { accelerator: 'wasm' });
+  const model = await loadAndCompile(bytes ?? (await download(url)), { accelerator: 'wasm' });
   return { model, accelerator: 'wasm', fallbackReason };
 }

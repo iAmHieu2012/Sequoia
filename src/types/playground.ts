@@ -34,7 +34,7 @@ export interface PostProcessingConfig {
  * Rules for how the UI should visualize the model's output (boxes, skeletons, etc).
  */
 export interface VisualizationConfig {
-  type: 'bbox_corners' | 'bbox_solid' | 'skeleton' | 'mask_overlay' | 'top_k_overlay' | 'background_removal';
+  type: 'bbox_corners' | 'bbox_solid' | 'skeleton' | 'mask_overlay' | 'top_k_overlay' | 'background_removal' | 'ocr_text';
   show_labels?: boolean;
   show_confidence?: boolean;
   skeleton?: number[][] | null;
@@ -78,6 +78,47 @@ export interface ModelMetadata {
   post_processing: PostProcessingConfig;
   visualization: VisualizationConfig;
   parameters: ParameterDefinition[];
+
+  /** Several models chained together (e.g. OCR: text detector, then recognizer per line). */
+  pipeline?: PipelineConfig;
+}
+
+/**
+ * One model in a pipeline. The stage's input is either the whole image, or (with `for_each`)
+ * each region found by an earlier stage, cropped from the original image.
+ */
+export interface PipelineStage {
+  /** Name other stages refer to (e.g. "det"). */
+  id: string;
+  model_url: string;
+  /** Optional build of the same model tuned for WebGPU; used when running on WebGPU. */
+  model_url_webgpu?: string;
+  /** Run once per region produced by this earlier stage. */
+  for_each?: string;
+  /** [1, C, H, W] for NCHW or [1, H, W, C] for NHWC. */
+  input_size: number[];
+  input_layout?: 'nhwc' | 'nchw';
+  color_space?: 'rgb' | 'bgr';
+  normalize?: NormalizeConfig;
+  /**
+   * How the image (or region) fits the input: "stretch" to the full size, or "keep_aspect_pad":
+   * scale to the input height keeping the aspect ratio, then pad the rest of the width.
+   */
+  resize?: 'stretch' | 'keep_aspect_pad';
+  /** Value written into padded input cells (already normalized), e.g. -1. */
+  pad_value?: number;
+  /** Step that turns this stage's raw output into its result (see src/lib/inference/pipeline/steps.ts). */
+  then: string;
+  /** Settings for that step; a playground parameter with the same key overrides it. */
+  options?: Record<string, number>;
+}
+
+export interface PipelineConfig {
+  stages: PipelineStage[];
+  /** Extra files the steps need, by key (e.g. { "dict": "https://.../dict.txt" }). Loaded as text. */
+  assets?: Record<string, string>;
+  /** How the stage results become the final result (see ASSEMBLERS in src/lib/inference/pipeline/run.ts). */
+  result: string;
 }
 
 /**

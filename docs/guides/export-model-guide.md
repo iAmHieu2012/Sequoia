@@ -140,3 +140,35 @@ Hoặc sử dụng Supabase Dashboard (Table Editor) để thao tác trực quan
 | Kết quả suy luận (Inference) toàn 0 hoặc nhiễu | Sai bước tiền xử lý ảnh. Kiểm tra lại việc chuẩn hóa `/ 255.0` hoặc thứ tự kênh màu RGB/BGR. |
 | Model chạy chậm trên Web | Quên áp dụng Quantization INT8. Xuất lại model với tham số `int8=True`. |
 | Lỗi CORS khi tải model từ GitHub | Tránh sử dụng link `raw.githubusercontent.com` trực tiếp trên web vì đôi khi gặp lỗi CORS. Hãy luôn sử dụng link CDN trung gian như `[https://cdn.jsdelivr.net/gh/](https://cdn.jsdelivr.net/gh/)...` |
+
+## 6. Mô hình nhiều bước (pipeline)
+
+Một số tác vụ cần nhiều model chạy nối tiếp, ví dụ OCR: detector tìm từng dòng chữ, rồi recognizer đọc từng dòng. Khai báo trong `metadata.json` bằng trường `pipeline` (xem mẫu `sequoia-models/pp-ocrv5/metadata.json`):
+
+```json
+"pipeline": {
+  "stages": [
+    { "id": "det", "model_url": "...det.tflite", "input_size": [1, 3, 640, 640], "input_layout": "nchw",
+      "normalize": { "mean": [0.485, 0.456, 0.406], "std": [0.229, 0.224, 0.225] },
+      "resize": "stretch", "then": "prob_map_to_regions", "options": { "threshold": 0.3 } },
+    { "id": "rec", "model_url": "...rec.tflite", "model_url_webgpu": "...rec_webgpu.tflite",
+      "for_each": "det", "input_size": [1, 3, 48, 320], "input_layout": "nchw",
+      "normalize": { "mean": [0.5, 0.5, 0.5], "std": [0.5, 0.5, 0.5] },
+      "resize": "keep_aspect_pad", "pad_value": -1, "then": "ctc_decode" }
+  ],
+  "assets": { "dict": "...dict.txt" },
+  "result": "ocr"
+}
+```
+
+| Trường | Ý nghĩa |
+| --- | --- |
+| `stages[].model_url` | File `.tflite` của bước đó. `model_url_webgpu` (không bắt buộc) là bản dành cho WebGPU |
+| `stages[].for_each` | Chạy bước này cho **từng vùng** mà bước có `id` đó tìm được, trên vùng cắt từ ảnh gốc |
+| `stages[].resize` | `stretch` (kéo đủ kích thước) hoặc `keep_aspect_pad` (giữ tỉ lệ theo chiều cao, phần thừa điền `pad_value`) |
+| `stages[].then` | Bước xử lý đầu ra, khai báo trong `src/lib/inference/pipeline/steps.ts` (`prob_map_to_regions`, `ctc_decode`) |
+| `stages[].options` | Tham số của bước xử lý; tham số cùng tên trong `parameters` sẽ ghi đè |
+| `assets` | File phụ (đọc dạng text) mà các bước cần, ví dụ từ điển ký tự |
+| `result` | Cách ghép kết quả các bước thành kết quả cuối, khai báo trong `src/lib/inference/pipeline/run.ts` (`ocr`) |
+
+Model có `pipeline` chạy **một lần cho mỗi ảnh tải lên** (không chạy liên tục trên camera), nên đặt `"supported_modes": ["image"]`. Muốn thêm loại pipeline mới thì thêm bước xử lý vào `STEPS` và cách ghép vào `ASSEMBLERS`.

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useCamera } from './useCamera';
 import { useModelLoader } from './useModelLoader';
 import { useInference } from './useInference';
+import { usePipelineInference } from './usePipelineInference';
 import { usePlaygroundParams } from './usePlaygroundParams';
 import { useTelemetry } from './useTelemetry';
 
@@ -24,7 +25,7 @@ export function usePlayground(modelId: string) {
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { model, loading, loadError, booting, compiledModelRef, compiledModelReady, accelerator } = useModelLoader(modelId, setLogs);
+  const { model, loading, loadError, booting, compiledModelRef, pipelineRef, compiledModelReady, accelerator } = useModelLoader(modelId, setLogs);
   
   const metadata = model?.metadata || null;
   const { params, paramsRef, updateParam, resetParams } = usePlaygroundParams(metadata);
@@ -48,6 +49,21 @@ export function usePlayground(modelId: string) {
     setLogs,
     fileUrl,
     fileType
+  });
+
+  // Multi-model pipelines (metadata `pipeline`) run once per image instead of the frame loop above.
+  usePipelineInference({
+    videoRef,
+    canvasRef,
+    pipelineRef,
+    metadata,
+    ready: compiledModelReady,
+    booting,
+    params,
+    fileUrl,
+    onFrame: updateFrame,
+    onDetectionCount: setDetectionCount,
+    setLogs,
   });
 
   const handleEscape = useCallback(() => {
